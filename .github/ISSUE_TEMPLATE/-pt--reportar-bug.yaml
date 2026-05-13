@@ -11,14 +11,14 @@ body:
       description: |
         O rastreador de problemas é apenas para relatar bugs e solicitações de recursos.
         Para perguntas de suporte, acesse:
-          - [Comunidade](https://evolutionfoundation.com.br/community)
+          - [Comunidade](https://example.com/community)
           - [WhatsApp Suporte](https://wa.me/553196219989)
           <br/>
 
         **NÃO ABRA UM PROBLEMA PARA PERGUNTAS GERAIS DE SUPORTE.**
 
       options:
-        - label: Sim, pesquisei problemas semelhantes no [GitHub](https://github.com/WebAPPWago/webapp-wago/issues) e não encontrei nenhum.
+        - label: Sim, pesquisei problemas semelhantes no [GitHub](https://github.com/mlandolfi90/webapp-wago/issues) e não encontrei nenhum.
           required: true
 
   - type: textarea

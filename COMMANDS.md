@@ -130,7 +130,7 @@ make clean-all
 
 ```bash
 # 1. Clone o repositório
-git clone https://git.evoai.app/Evolution/webapp-wago.git
+git clone https://github.com/mlandolfi90/webapp-wago.git
 cd webapp-wago
 
 # 2. Setup completo do ambiente

@@ -179,7 +179,7 @@ type Button struct {
 	// Code placed in the clipboard when type=copy.
 	CopyCode    string `json:"copyCode,omitempty" example:"PROMO2026"`
 	// Target URL when type=url.
-	URL         string `json:"url,omitempty" example:"https://evolutionapi.com"`
+	URL         string `json:"url,omitempty" example:"https://example.com"`
 	// Destination phone number (E.164) when type=call.
 	PhoneNumber string `json:"phoneNumber,omitempty" example:"+5582988898565"`
 	// ISO currency code for type=pix (e.g. BRL).

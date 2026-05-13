@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   webapp-wago:
-    image: evoapicloud/webapp-wago:latest
+    image: mlandolfi90/webapp-wago:latest
     container_name: webapp-wago
     restart: unless-stopped
     ports:
@@ -10,14 +10,14 @@ services:
     environment:
       # Servidor
       SERVER_PORT: 4000
-      CLIENT_NAME: "evolution"
+      CLIENT_NAME: "webapp-wago"
 
       # Segurança
       GLOBAL_API_KEY: "sua-chave-api-segura-aqui"
 
       # Banco de Dados PostgreSQL
-      POSTGRES_AUTH_DB: "postgresql://postgres:postgres@postgres:5432/evogo_auth?sslmode=disable"
-      POSTGRES_USERS_DB: "postgresql://postgres:postgres@postgres:5432/evogo_users?sslmode=disable"
+      POSTGRES_AUTH_DB: "postgresql://postgres:postgres@postgres:5432/webappwago_auth?sslmode=disable"
+      POSTGRES_USERS_DB: "postgresql://postgres:postgres@postgres:5432/webappwago_users?sslmode=disable"
       DATABASE_SAVE_MESSAGES: "true"
 
       # Logs e Debug
@@ -55,7 +55,7 @@ services:
       MINIO_ENDPOINT: "minio:9000"
       MINIO_ACCESS_KEY: "minioadmin"
       MINIO_SECRET_KEY: "minioadmin"
-      MINIO_BUCKET: "evolution-media"
+      MINIO_BUCKET: "webapp-wago-media"
       MINIO_USE_SSL: "false"
       MINIO_REGION: "us-east-1"
 
@@ -70,10 +70,10 @@ services:
       CHECK_USER_EXISTS: "true"
 
     volumes:
-      - evolution_data:/app/dbdata
-      - evolution_logs:/app/logs
+      - webappwago_data:/app/dbdata
+      - webappwago_logs:/app/logs
     networks:
-      - evolution_network
+      - webappwago_network
     depends_on:
       - postgres
       - rabbitmq
@@ -81,7 +81,7 @@ services:
 
   postgres:
     image: postgres:15-alpine
-    container_name: evolution-postgres
+    container_name: webapp-wago-postgres
     restart: unless-stopped
     environment:
       POSTGRES_USER: postgres
@@ -93,11 +93,11 @@ services:
       - postgres_data:/var/lib/postgresql/data
       - ./init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
     networks:
-      - evolution_network
+      - webappwago_network
 
   rabbitmq:
     image: rabbitmq:3-management-alpine
-    container_name: evolution-rabbitmq
+    container_name: webapp-wago-rabbitmq
     restart: unless-stopped
     environment:
       RABBITMQ_DEFAULT_USER: admin
@@ -109,11 +109,11 @@ services:
     volumes:
       - rabbitmq_data:/var/lib/rabbitmq
     networks:
-      - evolution_network
+      - webappwago_network
 
   minio:
     image: minio/minio:latest
-    container_name: evolution-minio
+    container_name: webapp-wago-minio
     restart: unless-stopped
     command: server /data --console-address ":9001"
     environment:
@@ -125,12 +125,12 @@ services:
     volumes:
       - minio_data:/data
     networks:
-      - evolution_network
+      - webappwago_network
 
 volumes:
-  evolution_data:
+  webappwago_data:
     driver: local
-  evolution_logs:
+  webappwago_logs:
     driver: local
   postgres_data:
     driver: local
@@ -140,5 +140,5 @@ volumes:
     driver: local
 
 networks:
-  evolution_network:
+  webappwago_network:
     driver: bridge

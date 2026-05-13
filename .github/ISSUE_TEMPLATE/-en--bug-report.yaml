@@ -11,14 +11,14 @@ body:
       description: |
         The issue tracker is only for reporting bugs and feature requests.
         For support questions, please visit:
-          - [Community](https://evolutionfoundation.com.br/community)
+          - [Community](https://example.com/community)
           - [WhatsApp Support](https://wa.me/553196219989)
           <br/>
 
         **DO NOT OPEN AN ISSUE FOR GENERAL SUPPORT QUESTIONS.**
 
       options:
-        - label: Yes, I have searched for similar issues on [GitHub](https://github.com/WebAPPWago/webapp-wago/issues) and found none.
+        - label: Yes, I have searched for similar issues on [GitHub](https://github.com/mlandolfi90/webapp-wago/issues) and found none.
           required: true
 
   - type: textarea

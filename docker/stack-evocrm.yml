@@ -1,14 +1,14 @@
 version: '3.8'
 
 services:
-  evolution_go:
+  webapp-wago:
     image: intrategica/evg:1
     networks:
       - papi
     environment:
       # Servidor
       SERVER_PORT: 3300
-      CLIENT_NAME: "evolution"
+      CLIENT_NAME: "webapp-wago"
 
       # Segurança (ALTERE a chave abaixo)
       GLOBAL_API_KEY: "429683C4C977415CAAFCCE10F7D57E11"
@@ -52,8 +52,8 @@ services:
       MINIO_USE_SSL: "false"
 
     volumes:
-      - evolution_go_data:/app/dbdata
-      - evolution_go_logs:/app/logs
+      - webappwago_data:/app/dbdata
+      - webappwago_logs:/app/logs
 
     deploy:
       replicas: 1
@@ -76,12 +76,12 @@ services:
         - traefik.http.services.evocrm.loadbalancer.passHostHeader=true
 
 volumes:
-  evolution_go_data:
+  webappwago_data:
     external: true
-    name: evolution_go_data
-  evolution_go_logs:
+    name: webappwago_data
+  webappwago_logs:
     external: true
-    name: evolution_go_logs
+    name: webappwago_logs
 
 networks:
   papi:

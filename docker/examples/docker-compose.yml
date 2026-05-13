@@ -10,14 +10,14 @@ services:
     environment:
       # Servidor
       SERVER_PORT: 4000
-      CLIENT_NAME: "evolution"
+      CLIENT_NAME: "webapp-wago"
 
       # Segurança (OBRIGATÓRIO)
       GLOBAL_API_KEY: "sua-chave-api-segura-aqui"
 
       # Banco de Dados PostgreSQL (RECOMENDADO)
-      POSTGRES_AUTH_DB: "postgresql://postgres:postgres@postgres:5432/evogo_auth?sslmode=disable"
-      POSTGRES_USERS_DB: "postgresql://postgres:postgres@postgres:5432/evogo_users?sslmode=disable"
+      POSTGRES_AUTH_DB: "postgresql://postgres:postgres@postgres:5432/webappwago_auth?sslmode=disable"
+      POSTGRES_USERS_DB: "postgresql://postgres:postgres@postgres:5432/webappwago_users?sslmode=disable"
       DATABASE_SAVE_MESSAGES: "false"
 
       # Logs e Debug
@@ -60,16 +60,16 @@ services:
       QRCODE_MAX_COUNT: "5"
 
     volumes:
-      - evolution_data:/app/dbdata
-      - evolution_logs:/app/logs
+      - webappwago_data:/app/dbdata
+      - webappwago_logs:/app/logs
     networks:
-      - evolution_network
+      - webappwago_network
     depends_on:
       - postgres
 
   postgres:
     image: postgres:15-alpine
-    container_name: evolution-postgres
+    container_name: webapp-wago-postgres
     restart: unless-stopped
     environment:
       POSTGRES_USER: postgres
@@ -81,16 +81,16 @@ services:
       - postgres_data:/var/lib/postgresql/data
       - ./init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
     networks:
-      - evolution_network
+      - webappwago_network
 
 volumes:
-  evolution_data:
+  webappwago_data:
     driver: local
-  evolution_logs:
+  webappwago_logs:
     driver: local
   postgres_data:
     driver: local
 
 networks:
-  evolution_network:
+  webappwago_network:
     driver: bridge

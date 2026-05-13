@@ -1,10 +1,16 @@
 package telemetry
 
+// Telemetry has been disabled in this WebAPP-Wago fork.
+//
+// The upstream Evolution Go code sent anonymous telemetry to
+// log.evolution-api.com on every routed request. We do NOT send any
+// data to external servers. The middleware below is a no-op kept to
+// preserve the public API so existing call-sites don't break.
+//
+// If you want to re-enable telemetry pointing at your own collector,
+// implement SendTelemetry below and route it to a service you control.
+
 import (
-	"bytes"
-	"encoding/json"
-	"log"
-	"net/http"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -19,9 +25,8 @@ type TelemetryData struct {
 type telemetryService struct{}
 
 func (t *telemetryService) TelemetryMiddleware() gin.HandlerFunc {
+	// No-op middleware. Does nothing per-request.
 	return func(c *gin.Context) {
-		route := c.FullPath()
-		go SendTelemetry(route)
 		c.Next()
 	}
 }
@@ -30,31 +35,11 @@ type TelemetryService interface {
 	TelemetryMiddleware() gin.HandlerFunc
 }
 
+// SendTelemetry is intentionally a no-op. Preserved for backward
+// compatibility with code that may import it.
 func SendTelemetry(route string) {
-	if route == "/" {
-		return
-	}
-
-	telemetry := TelemetryData{
-		Route:      route,
-		APIVersion: "evo-go",
-		Timestamp:  time.Now(),
-	}
-
-	url := "https://log.evolution-api.com/telemetry"
-
-	data, err := json.Marshal(telemetry)
-	if err != nil {
-		log.Println("Erro ao serializar telemetria:", err)
-		return
-	}
-
-	resp, err := http.Post(url, "application/json", bytes.NewBuffer(data))
-	if err != nil {
-		log.Println("Erro ao enviar telemetria:", err)
-		return
-	}
-	defer resp.Body.Close()
+	// Intentionally blank.
+	_ = route
 }
 
 func NewTelemetryService() TelemetryService {
