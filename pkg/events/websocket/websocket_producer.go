@@ -5,7 +5,7 @@ import (
 	"strings"
 	"sync"
 
-	logger_wrapper "github.com/EvolutionAPI/evolution-go/pkg/logger"
+	logger_wrapper "github.com/webapp-wago/webapp-wago/pkg/logger"
 	"github.com/gomessguii/logger"
 	"github.com/gorilla/websocket"
 )

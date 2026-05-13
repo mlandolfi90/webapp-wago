@@ -7,8 +7,8 @@ import (
 	"strconv"
 	"strings"
 
-	instance_model "github.com/EvolutionAPI/evolution-go/pkg/instance/model"
-	send_service "github.com/EvolutionAPI/evolution-go/pkg/sendMessage/service"
+	instance_model "github.com/webapp-wago/webapp-wago/pkg/instance/model"
+	send_service "github.com/webapp-wago/webapp-wago/pkg/sendMessage/service"
 	"github.com/gin-gonic/gin"
 )
 

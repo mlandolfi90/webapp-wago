@@ -1,8 +1,8 @@
 package nats_producer
 
 import (
-	producer_interfaces "github.com/EvolutionAPI/evolution-go/pkg/events/interfaces"
-	logger_wrapper "github.com/EvolutionAPI/evolution-go/pkg/logger"
+	producer_interfaces "github.com/webapp-wago/webapp-wago/pkg/events/interfaces"
+	logger_wrapper "github.com/webapp-wago/webapp-wago/pkg/logger"
 	"github.com/gomessguii/logger"
 	"github.com/nats-io/nats.go"
 )

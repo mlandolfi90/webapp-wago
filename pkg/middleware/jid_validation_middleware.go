@@ -8,7 +8,7 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/EvolutionAPI/evolution-go/pkg/utils"
+	"github.com/webapp-wago/webapp-wago/pkg/utils"
 	"github.com/gin-gonic/gin"
 	"github.com/gomessguii/logger"
 )

@@ -21,47 +21,47 @@ import (
 	"gorm.io/gorm"
 	_ "modernc.org/sqlite"
 
-	call_handler "github.com/EvolutionAPI/evolution-go/pkg/call/handler"
-	call_service "github.com/EvolutionAPI/evolution-go/pkg/call/service"
-	chat_handler "github.com/EvolutionAPI/evolution-go/pkg/chat/handler"
-	chat_service "github.com/EvolutionAPI/evolution-go/pkg/chat/service"
-	community_handler "github.com/EvolutionAPI/evolution-go/pkg/community/handler"
-	community_service "github.com/EvolutionAPI/evolution-go/pkg/community/service"
-	config "github.com/EvolutionAPI/evolution-go/pkg/config"
-	"github.com/EvolutionAPI/evolution-go/pkg/core"
-	producer_interfaces "github.com/EvolutionAPI/evolution-go/pkg/events/interfaces"
-	nats_producer "github.com/EvolutionAPI/evolution-go/pkg/events/nats"
-	rabbitmq_producer "github.com/EvolutionAPI/evolution-go/pkg/events/rabbitmq"
-	webhook_producer "github.com/EvolutionAPI/evolution-go/pkg/events/webhook"
-	websocket_producer "github.com/EvolutionAPI/evolution-go/pkg/events/websocket"
-	group_handler "github.com/EvolutionAPI/evolution-go/pkg/group/handler"
-	group_service "github.com/EvolutionAPI/evolution-go/pkg/group/service"
-	instance_handler "github.com/EvolutionAPI/evolution-go/pkg/instance/handler"
-	instance_model "github.com/EvolutionAPI/evolution-go/pkg/instance/model"
-	instance_repository "github.com/EvolutionAPI/evolution-go/pkg/instance/repository"
-	instance_service "github.com/EvolutionAPI/evolution-go/pkg/instance/service"
-	label_handler "github.com/EvolutionAPI/evolution-go/pkg/label/handler"
-	label_model "github.com/EvolutionAPI/evolution-go/pkg/label/model"
-	label_repository "github.com/EvolutionAPI/evolution-go/pkg/label/repository"
-	label_service "github.com/EvolutionAPI/evolution-go/pkg/label/service"
-	logger_wrapper "github.com/EvolutionAPI/evolution-go/pkg/logger"
-	message_handler "github.com/EvolutionAPI/evolution-go/pkg/message/handler"
-	message_model "github.com/EvolutionAPI/evolution-go/pkg/message/model"
-	message_repository "github.com/EvolutionAPI/evolution-go/pkg/message/repository"
-	message_service "github.com/EvolutionAPI/evolution-go/pkg/message/service"
-	auth_middleware "github.com/EvolutionAPI/evolution-go/pkg/middleware"
-	newsletter_handler "github.com/EvolutionAPI/evolution-go/pkg/newsletter/handler"
-	newsletter_service "github.com/EvolutionAPI/evolution-go/pkg/newsletter/service"
-	poll_handler "github.com/EvolutionAPI/evolution-go/pkg/poll/handler"
-	routes "github.com/EvolutionAPI/evolution-go/pkg/routes"
-	send_handler "github.com/EvolutionAPI/evolution-go/pkg/sendMessage/handler"
-	send_service "github.com/EvolutionAPI/evolution-go/pkg/sendMessage/service"
-	server_handler "github.com/EvolutionAPI/evolution-go/pkg/server/handler"
-	storage_interfaces "github.com/EvolutionAPI/evolution-go/pkg/storage/interfaces"
-	minio_storage "github.com/EvolutionAPI/evolution-go/pkg/storage/minio"
-	user_handler "github.com/EvolutionAPI/evolution-go/pkg/user/handler"
-	user_service "github.com/EvolutionAPI/evolution-go/pkg/user/service"
-	whatsmeow_service "github.com/EvolutionAPI/evolution-go/pkg/whatsmeow/service"
+	call_handler "github.com/webapp-wago/webapp-wago/pkg/call/handler"
+	call_service "github.com/webapp-wago/webapp-wago/pkg/call/service"
+	chat_handler "github.com/webapp-wago/webapp-wago/pkg/chat/handler"
+	chat_service "github.com/webapp-wago/webapp-wago/pkg/chat/service"
+	community_handler "github.com/webapp-wago/webapp-wago/pkg/community/handler"
+	community_service "github.com/webapp-wago/webapp-wago/pkg/community/service"
+	config "github.com/webapp-wago/webapp-wago/pkg/config"
+	"github.com/webapp-wago/webapp-wago/pkg/core"
+	producer_interfaces "github.com/webapp-wago/webapp-wago/pkg/events/interfaces"
+	nats_producer "github.com/webapp-wago/webapp-wago/pkg/events/nats"
+	rabbitmq_producer "github.com/webapp-wago/webapp-wago/pkg/events/rabbitmq"
+	webhook_producer "github.com/webapp-wago/webapp-wago/pkg/events/webhook"
+	websocket_producer "github.com/webapp-wago/webapp-wago/pkg/events/websocket"
+	group_handler "github.com/webapp-wago/webapp-wago/pkg/group/handler"
+	group_service "github.com/webapp-wago/webapp-wago/pkg/group/service"
+	instance_handler "github.com/webapp-wago/webapp-wago/pkg/instance/handler"
+	instance_model "github.com/webapp-wago/webapp-wago/pkg/instance/model"
+	instance_repository "github.com/webapp-wago/webapp-wago/pkg/instance/repository"
+	instance_service "github.com/webapp-wago/webapp-wago/pkg/instance/service"
+	label_handler "github.com/webapp-wago/webapp-wago/pkg/label/handler"
+	label_model "github.com/webapp-wago/webapp-wago/pkg/label/model"
+	label_repository "github.com/webapp-wago/webapp-wago/pkg/label/repository"
+	label_service "github.com/webapp-wago/webapp-wago/pkg/label/service"
+	logger_wrapper "github.com/webapp-wago/webapp-wago/pkg/logger"
+	message_handler "github.com/webapp-wago/webapp-wago/pkg/message/handler"
+	message_model "github.com/webapp-wago/webapp-wago/pkg/message/model"
+	message_repository "github.com/webapp-wago/webapp-wago/pkg/message/repository"
+	message_service "github.com/webapp-wago/webapp-wago/pkg/message/service"
+	auth_middleware "github.com/webapp-wago/webapp-wago/pkg/middleware"
+	newsletter_handler "github.com/webapp-wago/webapp-wago/pkg/newsletter/handler"
+	newsletter_service "github.com/webapp-wago/webapp-wago/pkg/newsletter/service"
+	poll_handler "github.com/webapp-wago/webapp-wago/pkg/poll/handler"
+	routes "github.com/webapp-wago/webapp-wago/pkg/routes"
+	send_handler "github.com/webapp-wago/webapp-wago/pkg/sendMessage/handler"
+	send_service "github.com/webapp-wago/webapp-wago/pkg/sendMessage/service"
+	server_handler "github.com/webapp-wago/webapp-wago/pkg/server/handler"
+	storage_interfaces "github.com/webapp-wago/webapp-wago/pkg/storage/interfaces"
+	minio_storage "github.com/webapp-wago/webapp-wago/pkg/storage/minio"
+	user_handler "github.com/webapp-wago/webapp-wago/pkg/user/handler"
+	user_service "github.com/webapp-wago/webapp-wago/pkg/user/service"
+	whatsmeow_service "github.com/webapp-wago/webapp-wago/pkg/whatsmeow/service"
 	amqp "github.com/rabbitmq/amqp091-go"
 )
 
@@ -321,9 +321,9 @@ func initPostgresAuthDB(config *config.Config) (*sql.DB, error) {
 	return db, nil
 }
 
-// @title Evolution GO
+// @title WebAPP-Wago
 // @version 1.0
-// @description Evolution GO - whatsmeow
+// @description WebAPP-Wago - whatsmeow
 func main() {
 	flag.Parse()
 	if *devMode {
@@ -335,7 +335,7 @@ func main() {
 
 	cfg := config.Load()
 
-	logger.LogInfo("Starting Evolution GO version %s", version)
+	logger.LogInfo("Starting WebAPP-Wago version %s", version)
 
 	startTime := time.Now()
 
@@ -369,7 +369,7 @@ func main() {
 	if err := core.MigrateDB(); err != nil {
 		log.Fatal("Failed to migrate runtime_configs: ", err)
 	}
-	tier := "evolution-go"
+	tier := "webapp-wago"
 	runtimeCtx := core.InitializeRuntime(tier, version, cfg.GlobalApiKey)
 
 	var conn *amqp.Connection

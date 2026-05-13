@@ -1,9 +1,9 @@
 version: '3.8'
 
 services:
-  evolution-go:
-    image: evoapicloud/evolution-go:latest
-    container_name: evolution-go
+  webapp-wago:
+    image: evoapicloud/webapp-wago:latest
+    container_name: webapp-wago
     restart: unless-stopped
     ports:
       - "4000:4000"

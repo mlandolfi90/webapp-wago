@@ -3,8 +3,8 @@ package message_handler
 import (
 	"net/http"
 
-	instance_model "github.com/EvolutionAPI/evolution-go/pkg/instance/model"
-	message_service "github.com/EvolutionAPI/evolution-go/pkg/message/service"
+	instance_model "github.com/webapp-wago/webapp-wago/pkg/instance/model"
+	message_service "github.com/webapp-wago/webapp-wago/pkg/message/service"
 	"github.com/gin-gonic/gin"
 )
 

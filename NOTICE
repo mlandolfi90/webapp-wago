@@ -1,7 +1,19 @@
+WebAPP-Wago
+Copyright 2026 WebAPP Project contributors
+
+This product is a derivative work based on Evolution Go (Apache License 2.0)
+originally developed by Evolution Foundation.
+Original project: https://github.com/EvolutionAPI/evolution-go
+
+Significant modifications by WebAPP Project contributors:
+- Removed external license-validation/heartbeat module (pkg/core/c0.go)
+- Rebranded product identity (name, module path, binary, container)
+
+============================================================
+Original NOTICE (preserved per Apache License 2.0 Section 4):
+============================================================
+
 Evolution Foundation
 Copyright 2026 Evolution Foundation
 
 This product includes software developed by Evolution Foundation.
-
-Trademark notice
-"Evolution Foundation" and "Evolution" are trademarks of Evolution Foundation. The Evolution Foundation logo, wordmark, and Evolution Foundation visual identity are governed by the Evolution Foundation Trademark and Brand Assets Policy included in this repository.

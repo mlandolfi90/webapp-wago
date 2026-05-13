@@ -1,6 +1,6 @@
 # Debugging e Troubleshooting
 
-Guia para resolver problemas comuns no Evolution GO.
+Guia para resolver problemas comuns no WebAPP-Wago.
 
 ## Índice
 
@@ -31,13 +31,13 @@ LOGTYPE=console  # ou 'file'
 make dev
 
 # Logs em arquivo
-tail -f logs/evolution-go.log
+tail -f logs/webapp-wago.log
 
 # Docker
-docker-compose logs -f evolution-go
+docker-compose logs -f webapp-wago
 
 # Filtrar logs de erro
-docker-compose logs evolution-go | grep ERROR
+docker-compose logs webapp-wago | grep ERROR
 ```
 
 ### Níveis de Log
@@ -136,7 +136,7 @@ curl -H "apikey: SUA-CHAVE" http://localhost:4000/server/ok
 
 ```bash
 # Verificar logs
-docker-compose logs -f evolution-go | grep QR
+docker-compose logs -f webapp-wago | grep QR
 
 # Deletar e recriar instância
 curl -X DELETE http://localhost:4000/instance/delete/NOME \
@@ -161,7 +161,7 @@ curl -X POST https://seu-webhook.com/endpoint \
   -d '{"test": true}'
 
 # Verificar logs
-docker-compose logs evolution-go | grep webhook
+docker-compose logs webapp-wago | grep webhook
 
 # Verificar configuração
 curl http://localhost:4000/instance/connectionState/NOME \
@@ -180,7 +180,7 @@ curl http://localhost:4000/instance/connectionState/NOME \
   -H "apikey: SUA-CHAVE"
 
 # Verificar logs
-docker-compose logs -f evolution-go
+docker-compose logs -f webapp-wago
 
 # Verificar formato do número
 # Correto: 5511999999999 (DDI + DDD + número)
@@ -194,7 +194,7 @@ docker-compose logs -f evolution-go
 ### VSCode
 
 1. Abrir `Run and Debug` (Ctrl+Shift+D)
-2. Selecionar "Launch Evolution GO"
+2. Selecionar "Launch WebAPP-Wago"
 3. Adicionar breakpoints (F9)
 4. Iniciar debug (F5)
 
@@ -205,11 +205,11 @@ docker-compose logs -f evolution-go
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Debug Evolution GO",
+      "name": "Debug WebAPP-Wago",
       "type": "go",
       "request": "launch",
       "mode": "debug",
-      "program": "${workspaceFolder}/cmd/evolution-go",
+      "program": "${workspaceFolder}/cmd/webapp-wago",
       "args": ["-dev"],
       "showLog": true
     }
@@ -219,7 +219,7 @@ docker-compose logs -f evolution-go
 
 ### GoLand
 
-1. **Run → Debug 'Evolution GO'**
+1. **Run → Debug 'WebAPP-Wago'**
 2. Adicionar breakpoints (Ctrl+F8)
 3. Debug com F5
 
@@ -231,7 +231,7 @@ docker-compose logs -f evolution-go
 
 ```bash
 # Executar com pprof
-go run cmd/evolution-go/main.go -dev &
+go run cmd/webapp-wago/main.go -dev &
 PID=$!
 
 # Gerar CPU profile (30 segundos)
@@ -347,7 +347,7 @@ sudo tcpdump -i any -A 'port 4000'
 go install github.com/go-delve/delve/cmd/dlv@latest
 
 # Debug
-dlv debug cmd/evolution-go/main.go -- -dev
+dlv debug cmd/webapp-wago/main.go -- -dev
 
 # Comandos:
 # break main.main - Breakpoint
@@ -373,10 +373,10 @@ Conectar ao PostgreSQL:
 
 ```bash
 # Ver uso de recursos
-docker stats evolution-go
+docker stats webapp-wago
 
 # Inspecionar container
-docker inspect evolution-go
+docker inspect webapp-wago
 ```
 
 ---

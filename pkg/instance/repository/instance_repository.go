@@ -3,16 +3,16 @@ package instance_repository
 import (
 	"fmt"
 
-	instance_model "github.com/EvolutionAPI/evolution-go/pkg/instance/model"
+	instance_model "github.com/webapp-wago/webapp-wago/pkg/instance/model"
 	"github.com/gomessguii/logger"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
 
-	label_model "github.com/EvolutionAPI/evolution-go/pkg/label/model"
-	label_repository "github.com/EvolutionAPI/evolution-go/pkg/label/repository"
+	label_model "github.com/webapp-wago/webapp-wago/pkg/label/model"
+	label_repository "github.com/webapp-wago/webapp-wago/pkg/label/repository"
 
-	message_model "github.com/EvolutionAPI/evolution-go/pkg/message/model"
-	message_repository "github.com/EvolutionAPI/evolution-go/pkg/message/repository"
+	message_model "github.com/webapp-wago/webapp-wago/pkg/message/model"
+	message_repository "github.com/webapp-wago/webapp-wago/pkg/message/repository"
 )
 
 type InstanceRepository interface {

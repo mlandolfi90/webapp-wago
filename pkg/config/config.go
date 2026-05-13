@@ -13,7 +13,7 @@ import (
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 
-	config_env "github.com/EvolutionAPI/evolution-go/pkg/config/env"
+	config_env "github.com/webapp-wago/webapp-wago/pkg/config/env"
 )
 
 type Config struct {

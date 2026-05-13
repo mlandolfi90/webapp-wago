@@ -3,8 +3,8 @@ package call_handler
 import (
 	"net/http"
 
-	call_service "github.com/EvolutionAPI/evolution-go/pkg/call/service"
-	instance_model "github.com/EvolutionAPI/evolution-go/pkg/instance/model"
+	call_service "github.com/webapp-wago/webapp-wago/pkg/call/service"
+	instance_model "github.com/webapp-wago/webapp-wago/pkg/instance/model"
 	"github.com/gin-gonic/gin"
 )
 

@@ -1,8 +1,8 @@
 .PHONY: help dev run build test clean swagger deps docker-build docker-run install setup migrate-up migrate-down logs
 
 # Configurações
-APP_NAME=evolution-go
-MAIN_PATH=cmd/evolution-go/main.go
+APP_NAME=webapp-wago
+MAIN_PATH=cmd/webapp-wago/main.go
 BUILD_DIR=build
 GO=go
 VERSION=$(shell grep -om1 "v[0-9].*" CHANGELOG.md)
@@ -18,18 +18,18 @@ NC=\033[0m # No Color
 ##@ Ajuda
 
 help: ## Exibe esta mensagem de ajuda
-	@echo "$(GREEN)Evolution GO - Makefile$(NC)"
+	@echo "$(GREEN)WebAPP-Wago - Makefile$(NC)"
 	@echo ""
 	@awk 'BEGIN {FS = ":.*##"; printf "\nUso:\n  make $(YELLOW)<target>$(NC)\n"} /^[a-zA-Z_-]+:.*?##/ { printf "  $(GREEN)%-15s$(NC) %s\n", $$1, $$2 } /^##@/ { printf "\n$(YELLOW)%s$(NC)\n", substr($$0, 5) } ' $(MAKEFILE_LIST)
 
 ##@ Desenvolvimento
 
 dev: ## Roda a aplicação em modo desenvolvimento
-	@echo "$(GREEN)🚀 Rodando Evolution GO em modo desenvolvimento...$(NC)"
+	@echo "$(GREEN)🚀 Rodando WebAPP-Wago em modo desenvolvimento...$(NC)"
 	$(GO) run $(LDFLAGS) $(MAIN_PATH) -dev
 
 run: ## Roda a aplicação em modo produção
-	@echo "$(GREEN)🚀 Rodando Evolution GO...$(NC)"
+	@echo "$(GREEN)🚀 Rodando WebAPP-Wago...$(NC)"
 	$(GO) run $(MAIN_PATH)
 
 watch: ## Roda a aplicação com hot reload (requer air)

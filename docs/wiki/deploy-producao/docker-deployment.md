@@ -1,6 +1,6 @@
 # Deploy com Docker
 
-Guia de deploy do Evolution GO usando Docker, Docker Compose, Swarm e Kubernetes.
+Guia de deploy do WebAPP-Wago usando Docker, Docker Compose, Swarm e Kubernetes.
 
 ## Índice
 
@@ -31,7 +31,7 @@ Guia de deploy do Evolution GO usando Docker, Docker Compose, Swarm e Kubernetes
 ├─────────────────────────────────────────────────────────────────┤
 │                                                                 │
 │  ┌──────────────┐      ┌──────────────┐      ┌──────────────┐ │
-│  │ Evolution GO │◄────►│  PostgreSQL  │      │  RabbitMQ    │ │
+│  │ WebAPP-Wago │◄────►│  PostgreSQL  │      │  RabbitMQ    │ │
 │  │   (API)      │      │   (Auth DB)  │      │  (Events)    │ │
 │  │  Port: 4000  │      │   (Users DB) │      │  Port: 5672  │ │
 │  └──────┬───────┘      └──────────────┘      └──────────────┘ │
@@ -47,7 +47,7 @@ Guia de deploy do Evolution GO usando Docker, Docker Compose, Swarm e Kubernetes
 
 ### Imagem Docker
 
-- **Registry**: `evoapicloud/evolution-go`
+- **Registry**: `evoapicloud/webapp-wago`
 - **Tags**: `latest`, `v1.x.x`
 - **Base**: Alpine Linux 3.19.1
 - **Tamanho**: ~50MB (compactada)
@@ -59,7 +59,7 @@ Guia de deploy do Evolution GO usando Docker, Docker Compose, Swarm e Kubernetes
 
 ### Setup Básico
 
-Configuração mínima com Evolution GO + PostgreSQL.
+Configuração mínima com WebAPP-Wago + PostgreSQL.
 
 #### docker-compose.yml
 
@@ -67,9 +67,9 @@ Configuração mínima com Evolution GO + PostgreSQL.
 version: '3.8'
 
 services:
-  evolution-go:
-    image: evoapicloud/evolution-go:latest
-    container_name: evolution-go
+  webapp-wago:
+    image: evoapicloud/webapp-wago:latest
+    container_name: webapp-wago
     restart: unless-stopped
     ports:
       - "4000:4000"
@@ -141,7 +141,7 @@ uuidgen
 docker-compose up -d
 
 # Verificar
-docker-compose logs -f evolution-go
+docker-compose logs -f webapp-wago
 curl http://localhost:4000/server/ok
 ```
 
@@ -153,8 +153,8 @@ Incluindo RabbitMQ, MinIO e NATS.
 version: '3.8'
 
 services:
-  evolution-go:
-    image: evoapicloud/evolution-go:latest
+  webapp-wago:
+    image: evoapicloud/webapp-wago:latest
     restart: unless-stopped
     ports:
       - "4000:4000"
@@ -238,7 +238,7 @@ volumes:
 ```
 
 **Acessos:**
-- Evolution GO: http://localhost:4000
+- WebAPP-Wago: http://localhost:4000
 - Swagger: http://localhost:4000/swagger/index.html
 - RabbitMQ: http://localhost:15672 (admin/admin)
 - MinIO: http://localhost:9001 (minioadmin/minioadmin)
@@ -262,7 +262,7 @@ POSTGRES_PASSWORD=senha_forte
 RABBITMQ_USER=admin
 RABBITMQ_PASS=senha_forte
 
-# Evolution GO
+# WebAPP-Wago
 GLOBAL_API_KEY=df16caad-d0d2-41b2-bec5-75b90048a0db
 CLIENT_NAME=evolution-prod
 ```
@@ -270,8 +270,8 @@ CLIENT_NAME=evolution-prod
 Referência no compose:
 ```yaml
 services:
-  evolution-go:
-    image: evoapicloud/evolution-go:${EVOLUTION_VERSION:-latest}
+  webapp-wago:
+    image: evoapicloud/webapp-wago:${EVOLUTION_VERSION:-latest}
     ports:
       - "${EVOLUTION_PORT:-4000}:4000"
     environment:
@@ -282,7 +282,7 @@ services:
 
 ```yaml
 services:
-  evolution-go:
+  webapp-wago:
     healthcheck:
       test: ["CMD", "wget", "-q", "--spider", "http://localhost:4000/server/ok"]
       interval: 30s
@@ -309,7 +309,7 @@ services:
 
 ```yaml
 services:
-  evolution-go:
+  webapp-wago:
     deploy:
       resources:
         limits:
@@ -365,7 +365,7 @@ version: '3.8'
 
 services:
   evolution_go:
-    image: evoapicloud/evolution-go:latest
+    image: evoapicloud/webapp-wago:latest
     networks:
       - network_public
     environment:
@@ -432,7 +432,7 @@ docker service logs evolution_evolution_go -f
 docker service scale evolution_evolution_go=5
 
 # Atualizar (rolling update)
-docker service update --image evoapicloud/evolution-go:v1.2.0 evolution_evolution_go
+docker service update --image evoapicloud/webapp-wago:v1.2.0 evolution_evolution_go
 
 # Remover
 docker stack rm evolution
@@ -451,7 +451,7 @@ docker stack rm evolution
 apiVersion: v1
 kind: Namespace
 metadata:
-    name: evolution-go
+    name: webapp-wago
 ```
 
 #### ConfigMap
@@ -462,7 +462,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: evolution-config
-  namespace: evolution-go
+  namespace: webapp-wago
 data:
   SERVER_PORT: "4000"
   CLIENT_NAME: "evolution"
@@ -479,7 +479,7 @@ data:
 kubectl create secret generic evolution-secrets \
   --from-literal=GLOBAL_API_KEY=$(uuidgen) \
   --from-literal=POSTGRES_PASSWORD=$(openssl rand -base64 32) \
-  --namespace=evolution-go
+  --namespace=webapp-wago
 ```
 
 #### Deployment
@@ -489,21 +489,21 @@ kubectl create secret generic evolution-secrets \
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: evolution-go
-  namespace: evolution-go
+  name: webapp-wago
+  namespace: webapp-wago
 spec:
   replicas: 3
   selector:
     matchLabels:
-      app: evolution-go
+      app: webapp-wago
   template:
     metadata:
       labels:
-        app: evolution-go
+        app: webapp-wago
     spec:
       containers:
-      - name: evolution-go
-        image: evoapicloud/evolution-go:latest
+      - name: webapp-wago
+        image: evoapicloud/webapp-wago:latest
         ports:
         - containerPort: 4000
         env:
@@ -557,12 +557,12 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: evolution-go-service
-  namespace: evolution-go
+  name: webapp-wago-service
+  namespace: webapp-wago
 spec:
   type: LoadBalancer
   selector:
-    app: evolution-go
+    app: webapp-wago
   ports:
   - port: 4000
     targetPort: 4000
@@ -576,7 +576,7 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: evolution-ingress
-  namespace: evolution-go
+  namespace: webapp-wago
   annotations:
     kubernetes.io/ingress.class: "nginx"
     cert-manager.io/cluster-issuer: "letsencrypt-prod"
@@ -593,7 +593,7 @@ spec:
         pathType: Prefix
         backend:
           service:
-            name: evolution-go-service
+            name: webapp-wago-service
             port:
               number: 4000
 ```
@@ -606,12 +606,12 @@ apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:
   name: evolution-hpa
-  namespace: evolution-go
+  namespace: webapp-wago
 spec:
   scaleTargetRef:
     apiVersion: apps/v1
     kind: Deployment
-    name: evolution-go
+    name: webapp-wago
   minReplicas: 3
   maxReplicas: 10
   metrics:
@@ -642,22 +642,22 @@ kubectl apply -f ingress.yaml
 kubectl apply -f hpa.yaml
 
 # Verificar
-kubectl get all -n evolution-go
-kubectl get pods -n evolution-go
+kubectl get all -n webapp-wago
+kubectl get pods -n webapp-wago
 
 # Logs
-kubectl logs -f deployment/evolution-go -n evolution-go
+kubectl logs -f deployment/webapp-wago -n webapp-wago
 
 # Escalar
-kubectl scale deployment evolution-go --replicas=5 -n evolution-go
+kubectl scale deployment webapp-wago --replicas=5 -n webapp-wago
 
 # Atualizar
-kubectl set image deployment/evolution-go \
-  evolution-go=evoapicloud/evolution-go:v1.2.0 \
-  -n evolution-go
+kubectl set image deployment/webapp-wago \
+  webapp-wago=evoapicloud/webapp-wago:v1.2.0 \
+  -n webapp-wago
 
 # Rollback
-kubectl rollout undo deployment/evolution-go -n evolution-go
+kubectl rollout undo deployment/webapp-wago -n webapp-wago
 ```
 
 ---
@@ -686,7 +686,7 @@ docker run --rm \
 
 ```yaml
 services:
-  evolution-go:
+  webapp-wago:
 logging:
   driver: "json-file"
   options:
@@ -723,7 +723,7 @@ logging:
 
 ```bash
 # Ver logs
-docker-compose logs evolution-go
+docker-compose logs webapp-wago
 
 # Verificar variáveis obrigatórias
 # - GLOBAL_API_KEY
@@ -734,10 +734,10 @@ docker-compose logs evolution-go
 
 ```bash
 # Testar conexão
-docker-compose exec evolution-go ping postgres
+docker-compose exec webapp-wago ping postgres
 
 # Verificar porta
-docker-compose exec evolution-go nc -zv postgres 5432
+docker-compose exec webapp-wago nc -zv postgres 5432
 
 # Inspecionar rede
 docker network inspect evolution_network
@@ -763,7 +763,7 @@ docker system prune -a
 docker events --filter 'event=oom'
 
 # Ver uso de memória
-docker stats evolution-go
+docker stats webapp-wago
 
 # Aumentar limite
 deploy:
@@ -811,4 +811,4 @@ kubectl delete -f file.yaml             # Deletar
 
 ---
 
-**Documentação Evolution GO v1.0**
+**Documentação WebAPP-Wago v1.0**

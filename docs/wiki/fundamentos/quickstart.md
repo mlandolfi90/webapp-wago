@@ -1,10 +1,10 @@
 # Início Rápido
 
-Tutorial prático para configurar sua primeira instância WhatsApp e enviar mensagens via Evolution GO.
+Tutorial prático para configurar sua primeira instância WhatsApp e enviar mensagens via WebAPP-Wago.
 
 ## Pré-requisitos
 
-- Evolution GO instalado e em execução
+- WebAPP-Wago instalado e em execução
 - Chave de API configurada (GLOBAL_API_KEY)
 - Smartphone com WhatsApp ativo
 
@@ -143,7 +143,7 @@ curl -X POST http://localhost:4000/send/text \
   -H "apikey: token-secreto-da-instancia" \
   -d '{
     "number": "5511999999999",
-    "text": "Mensagem de teste via Evolution GO"
+    "text": "Mensagem de teste via WebAPP-Wago"
   }'
 ```
 
@@ -295,7 +295,7 @@ Status deve ser `open`.
 
 3. **Logs do servidor:**
 ```bash
-docker-compose logs -f evolution-go
+docker-compose logs -f webapp-wago
 ```
 
 ### Erro de Autenticação
@@ -333,4 +333,4 @@ Confirme a chave configurada no `docker-compose.yml` ou `.env`.
 
 ---
 
-**Documentação Evolution GO v1.0**
+**Documentação WebAPP-Wago v1.0**

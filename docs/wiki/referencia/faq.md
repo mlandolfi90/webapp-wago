@@ -1,17 +1,17 @@
 # FAQ - Perguntas Frequentes
 
-Respostas para questões comuns sobre o Evolution GO.
+Respostas para questões comuns sobre o WebAPP-Wago.
 
 ## Visão Geral
 
-### O que é Evolution GO?
+### O que é WebAPP-Wago?
 
 Gateway de API WhatsApp construído em Go que fornece interface RESTful para comunicação com o protocolo WhatsApp Web. Permite automação de mensagens, gerenciamento multi-instância e integração via APIs padronizadas.
 
-### Diferença entre Evolution GO e Evolution API (Node.js)?
+### Diferença entre WebAPP-Wago e WebAPP-Wago (Node.js)?
 
-- **Evolution GO**: Implementação em Go, foco em performance e baixo consumo de recursos
-- **Evolution API V2**: Implementação em Node.js/TypeScript, maior maturidade e conjunto de features
+- **WebAPP-Wago**: Implementação em Go, foco em performance e baixo consumo de recursos
+- **WebAPP-Wago V2**: Implementação em Node.js/TypeScript, maior maturidade e conjunto de features
 
 Ambos utilizam a biblioteca whatsmeow para conexão com WhatsApp.
 
@@ -101,7 +101,7 @@ Eventos serão enviados via POST HTTP para o endpoint configurado.
 
 **Diagnóstico**:
 ```bash
-docker-compose logs -f evolution-go
+docker-compose logs -f webapp-wago
 ```
 
 **Soluções**:
@@ -132,7 +132,7 @@ docker-compose logs -f evolution-go
 - URL acessível publicamente (não localhost)
 - Endpoint retorna status 200
 - Firewall/proxy não bloqueando
-- Logs: `docker-compose logs -f evolution-go | grep webhook`
+- Logs: `docker-compose logs -f webapp-wago | grep webhook`
 
 ---
 
@@ -246,8 +246,8 @@ Consulte [Guia de Contribuição](../desenvolvimento/contributing.md) para proce
 
 ### Reporte de Bugs
 
-Utilize [Issues no GitLab](https://git.evoai.app/Evolution/evolution-go/issues) incluindo:
-- Versão do Evolution GO
+Utilize [Issues no GitLab](https://git.evoai.app/Evolution/webapp-wago/issues) incluindo:
+- Versão do WebAPP-Wago
 - Ambiente (Docker/local, SO)
 - Steps to reproduce
 - Logs relevantes
@@ -264,11 +264,11 @@ Utilize [Issues no GitLab](https://git.evoai.app/Evolution/evolution-go/issues) 
 - [Swagger UI](http://localhost:4000/swagger/index.html)
 
 ### Suporte
-- [Issues GitLab](https://git.evoai.app/Evolution/evolution-go/issues)
-- [Documentação Completa](https://git.evoai.app/Evolution/evolution-go/-/wikis)
+- [Issues GitLab](https://git.evoai.app/Evolution/webapp-wago/issues)
+- [Documentação Completa](https://git.evoai.app/Evolution/webapp-wago/-/wikis)
 
 ---
 
-**Não encontrou resposta?** Abra uma [issue](https://git.evoai.app/Evolution/evolution-go/issues) com sua questão.
+**Não encontrou resposta?** Abra uma [issue](https://git.evoai.app/Evolution/webapp-wago/issues) com sua questão.
 
-**Documentação Evolution GO v1.0**
+**Documentação WebAPP-Wago v1.0**

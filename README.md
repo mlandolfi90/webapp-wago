@@ -1,11 +1,11 @@
-<h1 align="center">Evolution Go</h1>
+<h1 align="center">WebAPP-Wago</h1>
 
 <div align="center">
 
-[![Docker Image](https://img.shields.io/badge/Docker-image-blue)](https://hub.docker.com/r/evoapicloud/evolution-go)
+[![Docker Image](https://img.shields.io/badge/Docker-image-blue)](https://hub.docker.com/r/evoapicloud/webapp-wago)
 [![License](https://img.shields.io/badge/license-Apache--2.0-blue)](./LICENSE)
 [![Go Version](https://img.shields.io/badge/Go-1.24+-00ADD8?logo=go)](https://golang.org/)
-[![GitHub Stars](https://img.shields.io/github/stars/EvolutionAPI/evolution-go)](https://github.com/EvolutionAPI/evolution-go/stargazers)
+[![GitHub Stars](https://img.shields.io/github/stars/WebAPPWago/webapp-wago)](https://github.com/WebAPPWago/webapp-wago/stargazers)
 [![Documentation](https://img.shields.io/badge/Documentation-Official-green)](https://docs.evolutionfoundation.com.br)
 
 </div>
@@ -14,7 +14,7 @@
 
 ## About
 
-Evolution Go is a high-performance WhatsApp API built in Go, part of the [Evolution](https://evolutionfoundation.com.br/) ecosystem. It provides a robust, lightweight solution for WhatsApp integration using the [whatsmeow](https://github.com/tulir/whatsmeow) library.
+WebAPP-Wago is a high-performance WhatsApp API built in Go, part of the [Evolution](https://evolutionfoundation.com.br/) ecosystem. It provides a robust, lightweight solution for WhatsApp integration using the [whatsmeow](https://github.com/tulir/whatsmeow) library.
 
 ## Features
 
@@ -32,8 +32,8 @@ Evolution Go is a high-performance WhatsApp API built in Go, part of the [Evolut
 ### Docker (Recommended)
 
 ```bash
-git clone https://github.com/EvolutionAPI/evolution-go.git
-cd evolution-go
+git clone https://github.com/WebAPPWago/webapp-wago.git
+cd webapp-wago
 make docker-build
 make docker-run
 ```
@@ -41,11 +41,11 @@ make docker-run
 ### Local Development
 
 ```bash
-git clone https://github.com/EvolutionAPI/evolution-go.git
-cd evolution-go
+git clone https://github.com/WebAPPWago/webapp-wago.git
+cd webapp-wago
 
 # Clone whatsmeow dependency
-git clone git@github.com:EvolutionAPI/whatsmeow.git whatsmeow-lib
+git clone git@github.com:WebAPPWago/whatsmeow.git whatsmeow-lib
 
 # Setup, configure and run
 make setup
@@ -96,7 +96,7 @@ LOGTYPE=console
 
 ## License Activation
 
-Evolution Go requires a license to operate. On first run:
+WebAPP-Wago requires a license to operate. On first run:
 
 1. Start the server — API endpoints return `503` until activated
 2. Open the **Manager** at `http://localhost:8080/manager/login`
@@ -128,8 +128,8 @@ http://localhost:8080/swagger/index.html
 ## Project Structure
 
 ```
-evolution-go/
-├── cmd/evolution-go/     # Application entry point
+webapp-wago/
+├── cmd/webapp-wago/     # Application entry point
 ├── pkg/
 │   ├── core/            # License management & middleware
 │   ├── instance/        # Instance management
@@ -169,16 +169,16 @@ evolution-go/
 | Documentation | [docs.evolutionfoundation.com.br](https://docs.evolutionfoundation.com.br/) |
 | Community | [evolutionfoundation.com.br/community](https://evolutionfoundation.com.br/community) |
 | WhatsApp Support | [+55 31 9621-9989](https://wa.me/553196219989) |
-| GitHub Issues | [evolution-go/issues](https://github.com/EvolutionAPI/evolution-go/issues) |
+| GitHub Issues | [webapp-wago/issues](https://github.com/WebAPPWago/webapp-wago/issues) |
 
 ## Hosting
 
-Deploy Evolution Go with optimized infrastructure:
+Deploy WebAPP-Wago with optimized infrastructure:
 
 | Product | Link |
 |---------|------|
-| Evolution Go VPS | [Hostgator - Evo Go](https://www.hostgator.com.br/52579-144-3-55.html) |
-| Evolution API VPS | [Hostgator - Evo API](https://www.hostgator.com.br/servidor-vps/hospedagem-evo-api/lp-afiliado) |
+| WebAPP-Wago VPS | [Hostgator - Evo Go](https://www.hostgator.com.br/52579-144-3-55.html) |
+| WebAPP-Wago VPS | [Hostgator - Evo API](https://www.hostgator.com.br/servidor-vps/hospedagem-evo-api/lp-afiliado) |
 
 ## Contributing
 
@@ -194,31 +194,31 @@ For security concerns, please email: contato@evolution-api.com
 
 ## License
 
-Evolution Go is licensed under the Apache License 2.0, with the following additional conditions:
+WebAPP-Wago is licensed under the Apache License 2.0, with the following additional conditions:
 
 1. **Logo and copyright**: You may not remove or modify the logo or copyright information in the Evolution console or applications when using frontend components.
 
-2. **Usage notification**: If Evolution Go is used as part of any project (including closed-source), a clear notification that Evolution Go is being utilized must be visible to system administrators.
+2. **Usage notification**: If WebAPP-Wago is used as part of any project (including closed-source), a clear notification that WebAPP-Wago is being utilized must be visible to system administrators.
 
 Please contact contato@evolution-api.com for licensing inquiries. Full license details at [apache.org/licenses/LICENSE-2.0](http://www.apache.org/licenses/LICENSE-2.0).
 
 ## Acknowledgments
 
 - [whatsmeow](https://github.com/tulir/whatsmeow) by [tulir](https://github.com/tulir)
-- [Evolution API](https://github.com/EvolutionAPI/evolution-api)
+- [WebAPP-Wago](https://github.com/WebAPPWago/evolution-api)
 
 ## Telemetry
 
-Evolution Go collects anonymous telemetry data (routes used, API version) to improve the service. No sensitive or personal data is collected.
+WebAPP-Wago collects anonymous telemetry data (routes used, API version) to improve the service. No sensitive or personal data is collected.
 
 ---
 
 <div align="center">
 
-**Evolution Go** — High-Performance WhatsApp API
+**WebAPP-Wago** — High-Performance WhatsApp API
 
 Made with ❤️ by the [Evolution Team](https://evolutionfoundation.com.br/)
 
-© 2025 Evolution Foundation
+© 2025 WebAPP Project
 
 </div>

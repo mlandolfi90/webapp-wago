@@ -1,4 +1,4 @@
--- Script de inicialização dos bancos de dados Evolution GO
+-- Script de inicialização dos bancos de dados WebAPP-Wago
 
 -- Criar database para autenticação
 CREATE DATABASE evogo_auth;

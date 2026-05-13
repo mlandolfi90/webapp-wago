@@ -8,7 +8,7 @@ import (
 	"strings"
 	"time"
 
-	storage_interfaces "github.com/EvolutionAPI/evolution-go/pkg/storage/interfaces"
+	storage_interfaces "github.com/webapp-wago/webapp-wago/pkg/storage/interfaces"
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/minio-go/v7/pkg/credentials"
 )
@@ -36,13 +36,13 @@ func setBucketPolicy(client *minio.Client, bucketName string) error {
 }
 
 // generateFilePath creates a simple media folder structure
-// Format: evolution-go-medias/{filename}
+// Format: webapp-wago-medias/{filename}
 func generateFilePath(fileName string) string {
-	return fmt.Sprintf("evolution-go-medias/%s", fileName)
+	return fmt.Sprintf("webapp-wago-medias/%s", fileName)
 }
 
 // resolveFilePath determines if the input is a full path or just a filename
-// If it's just a filename, it assumes it's in the evolution-go-medias folder
+// If it's just a filename, it assumes it's in the webapp-wago-medias folder
 // If it's a full path, it returns it as-is
 func (m *MinioMediaStorage) resolveFilePath(ctx context.Context, fileNameOrPath string) (string, error) {
 	// If the input already contains path separators, assume it's a full path
@@ -50,8 +50,8 @@ func (m *MinioMediaStorage) resolveFilePath(ctx context.Context, fileNameOrPath 
 		return fileNameOrPath, nil
 	}
 
-	// If it's just a filename, assume it's in the evolution-go-medias folder
-	return fmt.Sprintf("evolution-go-medias/%s", fileNameOrPath), nil
+	// If it's just a filename, assume it's in the webapp-wago-medias folder
+	return fmt.Sprintf("webapp-wago-medias/%s", fileNameOrPath), nil
 }
 
 func NewMinioMediaStorage(

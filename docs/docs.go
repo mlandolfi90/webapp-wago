@@ -35,7 +35,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_EvolutionAPI_evolution-go_pkg_call_service.RejectCallStruct"
+                            "$ref": "#/definitions/github_com_WebAPPWago_webapp-wago_pkg_call_service.RejectCallStruct"
                         }
                     }
                 ],
@@ -75,7 +75,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_EvolutionAPI_evolution-go_pkg_chat_service.BodyStruct"
+                            "$ref": "#/definitions/github_com_WebAPPWago_webapp-wago_pkg_chat_service.BodyStruct"
                         }
                     }
                 ],
@@ -121,7 +121,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_EvolutionAPI_evolution-go_pkg_chat_service.HistorySyncRequestStruct"
+                            "$ref": "#/definitions/github_com_WebAPPWago_webapp-wago_pkg_chat_service.HistorySyncRequestStruct"
                         }
                     }
                 ],
@@ -167,7 +167,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_EvolutionAPI_evolution-go_pkg_chat_service.BodyStruct"
+                            "$ref": "#/definitions/github_com_WebAPPWago_webapp-wago_pkg_chat_service.BodyStruct"
                         }
                     }
                 ],
@@ -213,7 +213,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_EvolutionAPI_evolution-go_pkg_chat_service.BodyStruct"
+                            "$ref": "#/definitions/github_com_WebAPPWago_webapp-wago_pkg_chat_service.BodyStruct"
                         }
                     }
                 ],
@@ -259,7 +259,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_EvolutionAPI_evolution-go_pkg_chat_service.BodyStruct"
+                            "$ref": "#/definitions/github_com_WebAPPWago_webapp-wago_pkg_chat_service.BodyStruct"
                         }
                     }
                 ],
@@ -305,7 +305,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_EvolutionAPI_evolution-go_pkg_chat_service.BodyStruct"
+                            "$ref": "#/definitions/github_com_WebAPPWago_webapp-wago_pkg_chat_service.BodyStruct"
                         }
                     }
                 ],
@@ -351,7 +351,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_EvolutionAPI_evolution-go_pkg_chat_service.BodyStruct"
+                            "$ref": "#/definitions/github_com_WebAPPWago_webapp-wago_pkg_chat_service.BodyStruct"
                         }
                     }
                 ],
@@ -397,7 +397,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_EvolutionAPI_evolution-go_pkg_community_service.AddParticipantStruct"
+                            "$ref": "#/definitions/github_com_WebAPPWago_webapp-wago_pkg_community_service.AddParticipantStruct"
                         }
                     }
                 ],
@@ -443,7 +443,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_EvolutionAPI_evolution-go_pkg_community_service.CreateCommunityStruct"
+                            "$ref": "#/definitions/github_com_WebAPPWago_webapp-wago_pkg_community_service.CreateCommunityStruct"
                         }
                     }
                 ],
@@ -489,7 +489,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_EvolutionAPI_evolution-go_pkg_community_service.AddParticipantStruct"
+                            "$ref": "#/definitions/github_com_WebAPPWago_webapp-wago_pkg_community_service.AddParticipantStruct"
                         }
                     }
                 ],
@@ -535,7 +535,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_EvolutionAPI_evolution-go_pkg_group_service.CreateGroupStruct"
+                            "$ref": "#/definitions/github_com_WebAPPWago_webapp-wago_pkg_group_service.CreateGroupStruct"
                         }
                     }
                 ],
@@ -581,7 +581,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_EvolutionAPI_evolution-go_pkg_group_service.SetGroupDescriptionStruct"
+                            "$ref": "#/definitions/github_com_WebAPPWago_webapp-wago_pkg_group_service.SetGroupDescriptionStruct"
                         }
                     }
                 ],
@@ -627,7 +627,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_EvolutionAPI_evolution-go_pkg_group_service.GetGroupInfoStruct"
+                            "$ref": "#/definitions/github_com_WebAPPWago_webapp-wago_pkg_group_service.GetGroupInfoStruct"
                         }
                     }
                 ],
@@ -673,7 +673,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_EvolutionAPI_evolution-go_pkg_group_service.GetGroupInviteLinkStruct"
+                            "$ref": "#/definitions/github_com_WebAPPWago_webapp-wago_pkg_group_service.GetGroupInviteLinkStruct"
                         }
                     }
                 ],
@@ -719,7 +719,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_EvolutionAPI_evolution-go_pkg_group_service.JoinGroupStruct"
+                            "$ref": "#/definitions/github_com_WebAPPWago_webapp-wago_pkg_group_service.JoinGroupStruct"
                         }
                     }
                 ],
@@ -765,7 +765,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_EvolutionAPI_evolution-go_pkg_group_service.LeaveGroupStruct"
+                            "$ref": "#/definitions/github_com_WebAPPWago_webapp-wago_pkg_group_service.LeaveGroupStruct"
                         }
                     }
                 ],
@@ -869,7 +869,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_EvolutionAPI_evolution-go_pkg_group_service.SetGroupNameStruct"
+                            "$ref": "#/definitions/github_com_WebAPPWago_webapp-wago_pkg_group_service.SetGroupNameStruct"
                         }
                     }
                 ],
@@ -915,7 +915,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_EvolutionAPI_evolution-go_pkg_group_service.AddParticipantStruct"
+                            "$ref": "#/definitions/github_com_WebAPPWago_webapp-wago_pkg_group_service.AddParticipantStruct"
                         }
                     }
                 ],
@@ -961,7 +961,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_EvolutionAPI_evolution-go_pkg_group_service.SetGroupPhotoStruct"
+                            "$ref": "#/definitions/github_com_WebAPPWago_webapp-wago_pkg_group_service.SetGroupPhotoStruct"
                         }
                     }
                 ],
@@ -1036,7 +1036,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_EvolutionAPI_evolution-go_pkg_instance_service.ConnectStruct"
+                            "$ref": "#/definitions/github_com_WebAPPWago_webapp-wago_pkg_instance_service.ConnectStruct"
                         }
                     }
                 ],
@@ -1082,7 +1082,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_EvolutionAPI_evolution-go_pkg_instance_service.CreateStruct"
+                            "$ref": "#/definitions/github_com_WebAPPWago_webapp-wago_pkg_instance_service.CreateStruct"
                         }
                     }
                 ],
@@ -1208,7 +1208,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_EvolutionAPI_evolution-go_pkg_instance_service.ForceReconnectStruct"
+                            "$ref": "#/definitions/github_com_WebAPPWago_webapp-wago_pkg_instance_service.ForceReconnectStruct"
                         }
                     }
                 ],
@@ -1327,7 +1327,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_EvolutionAPI_evolution-go_pkg_instance_service.PairStruct"
+                            "$ref": "#/definitions/github_com_WebAPPWago_webapp-wago_pkg_instance_service.PairStruct"
                         }
                     }
                 ],
@@ -1380,7 +1380,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_EvolutionAPI_evolution-go_pkg_instance_service.SetProxyStruct"
+                            "$ref": "#/definitions/github_com_WebAPPWago_webapp-wago_pkg_instance_service.SetProxyStruct"
                         }
                     }
                 ],
@@ -1558,7 +1558,7 @@ const docTemplate = `{
                     "200": {
                         "description": "Advanced settings retrieved successfully",
                         "schema": {
-                            "$ref": "#/definitions/github_com_EvolutionAPI_evolution-go_pkg_instance_model.AdvancedSettings"
+                            "$ref": "#/definitions/github_com_WebAPPWago_webapp-wago_pkg_instance_model.AdvancedSettings"
                         }
                     },
                     "400": {
@@ -1607,7 +1607,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_EvolutionAPI_evolution-go_pkg_instance_model.AdvancedSettings"
+                            "$ref": "#/definitions/github_com_WebAPPWago_webapp-wago_pkg_instance_model.AdvancedSettings"
                         }
                     }
                 ],
@@ -1688,7 +1688,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_EvolutionAPI_evolution-go_pkg_label_service.ChatLabelStruct"
+                            "$ref": "#/definitions/github_com_WebAPPWago_webapp-wago_pkg_label_service.ChatLabelStruct"
                         }
                     }
                 ],
@@ -1734,7 +1734,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_EvolutionAPI_evolution-go_pkg_label_service.EditLabelStruct"
+                            "$ref": "#/definitions/github_com_WebAPPWago_webapp-wago_pkg_label_service.EditLabelStruct"
                         }
                     }
                 ],
@@ -1780,7 +1780,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_EvolutionAPI_evolution-go_pkg_label_service.MessageLabelStruct"
+                            "$ref": "#/definitions/github_com_WebAPPWago_webapp-wago_pkg_label_service.MessageLabelStruct"
                         }
                     }
                 ],
@@ -1826,7 +1826,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_EvolutionAPI_evolution-go_pkg_message_service.MessageStruct"
+                            "$ref": "#/definitions/github_com_WebAPPWago_webapp-wago_pkg_message_service.MessageStruct"
                         }
                     }
                 ],
@@ -1872,7 +1872,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_EvolutionAPI_evolution-go_pkg_message_service.DownloadMediaStruct"
+                            "$ref": "#/definitions/github_com_WebAPPWago_webapp-wago_pkg_message_service.DownloadMediaStruct"
                         }
                     }
                 ],
@@ -1918,7 +1918,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_EvolutionAPI_evolution-go_pkg_message_service.EditMessageStruct"
+                            "$ref": "#/definitions/github_com_WebAPPWago_webapp-wago_pkg_message_service.EditMessageStruct"
                         }
                     }
                 ],
@@ -1964,7 +1964,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_EvolutionAPI_evolution-go_pkg_message_service.MarkReadStruct"
+                            "$ref": "#/definitions/github_com_WebAPPWago_webapp-wago_pkg_message_service.MarkReadStruct"
                         }
                     }
                 ],
@@ -2010,7 +2010,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_EvolutionAPI_evolution-go_pkg_message_service.ChatPresenceStruct"
+                            "$ref": "#/definitions/github_com_WebAPPWago_webapp-wago_pkg_message_service.ChatPresenceStruct"
                         }
                     }
                 ],
@@ -2056,7 +2056,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_EvolutionAPI_evolution-go_pkg_message_service.ReactStruct"
+                            "$ref": "#/definitions/github_com_WebAPPWago_webapp-wago_pkg_message_service.ReactStruct"
                         }
                     }
                 ],
@@ -2102,7 +2102,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_EvolutionAPI_evolution-go_pkg_message_service.MessageStatusStruct"
+                            "$ref": "#/definitions/github_com_WebAPPWago_webapp-wago_pkg_message_service.MessageStatusStruct"
                         }
                     }
                 ],
@@ -2148,7 +2148,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_EvolutionAPI_evolution-go_pkg_newsletter_service.CreateNewsletterStruct"
+                            "$ref": "#/definitions/github_com_WebAPPWago_webapp-wago_pkg_newsletter_service.CreateNewsletterStruct"
                         }
                     }
                 ],
@@ -2194,7 +2194,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_EvolutionAPI_evolution-go_pkg_newsletter_service.GetNewsletterStruct"
+                            "$ref": "#/definitions/github_com_WebAPPWago_webapp-wago_pkg_newsletter_service.GetNewsletterStruct"
                         }
                     }
                 ],
@@ -2240,7 +2240,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_EvolutionAPI_evolution-go_pkg_newsletter_service.GetNewsletterInviteStruct"
+                            "$ref": "#/definitions/github_com_WebAPPWago_webapp-wago_pkg_newsletter_service.GetNewsletterInviteStruct"
                         }
                     }
                 ],
@@ -2315,7 +2315,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_EvolutionAPI_evolution-go_pkg_newsletter_service.GetNewsletterMessagesStruct"
+                            "$ref": "#/definitions/github_com_WebAPPWago_webapp-wago_pkg_newsletter_service.GetNewsletterMessagesStruct"
                         }
                     }
                 ],
@@ -2361,7 +2361,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_EvolutionAPI_evolution-go_pkg_newsletter_service.GetNewsletterStruct"
+                            "$ref": "#/definitions/github_com_WebAPPWago_webapp-wago_pkg_newsletter_service.GetNewsletterStruct"
                         }
                     }
                 ],
@@ -2413,7 +2413,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github_com_EvolutionAPI_evolution-go_pkg_poll_model.PollResults"
+                            "$ref": "#/definitions/github_com_WebAPPWago_webapp-wago_pkg_poll_model.PollResults"
                         }
                     },
                     "400": {
@@ -2457,7 +2457,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_EvolutionAPI_evolution-go_pkg_sendMessage_service.ButtonStruct"
+                            "$ref": "#/definitions/github_com_WebAPPWago_webapp-wago_pkg_sendMessage_service.ButtonStruct"
                         }
                     }
                 ],
@@ -2503,7 +2503,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_EvolutionAPI_evolution-go_pkg_sendMessage_service.CarouselStruct"
+                            "$ref": "#/definitions/github_com_WebAPPWago_webapp-wago_pkg_sendMessage_service.CarouselStruct"
                         }
                     }
                 ],
@@ -2549,7 +2549,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_EvolutionAPI_evolution-go_pkg_sendMessage_service.ContactStruct"
+                            "$ref": "#/definitions/github_com_WebAPPWago_webapp-wago_pkg_sendMessage_service.ContactStruct"
                         }
                     }
                 ],
@@ -2595,7 +2595,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_EvolutionAPI_evolution-go_pkg_sendMessage_service.LinkStruct"
+                            "$ref": "#/definitions/github_com_WebAPPWago_webapp-wago_pkg_sendMessage_service.LinkStruct"
                         }
                     }
                 ],
@@ -2641,7 +2641,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_EvolutionAPI_evolution-go_pkg_sendMessage_service.ListStruct"
+                            "$ref": "#/definitions/github_com_WebAPPWago_webapp-wago_pkg_sendMessage_service.ListStruct"
                         }
                     }
                 ],
@@ -2687,7 +2687,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_EvolutionAPI_evolution-go_pkg_sendMessage_service.LocationStruct"
+                            "$ref": "#/definitions/github_com_WebAPPWago_webapp-wago_pkg_sendMessage_service.LocationStruct"
                         }
                     }
                 ],
@@ -2733,7 +2733,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_EvolutionAPI_evolution-go_pkg_sendMessage_service.MediaStruct"
+                            "$ref": "#/definitions/github_com_WebAPPWago_webapp-wago_pkg_sendMessage_service.MediaStruct"
                         }
                     }
                 ],
@@ -2779,7 +2779,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_EvolutionAPI_evolution-go_pkg_sendMessage_service.PollStruct"
+                            "$ref": "#/definitions/github_com_WebAPPWago_webapp-wago_pkg_sendMessage_service.PollStruct"
                         }
                     }
                 ],
@@ -2825,7 +2825,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_EvolutionAPI_evolution-go_pkg_sendMessage_service.StickerStruct"
+                            "$ref": "#/definitions/github_com_WebAPPWago_webapp-wago_pkg_sendMessage_service.StickerStruct"
                         }
                     }
                 ],
@@ -2871,7 +2871,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_EvolutionAPI_evolution-go_pkg_sendMessage_service.TextStruct"
+                            "$ref": "#/definitions/github_com_WebAPPWago_webapp-wago_pkg_sendMessage_service.TextStruct"
                         }
                     }
                 ],
@@ -2917,7 +2917,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_EvolutionAPI_evolution-go_pkg_label_service.ChatLabelStruct"
+                            "$ref": "#/definitions/github_com_WebAPPWago_webapp-wago_pkg_label_service.ChatLabelStruct"
                         }
                     }
                 ],
@@ -2963,7 +2963,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_EvolutionAPI_evolution-go_pkg_label_service.MessageLabelStruct"
+                            "$ref": "#/definitions/github_com_WebAPPWago_webapp-wago_pkg_label_service.MessageLabelStruct"
                         }
                     }
                 ],
@@ -3009,7 +3009,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_EvolutionAPI_evolution-go_pkg_user_service.GetAvatarStruct"
+                            "$ref": "#/definitions/github_com_WebAPPWago_webapp-wago_pkg_user_service.GetAvatarStruct"
                         }
                     }
                 ],
@@ -3055,7 +3055,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_EvolutionAPI_evolution-go_pkg_user_service.BlockStruct"
+                            "$ref": "#/definitions/github_com_WebAPPWago_webapp-wago_pkg_user_service.BlockStruct"
                         }
                     }
                 ],
@@ -3130,7 +3130,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_EvolutionAPI_evolution-go_pkg_user_service.CheckUserStruct"
+                            "$ref": "#/definitions/github_com_WebAPPWago_webapp-wago_pkg_user_service.CheckUserStruct"
                         }
                     }
                 ],
@@ -3205,7 +3205,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_EvolutionAPI_evolution-go_pkg_user_service.CheckUserStruct"
+                            "$ref": "#/definitions/github_com_WebAPPWago_webapp-wago_pkg_user_service.CheckUserStruct"
                         }
                     }
                 ],
@@ -3278,7 +3278,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_EvolutionAPI_evolution-go_pkg_user_service.PrivacyStruct"
+                            "$ref": "#/definitions/github_com_WebAPPWago_webapp-wago_pkg_user_service.PrivacyStruct"
                         }
                     }
                 ],
@@ -3318,7 +3318,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_EvolutionAPI_evolution-go_pkg_user_service.SetProfilePictureStruct"
+                            "$ref": "#/definitions/github_com_WebAPPWago_webapp-wago_pkg_user_service.SetProfilePictureStruct"
                         }
                     }
                 ],
@@ -3364,7 +3364,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_EvolutionAPI_evolution-go_pkg_user_service.SetProfilePictureStruct"
+                            "$ref": "#/definitions/github_com_WebAPPWago_webapp-wago_pkg_user_service.SetProfilePictureStruct"
                         }
                     }
                 ],
@@ -3410,7 +3410,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_EvolutionAPI_evolution-go_pkg_user_service.SetProfilePictureStruct"
+                            "$ref": "#/definitions/github_com_WebAPPWago_webapp-wago_pkg_user_service.SetProfilePictureStruct"
                         }
                     }
                 ],
@@ -3456,7 +3456,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_EvolutionAPI_evolution-go_pkg_user_service.BlockStruct"
+                            "$ref": "#/definitions/github_com_WebAPPWago_webapp-wago_pkg_user_service.BlockStruct"
                         }
                     }
                 ],
@@ -3488,7 +3488,7 @@ const docTemplate = `{
             "type": "object",
             "additionalProperties": {}
         },
-        "github_com_EvolutionAPI_evolution-go_pkg_call_service.RejectCallStruct": {
+        "github_com_WebAPPWago_webapp-wago_pkg_call_service.RejectCallStruct": {
             "type": "object",
             "properties": {
                 "callCreator": {
@@ -3499,7 +3499,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_EvolutionAPI_evolution-go_pkg_chat_service.BodyStruct": {
+        "github_com_WebAPPWago_webapp-wago_pkg_chat_service.BodyStruct": {
             "type": "object",
             "properties": {
                 "chat": {
@@ -3507,7 +3507,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_EvolutionAPI_evolution-go_pkg_chat_service.HistorySyncRequestStruct": {
+        "github_com_WebAPPWago_webapp-wago_pkg_chat_service.HistorySyncRequestStruct": {
             "type": "object",
             "properties": {
                 "count": {
@@ -3518,7 +3518,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_EvolutionAPI_evolution-go_pkg_community_service.AddParticipantStruct": {
+        "github_com_WebAPPWago_webapp-wago_pkg_community_service.AddParticipantStruct": {
             "type": "object",
             "properties": {
                 "communityJid": {
@@ -3532,7 +3532,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_EvolutionAPI_evolution-go_pkg_community_service.CreateCommunityStruct": {
+        "github_com_WebAPPWago_webapp-wago_pkg_community_service.CreateCommunityStruct": {
             "type": "object",
             "properties": {
                 "communityName": {
@@ -3540,7 +3540,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_EvolutionAPI_evolution-go_pkg_group_service.AddParticipantStruct": {
+        "github_com_WebAPPWago_webapp-wago_pkg_group_service.AddParticipantStruct": {
             "type": "object",
             "properties": {
                 "action": {
@@ -3557,7 +3557,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_EvolutionAPI_evolution-go_pkg_group_service.CreateGroupStruct": {
+        "github_com_WebAPPWago_webapp-wago_pkg_group_service.CreateGroupStruct": {
             "type": "object",
             "properties": {
                 "groupName": {
@@ -3571,7 +3571,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_EvolutionAPI_evolution-go_pkg_group_service.GetGroupInfoStruct": {
+        "github_com_WebAPPWago_webapp-wago_pkg_group_service.GetGroupInfoStruct": {
             "type": "object",
             "properties": {
                 "groupJid": {
@@ -3579,7 +3579,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_EvolutionAPI_evolution-go_pkg_group_service.GetGroupInviteLinkStruct": {
+        "github_com_WebAPPWago_webapp-wago_pkg_group_service.GetGroupInviteLinkStruct": {
             "type": "object",
             "properties": {
                 "groupJid": {
@@ -3590,7 +3590,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_EvolutionAPI_evolution-go_pkg_group_service.JoinGroupStruct": {
+        "github_com_WebAPPWago_webapp-wago_pkg_group_service.JoinGroupStruct": {
             "type": "object",
             "properties": {
                 "code": {
@@ -3598,7 +3598,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_EvolutionAPI_evolution-go_pkg_group_service.LeaveGroupStruct": {
+        "github_com_WebAPPWago_webapp-wago_pkg_group_service.LeaveGroupStruct": {
             "type": "object",
             "properties": {
                 "groupJid": {
@@ -3606,7 +3606,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_EvolutionAPI_evolution-go_pkg_group_service.SetGroupDescriptionStruct": {
+        "github_com_WebAPPWago_webapp-wago_pkg_group_service.SetGroupDescriptionStruct": {
             "type": "object",
             "properties": {
                 "description": {
@@ -3617,7 +3617,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_EvolutionAPI_evolution-go_pkg_group_service.SetGroupNameStruct": {
+        "github_com_WebAPPWago_webapp-wago_pkg_group_service.SetGroupNameStruct": {
             "type": "object",
             "properties": {
                 "groupJid": {
@@ -3628,7 +3628,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_EvolutionAPI_evolution-go_pkg_group_service.SetGroupPhotoStruct": {
+        "github_com_WebAPPWago_webapp-wago_pkg_group_service.SetGroupPhotoStruct": {
             "type": "object",
             "properties": {
                 "groupJid": {
@@ -3639,7 +3639,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_EvolutionAPI_evolution-go_pkg_instance_model.AdvancedSettings": {
+        "github_com_WebAPPWago_webapp-wago_pkg_instance_model.AdvancedSettings": {
             "type": "object",
             "properties": {
                 "alwaysOnline": {
@@ -3662,7 +3662,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_EvolutionAPI_evolution-go_pkg_instance_service.ConnectStruct": {
+        "github_com_WebAPPWago_webapp-wago_pkg_instance_service.ConnectStruct": {
             "type": "object",
             "properties": {
                 "immediate": {
@@ -3691,11 +3691,11 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_EvolutionAPI_evolution-go_pkg_instance_service.CreateStruct": {
+        "github_com_WebAPPWago_webapp-wago_pkg_instance_service.CreateStruct": {
             "type": "object",
             "properties": {
                 "advancedSettings": {
-                    "$ref": "#/definitions/github_com_EvolutionAPI_evolution-go_pkg_instance_model.AdvancedSettings"
+                    "$ref": "#/definitions/github_com_WebAPPWago_webapp-wago_pkg_instance_model.AdvancedSettings"
                 },
                 "instanceId": {
                     "type": "string"
@@ -3704,14 +3704,14 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "proxy": {
-                    "$ref": "#/definitions/github_com_EvolutionAPI_evolution-go_pkg_instance_service.ProxyConfig"
+                    "$ref": "#/definitions/github_com_WebAPPWago_webapp-wago_pkg_instance_service.ProxyConfig"
                 },
                 "token": {
                     "type": "string"
                 }
             }
         },
-        "github_com_EvolutionAPI_evolution-go_pkg_instance_service.ForceReconnectStruct": {
+        "github_com_WebAPPWago_webapp-wago_pkg_instance_service.ForceReconnectStruct": {
             "type": "object",
             "properties": {
                 "number": {
@@ -3719,7 +3719,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_EvolutionAPI_evolution-go_pkg_instance_service.PairStruct": {
+        "github_com_WebAPPWago_webapp-wago_pkg_instance_service.PairStruct": {
             "type": "object",
             "properties": {
                 "phone": {
@@ -3733,7 +3733,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_EvolutionAPI_evolution-go_pkg_instance_service.ProxyConfig": {
+        "github_com_WebAPPWago_webapp-wago_pkg_instance_service.ProxyConfig": {
             "type": "object",
             "properties": {
                 "host": {
@@ -3750,7 +3750,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_EvolutionAPI_evolution-go_pkg_instance_service.SetProxyStruct": {
+        "github_com_WebAPPWago_webapp-wago_pkg_instance_service.SetProxyStruct": {
             "type": "object",
             "required": [
                 "host",
@@ -3771,7 +3771,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_EvolutionAPI_evolution-go_pkg_label_service.ChatLabelStruct": {
+        "github_com_WebAPPWago_webapp-wago_pkg_label_service.ChatLabelStruct": {
             "type": "object",
             "properties": {
                 "jid": {
@@ -3782,7 +3782,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_EvolutionAPI_evolution-go_pkg_label_service.EditLabelStruct": {
+        "github_com_WebAPPWago_webapp-wago_pkg_label_service.EditLabelStruct": {
             "type": "object",
             "properties": {
                 "color": {
@@ -3799,7 +3799,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_EvolutionAPI_evolution-go_pkg_label_service.MessageLabelStruct": {
+        "github_com_WebAPPWago_webapp-wago_pkg_label_service.MessageLabelStruct": {
             "type": "object",
             "properties": {
                 "jid": {
@@ -3813,7 +3813,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_EvolutionAPI_evolution-go_pkg_message_service.ChatPresenceStruct": {
+        "github_com_WebAPPWago_webapp-wago_pkg_message_service.ChatPresenceStruct": {
             "type": "object",
             "properties": {
                 "isAudio": {
@@ -3827,7 +3827,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_EvolutionAPI_evolution-go_pkg_message_service.DownloadMediaStruct": {
+        "github_com_WebAPPWago_webapp-wago_pkg_message_service.DownloadMediaStruct": {
             "type": "object",
             "properties": {
                 "message": {
@@ -3835,7 +3835,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_EvolutionAPI_evolution-go_pkg_message_service.EditMessageStruct": {
+        "github_com_WebAPPWago_webapp-wago_pkg_message_service.EditMessageStruct": {
             "type": "object",
             "properties": {
                 "chat": {
@@ -3849,7 +3849,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_EvolutionAPI_evolution-go_pkg_message_service.MarkReadStruct": {
+        "github_com_WebAPPWago_webapp-wago_pkg_message_service.MarkReadStruct": {
             "type": "object",
             "properties": {
                 "id": {
@@ -3863,7 +3863,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_EvolutionAPI_evolution-go_pkg_message_service.MessageStatusStruct": {
+        "github_com_WebAPPWago_webapp-wago_pkg_message_service.MessageStatusStruct": {
             "type": "object",
             "properties": {
                 "id": {
@@ -3871,7 +3871,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_EvolutionAPI_evolution-go_pkg_message_service.MessageStruct": {
+        "github_com_WebAPPWago_webapp-wago_pkg_message_service.MessageStruct": {
             "type": "object",
             "properties": {
                 "chat": {
@@ -3882,7 +3882,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_EvolutionAPI_evolution-go_pkg_message_service.ReactStruct": {
+        "github_com_WebAPPWago_webapp-wago_pkg_message_service.ReactStruct": {
             "type": "object",
             "properties": {
                 "fromMe": {
@@ -3902,7 +3902,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_EvolutionAPI_evolution-go_pkg_newsletter_service.CreateNewsletterStruct": {
+        "github_com_WebAPPWago_webapp-wago_pkg_newsletter_service.CreateNewsletterStruct": {
             "type": "object",
             "properties": {
                 "description": {
@@ -3913,7 +3913,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_EvolutionAPI_evolution-go_pkg_newsletter_service.GetNewsletterInviteStruct": {
+        "github_com_WebAPPWago_webapp-wago_pkg_newsletter_service.GetNewsletterInviteStruct": {
             "type": "object",
             "properties": {
                 "key": {
@@ -3921,7 +3921,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_EvolutionAPI_evolution-go_pkg_newsletter_service.GetNewsletterMessagesStruct": {
+        "github_com_WebAPPWago_webapp-wago_pkg_newsletter_service.GetNewsletterMessagesStruct": {
             "type": "object",
             "properties": {
                 "before_id": {
@@ -3935,7 +3935,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_EvolutionAPI_evolution-go_pkg_newsletter_service.GetNewsletterStruct": {
+        "github_com_WebAPPWago_webapp-wago_pkg_newsletter_service.GetNewsletterStruct": {
             "type": "object",
             "properties": {
                 "jid": {
@@ -3943,7 +3943,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_EvolutionAPI_evolution-go_pkg_poll_model.PollResults": {
+        "github_com_WebAPPWago_webapp-wago_pkg_poll_model.PollResults": {
             "type": "object",
             "properties": {
                 "optionCounts": {
@@ -3965,18 +3965,18 @@ const docTemplate = `{
                 "voters": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/github_com_EvolutionAPI_evolution-go_pkg_poll_model.VoterInfo"
+                        "$ref": "#/definitions/github_com_WebAPPWago_webapp-wago_pkg_poll_model.VoterInfo"
                     }
                 },
                 "votes": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/github_com_EvolutionAPI_evolution-go_pkg_poll_model.PollVote"
+                        "$ref": "#/definitions/github_com_WebAPPWago_webapp-wago_pkg_poll_model.PollVote"
                     }
                 }
             }
         },
-        "github_com_EvolutionAPI_evolution-go_pkg_poll_model.PollVote": {
+        "github_com_WebAPPWago_webapp-wago_pkg_poll_model.PollVote": {
             "type": "object",
             "properties": {
                 "companyId": {
@@ -4021,7 +4021,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_EvolutionAPI_evolution-go_pkg_poll_model.VoterInfo": {
+        "github_com_WebAPPWago_webapp-wago_pkg_poll_model.VoterInfo": {
             "type": "object",
             "properties": {
                 "jid": {
@@ -4044,7 +4044,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_EvolutionAPI_evolution-go_pkg_sendMessage_service.Button": {
+        "github_com_WebAPPWago_webapp-wago_pkg_sendMessage_service.Button": {
             "type": "object",
             "properties": {
                 "copyCode": {
@@ -4113,14 +4113,14 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_EvolutionAPI_evolution-go_pkg_sendMessage_service.ButtonStruct": {
+        "github_com_WebAPPWago_webapp-wago_pkg_sendMessage_service.ButtonStruct": {
             "type": "object",
             "properties": {
                 "buttons": {
                     "description": "Buttons array. See combination rules on the parent type description.",
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/github_com_EvolutionAPI_evolution-go_pkg_sendMessage_service.Button"
+                        "$ref": "#/definitions/github_com_WebAPPWago_webapp-wago_pkg_sendMessage_service.Button"
                     }
                 },
                 "delay": {
@@ -4136,7 +4136,7 @@ const docTemplate = `{
                 "footer": {
                     "description": "Footer text (required).",
                     "type": "string",
-                    "example": "Evolution GO"
+                    "example": "WebAPP-Wago"
                 },
                 "formatJid": {
                     "description": "If false, skips automatic formatting/validation of ` + "`" + `number` + "`" + ` into a JID.",
@@ -4162,7 +4162,7 @@ const docTemplate = `{
                     "description": "Quoted (reply-to) context.",
                     "allOf": [
                         {
-                            "$ref": "#/definitions/github_com_EvolutionAPI_evolution-go_pkg_sendMessage_service.QuotedStruct"
+                            "$ref": "#/definitions/github_com_WebAPPWago_webapp-wago_pkg_sendMessage_service.QuotedStruct"
                         }
                     ]
                 },
@@ -4173,7 +4173,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_EvolutionAPI_evolution-go_pkg_sendMessage_service.CarouselButtonStruct": {
+        "github_com_WebAPPWago_webapp-wago_pkg_sendMessage_service.CarouselButtonStruct": {
             "type": "object",
             "properties": {
                 "copyCode": {
@@ -4208,7 +4208,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_EvolutionAPI_evolution-go_pkg_sendMessage_service.CarouselCardBodyStruct": {
+        "github_com_WebAPPWago_webapp-wago_pkg_sendMessage_service.CarouselCardBodyStruct": {
             "type": "object",
             "properties": {
                 "text": {
@@ -4218,7 +4218,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_EvolutionAPI_evolution-go_pkg_sendMessage_service.CarouselCardHeaderStruct": {
+        "github_com_WebAPPWago_webapp-wago_pkg_sendMessage_service.CarouselCardHeaderStruct": {
             "type": "object",
             "properties": {
                 "imageUrl": {
@@ -4242,14 +4242,14 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_EvolutionAPI_evolution-go_pkg_sendMessage_service.CarouselCardStruct": {
+        "github_com_WebAPPWago_webapp-wago_pkg_sendMessage_service.CarouselCardStruct": {
             "type": "object",
             "properties": {
                 "body": {
                     "description": "Card body text (required).",
                     "allOf": [
                         {
-                            "$ref": "#/definitions/github_com_EvolutionAPI_evolution-go_pkg_sendMessage_service.CarouselCardBodyStruct"
+                            "$ref": "#/definitions/github_com_WebAPPWago_webapp-wago_pkg_sendMessage_service.CarouselCardBodyStruct"
                         }
                     ]
                 },
@@ -4257,7 +4257,7 @@ const docTemplate = `{
                     "description": "Buttons shown on the card. See CarouselButtonStruct for combination rules.",
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/github_com_EvolutionAPI_evolution-go_pkg_sendMessage_service.CarouselButtonStruct"
+                        "$ref": "#/definitions/github_com_WebAPPWago_webapp-wago_pkg_sendMessage_service.CarouselButtonStruct"
                     }
                 },
                 "footer": {
@@ -4269,13 +4269,13 @@ const docTemplate = `{
                     "description": "Card header (media + title/subtitle).",
                     "allOf": [
                         {
-                            "$ref": "#/definitions/github_com_EvolutionAPI_evolution-go_pkg_sendMessage_service.CarouselCardHeaderStruct"
+                            "$ref": "#/definitions/github_com_WebAPPWago_webapp-wago_pkg_sendMessage_service.CarouselCardHeaderStruct"
                         }
                     ]
                 }
             }
         },
-        "github_com_EvolutionAPI_evolution-go_pkg_sendMessage_service.CarouselStruct": {
+        "github_com_WebAPPWago_webapp-wago_pkg_sendMessage_service.CarouselStruct": {
             "type": "object",
             "properties": {
                 "body": {
@@ -4287,7 +4287,7 @@ const docTemplate = `{
                     "description": "Cards displayed in order. At least one card is required.",
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/github_com_EvolutionAPI_evolution-go_pkg_sendMessage_service.CarouselCardStruct"
+                        "$ref": "#/definitions/github_com_WebAPPWago_webapp-wago_pkg_sendMessage_service.CarouselCardStruct"
                     }
                 },
                 "delay": {
@@ -4298,7 +4298,7 @@ const docTemplate = `{
                 "footer": {
                     "description": "Optional message footer shown below the cards.",
                     "type": "string",
-                    "example": "Evolution GO"
+                    "example": "WebAPP-Wago"
                 },
                 "formatJid": {
                     "description": "If false, skips automatic formatting/validation of ` + "`" + `number` + "`" + ` into a JID.",
@@ -4313,13 +4313,13 @@ const docTemplate = `{
                     "description": "Quoted (reply-to) context.",
                     "allOf": [
                         {
-                            "$ref": "#/definitions/github_com_EvolutionAPI_evolution-go_pkg_sendMessage_service.QuotedStruct"
+                            "$ref": "#/definitions/github_com_WebAPPWago_webapp-wago_pkg_sendMessage_service.QuotedStruct"
                         }
                     ]
                 }
             }
         },
-        "github_com_EvolutionAPI_evolution-go_pkg_sendMessage_service.ContactStruct": {
+        "github_com_WebAPPWago_webapp-wago_pkg_sendMessage_service.ContactStruct": {
             "type": "object",
             "properties": {
                 "delay": {
@@ -4344,14 +4344,14 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "quoted": {
-                    "$ref": "#/definitions/github_com_EvolutionAPI_evolution-go_pkg_sendMessage_service.QuotedStruct"
+                    "$ref": "#/definitions/github_com_WebAPPWago_webapp-wago_pkg_sendMessage_service.QuotedStruct"
                 },
                 "vcard": {
-                    "$ref": "#/definitions/github_com_EvolutionAPI_evolution-go_pkg_utils.VCardStruct"
+                    "$ref": "#/definitions/github_com_WebAPPWago_webapp-wago_pkg_utils.VCardStruct"
                 }
             }
         },
-        "github_com_EvolutionAPI_evolution-go_pkg_sendMessage_service.LinkStruct": {
+        "github_com_WebAPPWago_webapp-wago_pkg_sendMessage_service.LinkStruct": {
             "type": "object",
             "properties": {
                 "delay": {
@@ -4382,7 +4382,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "quoted": {
-                    "$ref": "#/definitions/github_com_EvolutionAPI_evolution-go_pkg_sendMessage_service.QuotedStruct"
+                    "$ref": "#/definitions/github_com_WebAPPWago_webapp-wago_pkg_sendMessage_service.QuotedStruct"
                 },
                 "text": {
                     "type": "string"
@@ -4395,7 +4395,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_EvolutionAPI_evolution-go_pkg_sendMessage_service.ListStruct": {
+        "github_com_WebAPPWago_webapp-wago_pkg_sendMessage_service.ListStruct": {
             "type": "object",
             "properties": {
                 "buttonText": {
@@ -4416,7 +4416,7 @@ const docTemplate = `{
                 "footerText": {
                     "description": "Footer text (required).",
                     "type": "string",
-                    "example": "Evolution GO"
+                    "example": "WebAPP-Wago"
                 },
                 "formatJid": {
                     "description": "If false, skips automatic formatting/validation of ` + "`" + `number` + "`" + ` into a JID.",
@@ -4442,7 +4442,7 @@ const docTemplate = `{
                     "description": "Quoted (reply-to) context.",
                     "allOf": [
                         {
-                            "$ref": "#/definitions/github_com_EvolutionAPI_evolution-go_pkg_sendMessage_service.QuotedStruct"
+                            "$ref": "#/definitions/github_com_WebAPPWago_webapp-wago_pkg_sendMessage_service.QuotedStruct"
                         }
                     ]
                 },
@@ -4450,7 +4450,7 @@ const docTemplate = `{
                     "description": "Sections with rows. At least one section with one row is required.",
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/github_com_EvolutionAPI_evolution-go_pkg_sendMessage_service.Section"
+                        "$ref": "#/definitions/github_com_WebAPPWago_webapp-wago_pkg_sendMessage_service.Section"
                     }
                 },
                 "title": {
@@ -4460,7 +4460,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_EvolutionAPI_evolution-go_pkg_sendMessage_service.LocationStruct": {
+        "github_com_WebAPPWago_webapp-wago_pkg_sendMessage_service.LocationStruct": {
             "type": "object",
             "properties": {
                 "address": {
@@ -4497,11 +4497,11 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "quoted": {
-                    "$ref": "#/definitions/github_com_EvolutionAPI_evolution-go_pkg_sendMessage_service.QuotedStruct"
+                    "$ref": "#/definitions/github_com_WebAPPWago_webapp-wago_pkg_sendMessage_service.QuotedStruct"
                 }
             }
         },
-        "github_com_EvolutionAPI_evolution-go_pkg_sendMessage_service.MediaStruct": {
+        "github_com_WebAPPWago_webapp-wago_pkg_sendMessage_service.MediaStruct": {
             "type": "object",
             "properties": {
                 "caption": {
@@ -4532,7 +4532,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "quoted": {
-                    "$ref": "#/definitions/github_com_EvolutionAPI_evolution-go_pkg_sendMessage_service.QuotedStruct"
+                    "$ref": "#/definitions/github_com_WebAPPWago_webapp-wago_pkg_sendMessage_service.QuotedStruct"
                 },
                 "type": {
                     "type": "string"
@@ -4542,7 +4542,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_EvolutionAPI_evolution-go_pkg_sendMessage_service.PollStruct": {
+        "github_com_WebAPPWago_webapp-wago_pkg_sendMessage_service.PollStruct": {
             "type": "object",
             "properties": {
                 "delay": {
@@ -4579,11 +4579,11 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "quoted": {
-                    "$ref": "#/definitions/github_com_EvolutionAPI_evolution-go_pkg_sendMessage_service.QuotedStruct"
+                    "$ref": "#/definitions/github_com_WebAPPWago_webapp-wago_pkg_sendMessage_service.QuotedStruct"
                 }
             }
         },
-        "github_com_EvolutionAPI_evolution-go_pkg_sendMessage_service.QuotedStruct": {
+        "github_com_WebAPPWago_webapp-wago_pkg_sendMessage_service.QuotedStruct": {
             "type": "object",
             "properties": {
                 "messageId": {
@@ -4594,7 +4594,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_EvolutionAPI_evolution-go_pkg_sendMessage_service.Row": {
+        "github_com_WebAPPWago_webapp-wago_pkg_sendMessage_service.Row": {
             "type": "object",
             "properties": {
                 "description": {
@@ -4614,14 +4614,14 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_EvolutionAPI_evolution-go_pkg_sendMessage_service.Section": {
+        "github_com_WebAPPWago_webapp-wago_pkg_sendMessage_service.Section": {
             "type": "object",
             "properties": {
                 "rows": {
                     "description": "Rows inside this section.",
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/github_com_EvolutionAPI_evolution-go_pkg_sendMessage_service.Row"
+                        "$ref": "#/definitions/github_com_WebAPPWago_webapp-wago_pkg_sendMessage_service.Row"
                     }
                 },
                 "title": {
@@ -4631,7 +4631,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_EvolutionAPI_evolution-go_pkg_sendMessage_service.StickerStruct": {
+        "github_com_WebAPPWago_webapp-wago_pkg_sendMessage_service.StickerStruct": {
             "type": "object",
             "properties": {
                 "delay": {
@@ -4656,14 +4656,14 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "quoted": {
-                    "$ref": "#/definitions/github_com_EvolutionAPI_evolution-go_pkg_sendMessage_service.QuotedStruct"
+                    "$ref": "#/definitions/github_com_WebAPPWago_webapp-wago_pkg_sendMessage_service.QuotedStruct"
                 },
                 "sticker": {
                     "type": "string"
                 }
             }
         },
-        "github_com_EvolutionAPI_evolution-go_pkg_sendMessage_service.TextStruct": {
+        "github_com_WebAPPWago_webapp-wago_pkg_sendMessage_service.TextStruct": {
             "type": "object",
             "properties": {
                 "delay": {
@@ -4688,14 +4688,14 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "quoted": {
-                    "$ref": "#/definitions/github_com_EvolutionAPI_evolution-go_pkg_sendMessage_service.QuotedStruct"
+                    "$ref": "#/definitions/github_com_WebAPPWago_webapp-wago_pkg_sendMessage_service.QuotedStruct"
                 },
                 "text": {
                     "type": "string"
                 }
             }
         },
-        "github_com_EvolutionAPI_evolution-go_pkg_user_service.BlockStruct": {
+        "github_com_WebAPPWago_webapp-wago_pkg_user_service.BlockStruct": {
             "type": "object",
             "properties": {
                 "number": {
@@ -4703,7 +4703,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_EvolutionAPI_evolution-go_pkg_user_service.CheckUserStruct": {
+        "github_com_WebAPPWago_webapp-wago_pkg_user_service.CheckUserStruct": {
             "type": "object",
             "properties": {
                 "formatJid": {
@@ -4717,7 +4717,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_EvolutionAPI_evolution-go_pkg_user_service.GetAvatarStruct": {
+        "github_com_WebAPPWago_webapp-wago_pkg_user_service.GetAvatarStruct": {
             "type": "object",
             "properties": {
                 "number": {
@@ -4728,7 +4728,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_EvolutionAPI_evolution-go_pkg_user_service.PrivacyStruct": {
+        "github_com_WebAPPWago_webapp-wago_pkg_user_service.PrivacyStruct": {
             "type": "object",
             "properties": {
                 "callAdd": {
@@ -4754,7 +4754,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_EvolutionAPI_evolution-go_pkg_user_service.SetProfilePictureStruct": {
+        "github_com_WebAPPWago_webapp-wago_pkg_user_service.SetProfilePictureStruct": {
             "type": "object",
             "properties": {
                 "image": {
@@ -4762,7 +4762,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_EvolutionAPI_evolution-go_pkg_utils.VCardStruct": {
+        "github_com_WebAPPWago_webapp-wago_pkg_utils.VCardStruct": {
             "type": "object",
             "properties": {
                 "fullName": {
@@ -13009,8 +13009,8 @@ var SwaggerInfo = &swag.Spec{
 	Host:             "",
 	BasePath:         "",
 	Schemes:          []string{},
-	Title:            "Evolution GO",
-	Description:      "Evolution GO - whatsmeow",
+	Title:            "WebAPP-Wago",
+	Description:      "WebAPP-Wago - whatsmeow",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,
 	LeftDelim:        "{{",

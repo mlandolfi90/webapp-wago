@@ -9,8 +9,8 @@ import (
 	"strings"
 	"time"
 
-	producer_interfaces "github.com/EvolutionAPI/evolution-go/pkg/events/interfaces"
-	logger_wrapper "github.com/EvolutionAPI/evolution-go/pkg/logger"
+	producer_interfaces "github.com/webapp-wago/webapp-wago/pkg/events/interfaces"
+	logger_wrapper "github.com/webapp-wago/webapp-wago/pkg/logger"
 )
 
 type webhookProducer struct {

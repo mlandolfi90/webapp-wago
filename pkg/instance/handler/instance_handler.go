@@ -6,10 +6,10 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	config "github.com/EvolutionAPI/evolution-go/pkg/config"
-	instance_model "github.com/EvolutionAPI/evolution-go/pkg/instance/model"
-	instance_service "github.com/EvolutionAPI/evolution-go/pkg/instance/service"
-	"github.com/EvolutionAPI/evolution-go/pkg/utils"
+	config "github.com/webapp-wago/webapp-wago/pkg/config"
+	instance_model "github.com/webapp-wago/webapp-wago/pkg/instance/model"
+	instance_service "github.com/webapp-wago/webapp-wago/pkg/instance/service"
+	"github.com/webapp-wago/webapp-wago/pkg/utils"
 )
 
 type InstanceHandler interface {

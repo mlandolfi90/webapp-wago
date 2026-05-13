@@ -5,9 +5,9 @@ import (
 	"errors"
 	"time"
 
-	instance_model "github.com/EvolutionAPI/evolution-go/pkg/instance/model"
-	logger_wrapper "github.com/EvolutionAPI/evolution-go/pkg/logger"
-	whatsmeow_service "github.com/EvolutionAPI/evolution-go/pkg/whatsmeow/service"
+	instance_model "github.com/webapp-wago/webapp-wago/pkg/instance/model"
+	logger_wrapper "github.com/webapp-wago/webapp-wago/pkg/logger"
+	whatsmeow_service "github.com/webapp-wago/webapp-wago/pkg/whatsmeow/service"
 	"github.com/gomessguii/logger"
 	"go.mau.fi/whatsmeow"
 	"go.mau.fi/whatsmeow/types"

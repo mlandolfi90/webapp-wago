@@ -1,23 +1,23 @@
-# Evolution GO - Changelog
+# WebAPP-Wago - Changelog
 
 ## v0.7.1
 
-**Docker:** `evoapicloud/evolution-go:0.7.1`
+**Docker:** `evoapicloud/webapp-wago:0.7.1`
 
 ### 🆕 New Features
 - **Test-send modal in Manager** — new modal in the embedded manager UI to test message sending directly from the panel, covering text, media and interactive message types. Useful for validating an instance right after pairing without leaving the manager.
 
 ### 🔧 Improvements / CI
 - **whatsmeow-lib SHA now pinned in the public sync** — the `sync-releases` workflow previously re-cloned whatsmeow `main` on every run, so the SHA listed in the CHANGELOG could drift from what the public repos actually built against. The workflow now captures the SHA from the dev submodule and checks out that exact commit in the target, restoring release reproducibility.
-- **Repository cleanup** — dropped tracked binaries (`evolution-go`, `build/server`), IDE config (`.idea/`) and scratch files (`DIFF-COMPLETO.txt`, `API-INTERACTIVE-DOCS.txt`, `carousel-sender.html`). Expanded `.gitignore` to prevent reincidence.
+- **Repository cleanup** — dropped tracked binaries (`webapp-wago`, `build/server`), IDE config (`.idea/`) and scratch files (`DIFF-COMPLETO.txt`, `API-INTERACTIVE-DOCS.txt`, `carousel-sender.html`). Expanded `.gitignore` to prevent reincidence.
 
 ### 📝 Docs
-- **Postman collection** — added `Set Proxy` request and multipart hints on `/send/media`; collection file renamed from `Evolution GO.postman_collection (2).json` to `Evolution GO.postman_collection.json`.
+- **Postman collection** — added `Set Proxy` request and multipart hints on `/send/media`; collection file renamed from `WebAPP-Wago.postman_collection (2).json` to `WebAPP-Wago.postman_collection.json`.
 - **Interactive messages docs** — additional examples and corrections.
 
 ## v0.7.0
 
-**Docker:** `evoapicloud/evolution-go:0.7.0`
+**Docker:** `evoapicloud/webapp-wago:0.7.0`
 
 ### 🆕 New Features
 - **Multi-platform interactive messages** — Buttons, lists and carousel working on Android, iOS and WhatsApp Web/Desktop
@@ -34,7 +34,7 @@
 - **WhatsApp Web version cache** — `fetchWhatsAppWebVersion` now caches the result for 1 hour with a mutex instead of issuing one request per instance startup. Thanks @VitorS0uza (#24)
 - **Manager flicker fix** — instance page no longer replaces the list with skeleton cards on every 5s polling cycle (`hasLoaded` flag). Thanks @TBDevMaster (#14), closes #11
 - **`WEBHOOKFILES` → `WEBHOOK_FILES`** — `.env.example`, docker-compose and docs aligned with the env var the runtime actually reads. Thanks @VitorS0uza (#22)
-- **Dependency cleanup** — removed unused `github.com/EvolutionAPI/evo-gate` from `go.mod`
+- **Dependency cleanup** — removed unused `github.com/WebAPPWago/evo-gate` from `go.mod`
 - **whatsmeow-lib** bumped to `0923702fb`
 - **Telemetry removed** — dropped legacy `pkg/telemetry`
 
@@ -82,7 +82,7 @@
 
 ## v0.5.3
 
-**Docker:** `evoapicloud/evolution-go:0.5.3`
+**Docker:** `evoapicloud/webapp-wago:0.5.3`
 
 ### 🔧 Improvements
 
@@ -93,7 +93,7 @@
 
 ## v0.5.2
 
-**Docker:** `evoapicloud/evolution-go:0.5.2`
+**Docker:** `evoapicloud/webapp-wago:0.5.2`
 
 ### 🆕 New Features
 - **SetProxy Endpoint**: New endpoint `POST /instance/proxy/{instanceId}` to configure proxy for instances
@@ -120,7 +120,7 @@
 
 ## v0.5.1
 
-**Docker:** `evoapicloud/evolution-go:0.5.1`
+**Docker:** `evoapicloud/webapp-wago:0.5.1`
 
 ### 🔧 Improvements
 - **Instance Deletion**: Enhance instance deletion and media storage path resolution
@@ -130,7 +130,7 @@
 
 ## v0.5.0
 
-**Docker:** `evoapicloud/evolution-go:0.5.0`
+**Docker:** `evoapicloud/webapp-wago:0.5.0`
 
 ### 🔧 Improvements
 - **Media Storage**: Enhance media storage and logging in Whatsmeow event handling
@@ -141,7 +141,7 @@
 
 ## v0.4.9
 
-**Docker:** `evoapicloud/evolution-go:0.4.9`
+**Docker:** `evoapicloud/webapp-wago:0.4.9`
 
 ### 🔧 Improvements
 - **Connection Handling**: Add instance update test scenarios and improve connection handling
@@ -152,7 +152,7 @@
 
 ## v0.4.8
 
-**Docker:** `evoapicloud/evolution-go:0.4.8`
+**Docker:** `evoapicloud/webapp-wago:0.4.8`
 
 ### 🔧 Improvements
 - **Audio Duration**: Improve audio duration parsing in convertAudioToOpusWithDuration function
@@ -161,7 +161,7 @@
 
 ## v0.4.7
 
-**Docker:** `evoapicloud/evolution-go:0.4.7`
+**Docker:** `evoapicloud/webapp-wago:0.4.7`
 
 ### 🔧 Improvements
 - **Phone Number Formatting**: Improve phone number formatting and validation in user service
@@ -174,7 +174,7 @@
 
 ## v0.4.6
 
-**Docker:** `evoapicloud/evolution-go:0.4.6`
+**Docker:** `evoapicloud/webapp-wago:0.4.6`
 
 ### 🆕 New Features
 - **User Existence Check**: Add user existence check configuration and JID validation middleware
@@ -183,7 +183,7 @@
 
 ## v0.4.5
 
-**Docker:** `evoapicloud/evolution-go:0.4.5`
+**Docker:** `evoapicloud/webapp-wago:0.4.5`
 
 ### 🔧 Improvements
 - **Dependencies**: Update dependencies and enhance audio conversion functionality
@@ -192,7 +192,7 @@
 
 ## v0.4.4
 
-**Docker:** `evoapicloud/evolution-go:0.4.4`
+**Docker:** `evoapicloud/webapp-wago:0.4.4`
 
 ### 🆕 New Features
 - **CLAUDE.md**: Add CLAUDE.md for project documentation and enhance RabbitMQ connection handling
@@ -201,7 +201,7 @@
 
 ## v0.4.3
 
-**Docker:** `evoapicloud/evolution-go:0.4.3`
+**Docker:** `evoapicloud/webapp-wago:0.4.3`
 
 ### 🔧 Improvements
 - **PostgreSQL Connection**: Fix in PostgreSQL connection configuration for session auth
@@ -246,7 +246,7 @@
 ## v0.1.0
 
 ### 🆕 Initial Features
-- Base implementation of Evolution API in Go
+- Base implementation of WebAPP-Wago in Go
 - WhatsApp integration via whatsmeow
 - Instance system
 - Basic message sending endpoints
@@ -276,9 +276,9 @@
 
 ## 🔗 Useful Links
 
-- **Docker Hub**: `evoapicloud/evolution-go`
+- **Docker Hub**: `evoapicloud/webapp-wago`
 - **Documentation**: Swagger available at `/swagger/`
-- **GitHub**: [Evolution API Go](https://github.com/EvolutionAPI/evolution-go)
+- **GitHub**: [WebAPP-Wago Go](https://github.com/WebAPPWago/webapp-wago)
 
 ---
 

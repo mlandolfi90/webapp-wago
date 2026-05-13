@@ -1,6 +1,6 @@
 # Guia de Desenvolvimento
 
-Guia completo para desenvolver e contribuir com o Evolution GO.
+Guia completo para desenvolver e contribuir com o WebAPP-Wago.
 
 ## Índice
 
@@ -19,7 +19,7 @@ Guia completo para desenvolver e contribuir com o Evolution GO.
 
 ## Visão Geral
 
-O Evolution GO é um **gateway de API WhatsApp** escrito em Go, utilizando:
+O WebAPP-Wago é um **gateway de API WhatsApp** escrito em Go, utilizando:
 
 - **Linguagem**: Go 1.24+
 - **Framework Web**: Gin
@@ -61,12 +61,12 @@ O Evolution GO é um **gateway de API WhatsApp** escrito em Go, utilizando:
 
 ```bash
 # Via HTTPS
-git clone https://git.evoai.app/Evolution/evolution-go.git
-cd evolution-go
+git clone https://git.evoai.app/Evolution/webapp-wago.git
+cd webapp-wago
 
 # Ou via SSH (se configurado)
-git clone git@git.evochat.com:Evolution/evolution-go.git
-cd evolution-go
+git clone git@git.evochat.com:Evolution/webapp-wago.git
+cd webapp-wago
 ```
 
 ### 2. Instalar Dependências Go
@@ -162,7 +162,7 @@ go version
 go mod verify
 
 # Compilar (teste)
-go build ./cmd/evolution-go
+go build ./cmd/webapp-wago
 ```
 
 ---
@@ -170,9 +170,9 @@ go build ./cmd/evolution-go
 ## Estrutura do Projeto
 
 ```
-evolution-go/
+webapp-wago/
 ├── cmd/
-│   └── evolution-go/
+│   └── webapp-wago/
 │       └── main.go              # Entry point da aplicação
 │
 ├── pkg/                         # Pacotes principais
@@ -265,7 +265,7 @@ Cada módulo segue o padrão **Handler → Service → Repository**:
 make dev
 
 # Ou diretamente
-go run cmd/evolution-go/main.go -dev
+go run cmd/webapp-wago/main.go -dev
 ```
 
 **Saída esperada**:
@@ -275,7 +275,7 @@ go run cmd/evolution-go/main.go -dev
 [GIN-debug] [WARNING] Running in "debug" mode. Switch to "release" mode in production.
 [GIN-debug] GET    /swagger/*any             --> github.com/swaggo/gin-swagger.CustomWrapHandler.func1 (3 handlers)
 [GIN-debug] GET    /server/ok                --> main.main.func1 (3 handlers)
-[GIN-debug] POST   /instance/create          --> evolution-go/pkg/instance.(*InstanceHandler).Create-fm (4 handlers)
+[GIN-debug] POST   /instance/create          --> webapp-wago/pkg/instance.(*InstanceHandler).Create-fm (4 handlers)
 ...
 [GIN-debug] Listening and serving HTTP on :4000
 ```
@@ -287,7 +287,7 @@ go run cmd/evolution-go/main.go -dev
 make build-local
 
 # Executar binário
-./build/evolution-go
+./build/webapp-wago
 ```
 
 ### Com Docker Compose
@@ -303,7 +303,7 @@ nano docker-compose.yml
 docker-compose up -d
 
 # Ver logs
-docker-compose logs -f evolution-go
+docker-compose logs -f webapp-wago
 ```
 
 ### Acessar a Aplicação
@@ -473,11 +473,11 @@ Salvar em `.vscode/tasks.json`.
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Launch Evolution GO",
+      "name": "Launch WebAPP-Wago",
       "type": "go",
       "request": "launch",
       "mode": "debug",
-      "program": "${workspaceFolder}/cmd/evolution-go",
+      "program": "${workspaceFolder}/cmd/webapp-wago",
       "args": ["-dev"],
       "env": {
         "WADEBUG": "DEBUG"
@@ -497,9 +497,9 @@ Salvar em `.vscode/launch.json`.
 1. **Run → Edit Configurations**
 2. **Add New Configuration → Go Build**
 3. Configurar:
-   - **Name**: Evolution GO Dev
+   - **Name**: WebAPP-Wago Dev
    - **Run kind**: Directory
-   - **Directory**: `cmd/evolution-go`
+   - **Directory**: `cmd/webapp-wago`
    - **Program arguments**: `-dev`
    - **Environment**: `WADEBUG=DEBUG`
    - **Working directory**: Raiz do projeto
@@ -639,7 +639,7 @@ func (h *Handler) Create(c *gin.Context) {
 ### Logging
 
 ```go
-import "evolution-go/pkg/utils/logger"
+import "webapp-wago/pkg/utils/logger"
 
 // Níveis de log
 logger.LogInfo("Instance %s created successfully", instanceName)

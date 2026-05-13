@@ -1,6 +1,6 @@
 # Segurança e Hardening
 
-Guia de práticas de segurança para ambientes de produção do Evolution GO.
+Guia de práticas de segurança para ambientes de produção do WebAPP-Wago.
 
 ## Índice
 
@@ -113,7 +113,7 @@ http {
         location / {
             limit_req zone=api_limit burst=200 nodelay;
             limit_req_status 429;
-            proxy_pass http://evolution-go:4000;
+            proxy_pass http://webapp-wago:4000;
         }
     }
 }
@@ -132,7 +132,7 @@ echo "$(uuidgen)" | docker secret create evolution_api_key -
 
 # docker-compose.swarm.yml
 services:
-  evolution-go:
+  webapp-wago:
     secrets:
       - evolution_api_key
       - postgres_password
@@ -154,7 +154,7 @@ secrets:
 kubectl create secret generic evolution-secrets \
   --from-literal=GLOBAL_API_KEY=$(uuidgen) \
   --from-literal=POSTGRES_PASSWORD=$(openssl rand -base64 32) \
-  --namespace=evolution-go
+  --namespace=webapp-wago
 
 # Habilitar encryption at rest
 # https://kubernetes.io/docs/tasks/administer-cluster/encrypt-data/
@@ -187,7 +187,7 @@ auto_auth {
   method {
     type = "kubernetes"
     config = {
-      role = "evolution-go"
+      role = "webapp-wago"
     }
   }
 }
@@ -275,7 +275,7 @@ networks:
     internal: true  # Sem acesso externo
 
 services:
-  evolution-go:
+  webapp-wago:
     networks:
       - frontend
       - backend
@@ -309,7 +309,7 @@ ENTRYPOINT ["/app/server"]
 
 ```yaml
 services:
-  evolution-go:
+  webapp-wago:
     read_only: true
     tmpfs:
       - /tmp
@@ -322,7 +322,7 @@ services:
 
 ```yaml
 services:
-  evolution-go:
+  webapp-wago:
     security_opt:
       - no-new-privileges:true
       - apparmor:docker-default
@@ -337,7 +337,7 @@ services:
 
 ```yaml
 services:
-  evolution-go:
+  webapp-wago:
     deploy:
       resources:
         limits:
@@ -358,13 +358,13 @@ services:
 
 ```bash
 # Trivy
-trivy image evoapicloud/evolution-go:latest
+trivy image evoapicloud/webapp-wago:latest
 
 # Apenas críticas
-trivy image --severity CRITICAL evoapicloud/evolution-go:latest
+trivy image --severity CRITICAL evoapicloud/webapp-wago:latest
 
 # Docker Scout
-docker scout cves evoapicloud/evolution-go:latest
+docker scout cves evoapicloud/webapp-wago:latest
 ```
 
 ---
@@ -426,7 +426,7 @@ server {
     server_tokens off;
 
     location / {
-        proxy_pass http://evolution-go:4000;
+        proxy_pass http://webapp-wago:4000;
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
@@ -563,7 +563,7 @@ http {
     server {
         location / {
             limit_req zone=req_limit burst=20 nodelay;
-            proxy_pass http://evolution-go:4000;
+            proxy_pass http://webapp-wago:4000;
         }
     }
 }
@@ -573,7 +573,7 @@ http {
 
 ### SQL Injection
 
-Evolution GO usa GORM (ORM) que previne SQL injection por padrão através de prepared statements.
+WebAPP-Wago usa GORM (ORM) que previne SQL injection por padrão através de prepared statements.
 
 ### Brute-Force Protection (Fail2ban)
 
@@ -634,7 +634,7 @@ DELETE FROM messages WHERE timestamp < NOW() - INTERVAL '30 days';
 
 ```yaml
 services:
-  evolution-go:
+  webapp-wago:
     logging:
       driver: "json-file"
       options:
@@ -729,4 +729,4 @@ docker export container_suspeito > filesystem_suspeito.tar
 
 ---
 
-**Documentação Evolution GO v1.0**
+**Documentação WebAPP-Wago v1.0**

@@ -1,4 +1,4 @@
-module github.com/EvolutionAPI/evolution-go
+module github.com/webapp-wago/webapp-wago
 
 go 1.25.0
 

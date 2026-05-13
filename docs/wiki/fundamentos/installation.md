@@ -1,6 +1,6 @@
 # Guia de Instalação
 
-Métodos de instalação do Evolution GO para diferentes ambientes.
+Métodos de instalação do WebAPP-Wago para diferentes ambientes.
 
 ## Índice
 
@@ -49,17 +49,17 @@ Método mais simples e adequado para produção.
 **Opção A: Clonar repositório**
 
 ```bash
-git clone https://git.evoai.app/Evolution/evolution-go.git
-cd evolution-go
+git clone https://git.evoai.app/Evolution/webapp-wago.git
+cd webapp-wago
 ```
 
 **Opção B: Download direto**
 
 ```bash
-mkdir evolution-go-deploy && cd evolution-go-deploy
+mkdir webapp-wago-deploy && cd webapp-wago-deploy
 
-curl -o docker-compose.yml https://raw.githubusercontent.com/EvolutionAPI/evolution-go/main/docker/examples/docker-compose.yml
-curl -o init-db.sql https://raw.githubusercontent.com/EvolutionAPI/evolution-go/main/docker/examples/init-db.sql
+curl -o docker-compose.yml https://raw.githubusercontent.com/WebAPPWago/webapp-wago/main/docker/examples/docker-compose.yml
+curl -o init-db.sql https://raw.githubusercontent.com/WebAPPWago/webapp-wago/main/docker/examples/init-db.sql
 ```
 
 ### 2. Configurar API Key
@@ -103,8 +103,8 @@ Aguarde ~30 segundos para inicialização completa.
 ### 4. Verificar Logs
 
 ```bash
-# Evolution GO
-docker-compose logs -f evolution-go
+# WebAPP-Wago
+docker-compose logs -f webapp-wago
 
 # PostgreSQL
 docker-compose logs -f postgres
@@ -163,8 +163,8 @@ go version
 ### 4. Clonar Repositório
 
 ```bash
-git clone https://git.evoai.app/Evolution/evolution-go.git
-cd evolution-go
+git clone https://git.evoai.app/Evolution/webapp-wago.git
+cd webapp-wago
 ```
 
 ### 5. Instalar Dependências
@@ -211,13 +211,13 @@ make dev
 
 Ou:
 ```bash
-go run cmd/evolution-go/main.go -dev
+go run cmd/webapp-wago/main.go -dev
 ```
 
 **Build produção:**
 ```bash
 make build-local
-./build/evolution-go
+./build/webapp-wago
 ```
 
 ---
@@ -273,7 +273,7 @@ docker service logs evolution_evolution_go -f
 Incluindo RabbitMQ, MinIO e NATS.
 
 ```bash
-curl -o docker-compose-full.yml https://raw.githubusercontent.com/EvolutionAPI/evolution-go/main/docker/examples/docker-compose.full.yml
+curl -o docker-compose-full.yml https://raw.githubusercontent.com/WebAPPWago/webapp-wago/main/docker/examples/docker-compose.full.yml
 
 nano docker-compose-full.yml  # Configurar API Key
 
@@ -284,7 +284,7 @@ docker-compose -f docker-compose-full.yml up -d
 
 | Serviço | Porta | Função |
 |---------|-------|--------|
-| Evolution GO | 4000 | API principal |
+| WebAPP-Wago | 4000 | API principal |
 | PostgreSQL | 5432 | Banco de dados |
 | RabbitMQ | 5672, 15672 | Filas de mensagens |
 | MinIO | 9000, 9001 | Storage de objetos |
@@ -292,7 +292,7 @@ docker-compose -f docker-compose-full.yml up -d
 
 **Acessos:**
 
-- Evolution GO: http://localhost:4000
+- WebAPP-Wago: http://localhost:4000
 - Swagger: http://localhost:4000/swagger/index.html
 - RabbitMQ: http://localhost:15672 (admin/admin)
 - MinIO: http://localhost:9001 (minioadmin/minioadmin)
@@ -343,12 +343,12 @@ curl -X POST http://localhost:4000/instance/create \
 
 **Docker:**
 ```bash
-docker-compose logs -f evolution-go
+docker-compose logs -f webapp-wago
 ```
 
 **Local:**
 ```bash
-tail -f logs/evolution-go.log
+tail -f logs/webapp-wago.log
 ```
 
 ---
@@ -383,7 +383,7 @@ Acesso via: http://localhost:4001
 
 **Ver logs:**
 ```bash
-docker-compose logs evolution-go
+docker-compose logs webapp-wago
 ```
 
 **Causas comuns:**
@@ -459,7 +459,7 @@ docker service logs evolution_evolution_go -f
 docker service scale evolution_evolution_go=3
 
 # Atualizar
-docker service update --image evoapicloud/evolution-go:latest evolution_evolution_go
+docker service update --image evoapicloud/webapp-wago:latest evolution_evolution_go
 
 # Remover
 docker stack rm evolution
@@ -488,4 +488,4 @@ Disponíveis em `docker/examples/`:
 
 ---
 
-**Documentação Evolution GO v1.0**
+**Documentação WebAPP-Wago v1.0**
