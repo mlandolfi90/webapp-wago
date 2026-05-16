@@ -89,11 +89,19 @@ LOGTYPE=console
 
 ## API Documentation
 
+- **[docs/MANUAL.md](./docs/MANUAL.md)** — manual completo y actualizado de
+  toda la API (auth, ciclo de vida, catálogo de endpoints, eventos, ejemplos).
+- **[docs/MCP-WHATSAPP.md](./docs/MCP-WHATSAPP.md)** — guía para exponer este
+  proyecto como un servidor MCP de WhatsApp.
+
 Once the server is running, Swagger UI is available at:
 
 ```
 http://localhost:8080/swagger/index.html
 ```
+
+> Nota: la tabla "Key endpoints" de abajo está desactualizada; usá
+> `docs/MANUAL.md` o Swagger como referencia real de rutas.
 
 ### Key endpoints
 
