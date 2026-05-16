@@ -1,4 +1,4 @@
-.PHONY: help dev run build test clean swagger deps submodules docker-build docker-run install setup migrate-up migrate-down logs
+.PHONY: help dev run build test clean swagger deps submodules buildx-setup docker-build docker-run docker-compose-up install setup migrate-up migrate-down logs
 
 # Configurações
 APP_NAME=webapp-wago
@@ -8,6 +8,12 @@ GO=go
 VERSION=$(shell grep -om1 "v[0-9].*" CHANGELOG.md)
 LDFLAGS=-ldflags "-X main.version=$(VERSION)"
 GOFLAGS=-v
+
+# Builder buildx dedicado com cache persistente.
+# Combinado com os cache mounts do Dockerfile, evita os lapsos
+# longos de rebuild do Go (deps + CGO) entre builds.
+BUILDX_BUILDER=webapp-wago-builder
+export DOCKER_BUILDKIT=1
 
 # Cores para output
 GREEN=\033[0;32m
@@ -164,9 +170,16 @@ migrate-down: ## Reverte migrations do banco de dados
 
 ##@ Docker
 
-docker-build: submodules ## Build da imagem Docker
-	@echo "$(GREEN)🐳 Construindo imagem Docker...$(NC)"
-	docker build --build-arg VERSION=$(VERSION) -t $(APP_NAME):latest .
+buildx-setup: ## Cria o builder buildx com cache persistente (idempotente)
+	@if ! docker buildx inspect $(BUILDX_BUILDER) >/dev/null 2>&1; then \
+		echo "$(YELLOW)🔧 Criando builder buildx '$(BUILDX_BUILDER)'...$(NC)"; \
+		docker buildx create --name $(BUILDX_BUILDER) --driver docker-container --bootstrap; \
+	fi
+
+docker-build: submodules buildx-setup ## Build da imagem Docker (com cache persistente)
+	@echo "$(GREEN)🐳 Construindo imagem Docker (buildx + cache)...$(NC)"
+	docker buildx build --builder $(BUILDX_BUILDER) --load \
+		--build-arg VERSION=$(VERSION) -t $(APP_NAME):latest .
 	@echo "$(GREEN)✅ Imagem Docker construída$(NC)"
 
 docker-run: ## Roda container Docker
