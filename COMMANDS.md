@@ -129,8 +129,8 @@ make clean-all
 ### Setup Inicial
 
 ```bash
-# 1. Clone o repositório
-git clone https://github.com/mlandolfi90/webapp-wago.git
+# 1. Clone o repositório (com submódulos — whatsmeow-lib é obrigatório)
+git clone --recurse-submodules https://github.com/mlandolfi90/webapp-wago.git
 cd webapp-wago
 
 # 2. Setup completo do ambiente

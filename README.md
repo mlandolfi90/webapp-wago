@@ -28,17 +28,21 @@ This project is a derivative work based on [Evolution Go](https://github.com/Evo
 ### Docker
 
 ```bash
-git clone https://github.com/mlandolfi90/webapp-wago.git
+git clone --recurse-submodules https://github.com/mlandolfi90/webapp-wago.git
 cd webapp-wago
 cp .env.example .env
 make docker-build
 make docker-run
 ```
 
+> The `whatsmeow-lib` dependency is a git submodule. The `--recurse-submodules`
+> flag is required, otherwise the build fails. If you already cloned without it,
+> run `git submodule update --init --recursive`.
+
 ### Local development
 
 ```bash
-git clone https://github.com/mlandolfi90/webapp-wago.git
+git clone --recurse-submodules https://github.com/mlandolfi90/webapp-wago.git
 cd webapp-wago
 
 make setup

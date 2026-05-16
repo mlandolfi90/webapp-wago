@@ -1,4 +1,4 @@
-.PHONY: help dev run build test clean swagger deps docker-build docker-run install setup migrate-up migrate-down logs
+.PHONY: help dev run build test clean swagger deps submodules docker-build docker-run install setup migrate-up migrate-down logs
 
 # Configurações
 APP_NAME=webapp-wago
@@ -91,7 +91,13 @@ bench: ## Roda benchmarks
 
 ##@ Dependências
 
-deps: ## Instala dependências
+submodules: ## Inicializa o submódulo whatsmeow-lib (obrigatório)
+	@if [ ! -f whatsmeow-lib/go.mod ]; then \
+		echo "$(YELLOW)📥 Inicializando submódulo whatsmeow-lib...$(NC)"; \
+		git submodule update --init --recursive; \
+	fi
+
+deps: submodules ## Instala dependências
 	@echo "$(GREEN)📦 Instalando dependências...$(NC)"
 	$(GO) mod download
 	$(GO) mod verify
@@ -158,7 +164,7 @@ migrate-down: ## Reverte migrations do banco de dados
 
 ##@ Docker
 
-docker-build: ## Build da imagem Docker
+docker-build: submodules ## Build da imagem Docker
 	@echo "$(GREEN)🐳 Construindo imagem Docker...$(NC)"
 	docker build --build-arg VERSION=$(VERSION) -t $(APP_NAME):latest .
 	@echo "$(GREEN)✅ Imagem Docker construída$(NC)"
