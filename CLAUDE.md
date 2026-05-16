@@ -3,6 +3,15 @@
 API REST de WhatsApp en Go (deriva de Evolution Go). UI ya compilada en
 `manager/dist`, servida en `/manager`.
 
+## OBLIGATORIO: El Crisol (loop de calidad)
+
+Para **todo cambio de código antes de commitear** se aplica el playbook
+`el-crisol` (`.claude/skills/el-crisol/SKILL.md`): Planificador → Arquitecto
+→ Ingeniero → Verificador, veredicto binario, commit solo tras PASS. Tier
+Completo si toca contratos/arquitectura/>1 archivo/patrón; fast-path si es
+trivial. Planificar, leer, charlar o editar docs/.md **no** dispara el Crisol.
+Fuente canónica: ADR 0018.
+
 ## Submódulo obligatorio: whatsmeow-lib
 
 `whatsmeow-lib/` es un submódulo git. `go.mod` lo usa vía `replace` y el
