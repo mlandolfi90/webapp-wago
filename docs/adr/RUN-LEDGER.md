@@ -15,19 +15,21 @@ Escalación: none
 Cierre: 2026-05-16 — commit b2c87ab
 
 ## RUN webui-restyle-001
-STATUS: BLOCKED (pendiente de acceso de red)
-Branch: claude/await-instructions-aV6KL
-Tier: completo (rework visual: css + posible layout en vistas)
-Alcance: restyle del panel tomando como referencia el estilo de Evolution
-Bloqueo: egress allowlist del environment niega evolutionfoundation.com.br
-  (403 "Host not in allowlist"); también browserbase.com (MCP hosteado
-  inviable desde el sandbox). Verificado por curl/Chromium en sesión previa.
-Desbloqueo requerido (acción del usuario, fuera del contenedor):
-  agregar evolutionfoundation.com.br (+ www / *.evolutionfoundation.com.br)
-  a la allowlist del environment, o usar política de red abierta, y
-  abrir una sesión nueva sobre esta rama.
-Pendiente confirmar: si la referencia visual es el sitio institucional o
-  el Manager/dashboard de Evolution (URL distinta).
-Próximo paso al desbloquear: Planificador/Arquitecto sobre la referencia
-  visual real (render + capturas) → Ingeniero → Verificador con capturas.
-Iteraciones: 0/3
+STATUS: CLOSED
+Branch: claude/build-webui-AcJFe
+Tier: completo (rework visual: css + index.html + favicon)
+Alcance: restyle del panel /manager con identidad del sitio institucional
+  https://evolutionfoundation.com.br (confirmado por el usuario). Red
+  desbloqueada esta sesión (curl 200).
+Planificador: referencia real extraída del CSS del sitio (paleta/tipografía/
+  layout); panel mapeado; paridad de clases JS↔CSS confirmada (PASS)
+Arquitecto: APPROVE — CSS-only, dark-only, sin CDN (ADR 0019 offline-ok),
+  contraste AA en verde neón; cero cambios de markup/JS
+Ingeniero: app.css (tokens+componentes), index.html (color-scheme dark),
+  favicon.svg (verde neón), ADR 0021 (tokens de diseño)
+Verificador: PASS — render real Chromium 6 vistas (login/error/dashboard/
+  crear/conectar/QR), 0 clases huérfanas, contratos intactos
+Integración: N/A (carril único)
+Iteraciones: 1/3
+Escalación: none
+Cierre: 2026-05-16
