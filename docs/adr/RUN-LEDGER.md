@@ -32,4 +32,4 @@ Verificador: PASS — render real Chromium 6 vistas (login/error/dashboard/
 Integración: N/A (carril único)
 Iteraciones: 1/3
 Escalación: none
-Cierre: 2026-05-16
+Cierre: 2026-05-16 — commit 86aca02
