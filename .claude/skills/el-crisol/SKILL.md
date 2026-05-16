@@ -67,8 +67,12 @@ Solo `PASS` → commit. `REJECT`/`FAIL` → **vuelve al Planificador** (no hot-p
 - **Commit solo tras PASS** (+ PASS de Integración si hubo paralelo).
 - **Techo de loop = 3 iteraciones.** Si tras 3 ciclos no converge → escala al
   humano con la divergencia exacta. No ciclar infinito.
-- **Gate de crédito técnico (REGLA DE ORO):** FAIL si el cambio toca
+- **REGLA DE ORO #1 — Gate de crédito técnico:** FAIL si el cambio toca
   arquitectura y NO deposita ADR/annotation/IMPACT-MATRIX.
+- **REGLA DE ORO #2 — Código factorizado:** FAIL si el entregable es
+  monolítico. Todo código debe estar factorizado profesionalmente
+  (módulos cohesivos, responsabilidad única, sin archivos cajón de
+  sastre). Fuente: ADR 0020.
 - **Blameless:** la falla se asume inevitable; surface honesto + corrección
   sistémica. No se culpa, se corrige y se registra.
 
@@ -170,9 +174,11 @@ APPROVE | REJECT (motivo exacto archivo:concepto + corrección estructural)
 - [ ] Sin scope creep: SOLO lo aprobado por el Arquitecto.
 - [ ] Sin backwards-compat hacks, sin código muerto, sin TODOs colgados.
 
-**C. Gate de crédito técnico (REGLA DE ORO — falla dura)**
-- [ ] Si tocó arquitectura/contrato/patrón → depositó ADR/annotation/IMPACT-MATRIX.
-- [ ] Oportunidad de crédito técnico no aprovechada = **FAIL automático**.
+**C. Reglas de oro (fallas duras)**
+- [ ] #1: Si tocó arquitectura/contrato/patrón → depositó ADR/annotation/IMPACT-MATRIX.
+- [ ] #1: Oportunidad de crédito técnico no aprovechada = **FAIL automático**.
+- [ ] #2: Entregable factorizado (módulos cohesivos, responsabilidad única).
+      Monolito / archivo cajón de sastre = **FAIL automático**.
 
 **D. Integridad estructural (consulta al archaeologist)**
 - [ ] El archaeologist revalidó: sin acoplamiento sutil roto, traps del IMPACT-MATRIX preservados.

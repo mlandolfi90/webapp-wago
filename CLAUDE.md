@@ -10,6 +10,8 @@ Para **todo cambio de código antes de commitear** se aplica el playbook
 → Ingeniero → Verificador, veredicto binario, commit solo tras PASS. Tier
 Completo si toca contratos/arquitectura/>1 archivo/patrón; fast-path si es
 trivial. Planificar, leer, charlar o editar docs/.md **no** dispara el Crisol.
+Dos REGLAS DE ORO (FAIL automático): #1 crédito técnico → ADR ante cambio
+arquitectónico (ADR 0018); #2 código factorizado, sin monolitos (ADR 0020).
 Fuente canónica: ADR 0018.
 
 ## Submódulo obligatorio: whatsmeow-lib
