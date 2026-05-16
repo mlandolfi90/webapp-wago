@@ -32,7 +32,8 @@ export function renderLogin(root) {
       h("div", { class: "login-card" }, [
         brandRow("Wago Manager"),
         h("p", { class: "sub" }, ["Ingresá tu clave de API para administrar las instancias."]),
-        field("Clave de API", keyInput),
+        field("Clave de API", keyInput,
+          "Es la GLOBAL_API_KEY del servidor (definida en el .env). Habilita el acceso de administración para listar y crear instancias. Ej: la misma cadena que configuraste en GLOBAL_API_KEY."),
         submitBtn
       ])
     ])

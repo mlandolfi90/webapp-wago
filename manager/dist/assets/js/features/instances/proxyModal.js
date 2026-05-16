@@ -16,10 +16,14 @@ export function openProxyModal(inst) {
   const m = modal(
     "Proxy — " + (inst.name || inst.id),
     h("div", {}, [
-      field("Host", host),
-      field("Puerto", port),
-      field("Usuario", user),
-      field("Contraseña", pass)
+      field("Host", host,
+        "Dirección (IP o dominio) del servidor proxy por el que saldrá esta instancia. Ej: 10.0.0.5 o proxy.miempresa.com"),
+      field("Puerto", port,
+        "Puerto donde escucha el proxy. Ej: 8080 o 1080 (SOCKS)"),
+      field("Usuario", user,
+        "Usuario para autenticarse en el proxy (si lo requiere). Dejar vacío si el proxy no pide login."),
+      field("Contraseña", pass,
+        "Contraseña del usuario del proxy (si lo requiere). Dejar vacío si el proxy no pide login.")
     ]),
     [removeBtn, h("button", { class: "btn", onclick: () => m.close() }, ["Cancelar"]), applyBtn]
   );

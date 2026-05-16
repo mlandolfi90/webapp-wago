@@ -8,17 +8,35 @@ export function textarea(attrs = {}) {
   return h("textarea", { class: "input", ...attrs });
 }
 
-export function field(label, controlEl) {
-  return h("div", { class: "field" }, [h("label", {}, [label]), controlEl]);
+/**
+ * Contextual help affordance: a focusable "?" with a pure-CSS tooltip
+ * (no JS listeners). `text` describes qué es / cómo se usa / ejemplo.
+ */
+export function helpHint(text) {
+  if (!text) return null;
+  return h("span", { class: "help", tabindex: "0", role: "note", "aria-label": "Ayuda: " + text }, [
+    "?",
+    h("span", { class: "help-pop", role: "tooltip" }, [text])
+  ]);
 }
 
-export function checkboxRow(labelText, checked) {
+export function field(label, controlEl, help) {
+  return h("div", { class: "field" }, [
+    h("label", { class: "field-label" }, [label, helpHint(help)]),
+    controlEl
+  ]);
+}
+
+export function checkboxRow(labelText, checked, help) {
   const cb = h("input", { type: "checkbox" });
   cb.checked = !!checked;
-  const row = h("label", { class: "check", style: "margin-bottom:10px" }, [
-    cb, h("span", {}, [labelText])
-  ]);
-  return { row, checkbox: cb };
+  return {
+    row: h("div", { class: "check-row" }, [
+      h("label", { class: "check" }, [cb, h("span", {}, [labelText])]),
+      helpHint(help)
+    ]),
+    checkbox: cb
+  };
 }
 
 export function primaryButton(label, onClick) {

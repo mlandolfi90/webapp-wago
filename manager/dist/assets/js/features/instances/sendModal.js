@@ -12,8 +12,10 @@ export function openSendModal(inst) {
   const m = modal(
     "Probar envío — " + (inst.name || inst.id),
     h("div", {}, [
-      field("Número (con código de país, sin +)", number),
-      field("Mensaje", text)
+      field("Número (con código de país, sin +)", number,
+        "Destinatario en formato internacional sin el signo +. También acepta un JID. Ej: 5491122334455 (Argentina) o 5491122334455@s.whatsapp.net"),
+      field("Mensaje", text,
+        "Texto que se enviará por WhatsApp. Admite saltos de línea y emojis. Ej: Hola, te escribo desde Wago 👋")
     ]),
     [h("button", { class: "btn", onclick: () => m.close() }, ["Cancelar"]), sendBtn]
   );
