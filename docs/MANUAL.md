@@ -154,6 +154,7 @@ opcionales `delay`, `formatJid`, `mentionAll`, `mentionedJid[]`, `quoted`,
 | `/send/text` | `text*` |
 | `/send/link` | `url*`, `text`, `title`, `description`, `imgUrl` |
 | `/send/media` | `url*`, `type*` (image/video/audio/document), `caption`, `filename` |
+| `/send/album` | `items[]*` (`{type:image\|video, url}`, mín. 2), `caption` (va en el primero) — álbum agrupado (ADR 0038) |
 | `/send/sticker` | `sticker*` (url o base64) |
 | `/send/location` | `latitude*`, `longitude*`, `name`, `address` |
 | `/send/contact` | `vcard{…}` |
@@ -172,7 +173,7 @@ Todos **I**, `POST /message/...`.
 |---|---|---|
 | `/message/react` | `number*`, `id*`, `reaction`, `fromMe`, `participant` | reaccionar (emoji) |
 | `/message/presence` | `number*`, `state`, `isAudio` | indicador "escribiendo/grabando" |
-| `/message/markread` | `number*`, `id[]*` | marcar leído |
+| `/message/markread` | `number*`, `id[]*`, `participant` | marcar leído. **En grupos `participant` (JID del autor) es obligatorio** o el check azul no registra (ADR 0037) |
 | `/message/downloadmedia` | `message{…}` | descargar media de un mensaje |
 | `/message/status` | `id*` | estado de entrega/lectura |
 | `/message/delete` | `number*`, `messageId*`, `chat` | borrar para todos |

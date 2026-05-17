@@ -1,5 +1,17 @@
 # RUN-LEDGER — El Crisol
 
+## PENDIENTES (no bloquean; requieren acción externa al sandbox)
+- **Sync upstream tulir→wago-patches** (DEGRADADO por pedido del humano):
+  hay 3 commits de tulir nuevos (incl. proto bump v1039406452); al día
+  con Evolution. Bloqueado: este entorno no puede pushear al fork (sin
+  ssh, :22 bloqueado, sin token). Camino: merge GitHub-web por el humano
+  → luego bump de submódulo por Crisol + validación de protocolo en
+  dispositivo. Ref: docs/UPSTREAM.md, ADR 0042.
+- **Validación real en dispositivo**: álbum agrupado (ADR 0038/0039) y
+  checks azules en grupo (ADR 0037). Sin WhatsApp en el sandbox.
+- **CI en GitHub Actions**: revisar verde del primer run de ci.yml
+  (ADR 0040).
+
 ## RUN submodule-fork-001
 STATUS: CLOSED
 Branch: claude/build-webui-AcJFe
