@@ -1,5 +1,28 @@
 # RUN-LEDGER — El Crisol
 
+## RUN submodule-fork-001
+STATUS: CLOSED
+Branch: claude/build-webui-AcJFe
+Tier: completo (infra: origen del submódulo, afecta clone/CI de todos)
+Alcance: repuntar submódulo whatsmeow-lib al fork mlandolfi90/whatsmeow
+  rama wago-patches; commit fijado SIN cambios (0923702, ancestro de
+  wago-patches → cero cambio de build)
+Carriles: infra (carril único)
+Planificador: .gitmodules→EvolutionAPI; verificado que 0923702 es
+  ancestro de fork/wago-patches (bccc4a2) → gitlink válido tras repuntar
+Arquitecto: APPROVE — .gitmodules url=fork + branch=wago-patches,
+  submodule sync, gitlink intacto, go build verde; UPSTREAM.md
+  actualizado; ADR 0042
+Ingeniero: .gitmodules (url=fork+branch=wago-patches), submodule sync,
+  docs/UPSTREAM.md (mapa de fuentes), ADR 0042
+Verificador: PASS — go build/vet verdes; gitlink intacto 0923702
+  (submódulo NO modificado); 0923702 ⊂ wago-patches verificado; solo
+  .gitmodules+docs cambian; CI revalida clone recursive en el push
+Integración: N/A (carril único)
+Iteraciones: 1/3
+Escalación: none
+Cierre: pendiente
+
 ## RUN mcp-test-hardening-001
 STATUS: CLOSED
 Branch: claude/build-webui-AcJFe

@@ -7,9 +7,14 @@ Cómo alimentarnos de las mejoras de la librería original y de Evolution
 
 | Qué | Origen | Dónde vive acá |
 |---|---|---|
-| Librería WhatsApp original | `github.com/tulir/whatsmeow` | submódulo `whatsmeow-lib/` (vía `replace` en `go.mod`) |
-| Fork de Evolution de la lib | `github.com/EvolutionAPI/whatsmeow` | submódulo actual (`0923702`, merge de `tulir:main`) |
+| **Submódulo en uso** | **`github.com/mlandolfi90/whatsmeow` rama `wago-patches`** | `whatsmeow-lib/` (vía `replace` en `go.mod`); commit fijado `0923702` |
+| Upstream original | `github.com/tulir/whatsmeow` | remote `tulir` del submódulo (fuente de fixes de protocolo) |
+| Upstream Evolution | `github.com/EvolutionAPI/whatsmeow` | remote `evolutionapi` del submódulo (mejoras de Evolution, ej. LID) |
 | Linaje del backend | `github.com/EvolutionAPI/evolution-go` | este repo (derivado; ver `NOTICE`) |
+
+> Estado: el submódulo YA apunta al fork propio (ADR 0042). Sync = traer
+> `tulir` **y** `evolutionapi` a `wago-patches` y rebasar los parches
+> propios (procedimiento abajo). Ambos upstreams se alimentan.
 
 ## Dos reglas que lo hacen barato (de ADR 0036)
 
