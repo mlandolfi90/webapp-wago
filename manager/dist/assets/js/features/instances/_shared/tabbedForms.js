@@ -7,10 +7,13 @@ import { toast, toastError } from "../../../ui/feedback.js";
  * Modal genérico de "pestañas-formulario": un `seg` de formularios
  * declarativos. Consolida el patrón usado por dominios de gestión.
  *
- * forms: [{ id, label, api(token, body)->Promise,
- *   build(prefill)->{ fields:[Node], validate:()->string|null, body:()->object },
- *   result?(data, areaEl),   // si existe: renderiza salida, NO cierra
- *   load?(token)->Promise }] // precarga estado antes de build(prefill)
+ * forms: cada tab es de uno de dos tipos:
+ *  - form-tab: { id, label, api(token, body)->Promise,
+ *      build(prefill)->{ fields:[Node], validate:()->string|null, body:()->object },
+ *      result?(data, areaEl),   // si existe: renderiza salida, NO cierra
+ *      load?(token)->Promise }  // precarga estado antes de build(prefill)
+ *  - custom-tab: { id, label, render(areaEl, inst, ctx) }  // contenido a medida
+ *      ctx = { go(tabId), refresh() } para navegar/recargar pestañas.
  */
 export function openTabbedForms({ title, inst, forms }) {
   let active = forms[0];
@@ -30,12 +33,22 @@ export function openTabbedForms({ title, inst, forms }) {
     [h("button", { class: "btn", onclick: () => m.close() }, ["Cerrar"])]
   );
 
+  const ctx = {
+    go: (id) => { const t = forms.find((f) => f.id === id); if (t) select(t); },
+    refresh: () => select(active)
+  };
+
   function select(f) {
     active = f;
     seg.querySelectorAll("button").forEach((b, i) => {
       b.className = forms[i].id === f.id ? "is-active" : "";
     });
-    renderForm(f);
+    if (typeof f.render === "function") {
+      clear(area);
+      f.render(area, inst, ctx);
+    } else {
+      renderForm(f);
+    }
   }
 
   function renderForm(f) {
@@ -76,5 +89,5 @@ export function openTabbedForms({ title, inst, forms }) {
     }
   }
 
-  renderForm(active);
+  select(active);
 }

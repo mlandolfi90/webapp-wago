@@ -1,5 +1,29 @@
 # RUN-LEDGER — El Crisol
 
+## RUN webui-debt-001
+STATUS: CLOSED
+Branch: claude/build-webui-AcJFe
+Tier: completo (refactor de patrón sobre código que funciona)
+Alcance: saldar deuda — groups/users usan _shared/tabbedForms.js;
+  eliminar duplicación seg+modal+renderForm; no-regresión
+Carriles: webui (carril único)
+Planificador: usersModal.renderForm == copia exacta de tabbedForms;
+  groupsModal duplica seg+modal+select; tabs custom (listas) requieren
+  generalizar tabbedForms con render(area,inst,ctx)
+Arquitecto: APPROVE — tabbedForms admite tabs custom (retrocompatible);
+  groups/users finos; groupActions intacto (patrón distinto); ADR 0030
+Ingeniero: _shared/tabbedForms.js (custom-tabs + ctx),
+  users/usersModal.js (86→15), groups/groupsModal.js (sin scaffolding
+  duplicado); ADR 0030
+Verificador: PASS — node --check 37/37; render real Chromium 6 vistas
+  no-regresión (grupos lista/gestionar/crear, users contactos/
+  verificar-LID/privacidad), 0 errores de consola
+Integración: N/A (carril único)
+Iteraciones: 1/3
+Escalación: none
+Cierre: 2026-05-17
+DEUDA-SALDADA: groups/users migrados a _shared/tabbedForms.js
+
 ## RUN webui-rest-001
 STATUS: CLOSED
 Branch: claude/build-webui-AcJFe
