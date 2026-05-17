@@ -95,6 +95,59 @@ func TestMarkReadForwardsParticipant(t *testing.T) {
 	}
 }
 
+func TestSendAlbumBuildsBody(t *testing.T) {
+	var body map[string]any
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		_ = json.NewDecoder(r.Body).Decode(&body)
+		w.Header().Set("Content-Type", "application/json")
+		_, _ = w.Write([]byte(`{"data":"ok"}`))
+	}))
+	defer srv.Close()
+
+	c := wago.New(srv.URL, "ADMIN")
+	c.UseInstance("TOK")
+	var al Tool
+	for _, tl := range BuildTools(c) {
+		if tl.Name == "wago_send_album" {
+			al = tl
+		}
+	}
+	if al.Name == "" {
+		t.Fatal("wago_send_album ausente")
+	}
+
+	// < 2 items => error.
+	if _, err := al.Handler(context.Background(), map[string]any{
+		"number": "549111", "items": []any{map[string]any{"type": "image", "url": "u"}},
+	}); err == nil {
+		t.Fatal("debía exigir >=2 items")
+	}
+
+	// OK con 2 items + caption.
+	if _, err := al.Handler(context.Background(), map[string]any{
+		"number":  "549111",
+		"caption": "hola",
+		"items": []any{
+			map[string]any{"type": "image", "url": "u1"},
+			map[string]any{"type": "video", "url": "u2"},
+		},
+	}); err != nil {
+		t.Fatalf("handler: %v", err)
+	}
+	its, _ := body["items"].([]any)
+	if len(its) != 2 || body["caption"] != "hola" {
+		t.Fatalf("body mal armado: %v", body)
+	}
+
+	// Item inválido => error.
+	if _, err := al.Handler(context.Background(), map[string]any{
+		"number": "549111",
+		"items":  []any{map[string]any{"type": "x", "url": "u"}, map[string]any{"type": "image", "url": "u2"}},
+	}); err == nil {
+		t.Fatal("type inválido debía fallar")
+	}
+}
+
 func TestInstanceScopeRequiresActiveToken(t *testing.T) {
 	c := wago.New("http://x", "ADMIN")
 	var status Tool

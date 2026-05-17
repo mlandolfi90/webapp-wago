@@ -1,5 +1,30 @@
 # RUN-LEDGER — El Crisol
 
+## RUN album-propagate-001
+STATUS: CLOSED
+Branch: claude/build-webui-AcJFe
+Tier: completo (propagación de contrato, multi-componente)
+Alcance: exponer /send/album en MCP (wago_send_album) y webui (tipo
+  "Álbum" en el compositor) — sin tocar backend
+Carriles: mcp+webui (carril único, mismo contrato)
+Planificador: contrato /send/album {number,items[{type,url}],caption}
+  congelado en send-album-001; patrón tool/sender ya existe
+Arquitecto: APPROVE — wago_send_album (tools_send.go) + sendAlbum
+  (core/api.js) + entry "album" (senders.js); aditivo, reusa patrones;
+  ADR 0039
+Ingeniero: tools_send.go (+wago_send_album), tools_test.go,
+  core/api.js (+sendAlbum), send/senders.js (+parseAlbumItems +entry
+  "Álbum"); ADR 0039
+Verificador: PASS — go build/vet/test verdes (test MCP wago_send_album:
+  <2 falla, body ok, item inválido falla); node --check 37 JS OK;
+  render Chromium del tipo "Álbum" sin errores de consola. Propagación
+  100% verificable estática (sin dependencia de dispositivo).
+Integración: N/A (validación real del álbum = pendiente HEREDADA de
+  send-album-001/ADR 0038, no de esta corrida)
+Iteraciones: 1/3
+Escalación: none
+Cierre: 2026-05-17
+
 ## RUN send-album-001
 STATUS: CLOSED (código) — validación real PENDIENTE (sin dispositivo)
 Branch: claude/build-webui-AcJFe

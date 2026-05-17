@@ -1,8 +1,19 @@
 import { h } from "../../../ui/dom.js";
 import { input, textarea, field } from "../../../ui/form.js";
 import {
-  sendText, sendLink, sendMedia, sendLocation, sendPoll, sendContact, sendSticker
+  sendText, sendLink, sendMedia, sendLocation, sendPoll, sendContact, sendSticker, sendAlbum
 } from "../../../core/api.js";
+
+function parseAlbumItems(text) {
+  return text.split("\n").map((l) => l.trim()).filter(Boolean).map((l) => {
+    const sep = l.indexOf("|");
+    if (sep < 0) return null;
+    const type = l.slice(0, sep).trim().toLowerCase();
+    const url = l.slice(sep + 1).trim();
+    if ((type !== "image" && type !== "video") || !url) return null;
+    return { type, url };
+  });
+}
 
 /**
  * Catálogo declarativo de tipos de envío. Cada entrada expone:
@@ -184,6 +195,31 @@ export const SENDERS = [
           "Imagen del sticker: URL pública (idealmente .webp) o data URI base64. Ej: https://misitio.com/sticker.webp")],
         validate: () => sticker.value.trim() ? null : "El sticker es obligatorio",
         body: () => ({ sticker: sticker.value.trim() })
+      };
+    }
+  },
+  {
+    id: "album", label: "Álbum", api: sendAlbum,
+    build() {
+      const items = textarea({ rows: "5", placeholder: "Un ítem por línea: tipo|url\nimage|https://.../1.jpg\nvideo|https://.../2.mp4" });
+      const caption = input({ placeholder: "Epígrafe (va en el primero)" });
+      return {
+        fields: [
+          field("Ítems (uno por línea: image|url o video|url)", items,
+            "Álbum REAL (agrupado), mínimo 2. Cada línea: tipo|url. Ej:\nimage|https://misitio.com/1.jpg\nvideo|https://misitio.com/2.mp4"),
+          field("Epígrafe común", caption,
+            "Texto del álbum; WhatsApp lo muestra en el primer ítem. Opcional.")
+        ],
+        validate: () => {
+          const parsed = parseAlbumItems(items.value);
+          if (parsed.length < 2) return "Cargá al menos 2 ítems válidos (tipo|url)";
+          if (parsed.some((x) => x === null)) return "Hay líneas inválidas: usá image|url o video|url";
+          return null;
+        },
+        body: () => ({
+          items: parseAlbumItems(items.value),
+          caption: caption.value
+        })
       };
     }
   },

@@ -3,6 +3,7 @@ package mcp
 import (
 	"context"
 	"errors"
+	"fmt"
 
 	"github.com/webapp-wago/webapp-wago/internal/wago"
 )
@@ -152,6 +153,39 @@ func sendTools(c *wago.Client) []Tool {
 					return "", err
 				}
 				return okJSON(c.Do(ctx, wago.Instance, "POST", "/send/sticker", map[string]any{"number": number, "sticker": st}))
+			},
+		},
+		{
+			Name:        "wago_send_album",
+			Description: "Envía un álbum (varias imágenes/videos agrupados). Args: number, items (array de {type:image|video, url}), caption opcional (va en el primero). Mínimo 2 items.",
+			InputSchema: schema(`{"type":"object","properties":{"number":{"type":"string"},"items":{"type":"array","items":{"type":"object","properties":{"type":{"type":"string"},"url":{"type":"string"}},"required":["type","url"]}},"caption":{"type":"string"}},"required":["number","items"]}`),
+			Handler: func(ctx context.Context, a map[string]any) (string, error) {
+				number, err := reqStr(a, "number")
+				if err != nil {
+					return "", err
+				}
+				raw, ok := a["items"].([]any)
+				if !ok || len(raw) < 2 {
+					return "", errors.New("items debe ser un array de al menos 2 {type,url}")
+				}
+				items := make([]map[string]any, 0, len(raw))
+				for i, e := range raw {
+					m, ok := e.(map[string]any)
+					if !ok {
+						return "", fmt.Errorf("item %d inválido (objeto {type,url})", i+1)
+					}
+					t, _ := m["type"].(string)
+					u, _ := m["url"].(string)
+					if (t != "image" && t != "video") || u == "" {
+						return "", fmt.Errorf("item %d: type debe ser image|video y url no vacío", i+1)
+					}
+					items = append(items, map[string]any{"type": t, "url": u})
+				}
+				body := map[string]any{"number": number, "items": items}
+				if cap := str(a, "caption"); cap != "" {
+					body["caption"] = cap
+				}
+				return okJSON(c.Do(ctx, wago.Instance, "POST", "/send/album", body))
 			},
 		},
 	}

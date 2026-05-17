@@ -39,6 +39,8 @@ export const sendContact = (token, body) =>
   request("POST", "/send/contact", { key: token, body });
 export const sendSticker = (token, body) =>
   request("POST", "/send/sticker", { key: token, body });
+export const sendAlbum = (token, body) =>
+  request("POST", "/send/album", { key: token, body });
 
 /* Grupos (apikey = token de instancia) */
 export const listGroups = (token) =>
