@@ -1,5 +1,26 @@
 # RUN-LEDGER — El Crisol
 
+## RUN webui-groups-001
+STATUS: CLOSED
+Branch: claude/build-webui-AcJFe
+Tier: completo (dominio nuevo, multi-archivo, patrón)
+Alcance: gestión de grupos en la webui (list/create/info/invitelink/
+  name/description/photo/participant/join/leave)
+Carriles: webui (carril único)
+Planificador: contratos /group/* extraídos (enum action add/remove/
+  promote/demote); patrón seg/senders reusable; instanceCard mapeado
+Arquitecto: APPROVE — groups/ (groupsModal orquestador 3 tabs +
+  groupActions catálogo) + 10 fns api, reusa modal/field/helpHint/seg/
+  tema, instance-scoped, render defensivo; ADR 0025
+Ingeniero: core/api.js (+10 fns group), groups/groupsModal.js,
+  groups/groupActions.js, instanceCard (import+botón Grupos); ADR 0025
+Verificador: PASS — node --check 22/22; render real Chromium 5 vistas
+  (lista/info/participantes/link/crear), 0 errores de consola
+Integración: N/A (carril único)
+Iteraciones: 1/3
+Escalación: none
+Cierre: 2026-05-17
+
 ## RUN webui-seqsend-001
 STATUS: CLOSED
 Branch: claude/build-webui-AcJFe

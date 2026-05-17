@@ -39,3 +39,25 @@ export const sendContact = (token, body) =>
   request("POST", "/send/contact", { key: token, body });
 export const sendSticker = (token, body) =>
   request("POST", "/send/sticker", { key: token, body });
+
+/* Grupos (apikey = token de instancia) */
+export const listGroups = (token) =>
+  request("GET", "/group/list", { key: token });
+export const createGroup = (token, body) =>
+  request("POST", "/group/create", { key: token, body });
+export const getGroupInfo = (token, body) =>
+  request("POST", "/group/info", { key: token, body });
+export const getGroupInviteLink = (token, body) =>
+  request("POST", "/group/invitelink", { key: token, body });
+export const setGroupName = (token, body) =>
+  request("POST", "/group/name", { key: token, body });
+export const setGroupDescription = (token, body) =>
+  request("POST", "/group/description", { key: token, body });
+export const setGroupPhoto = (token, body) =>
+  request("POST", "/group/photo", { key: token, body });
+export const updateGroupParticipants = (token, body) =>
+  request("POST", "/group/participant", { key: token, body });
+export const joinGroup = (token, body) =>
+  request("POST", "/group/join", { key: token, body });
+export const leaveGroup = (token, body) =>
+  request("POST", "/group/leave", { key: token, body });
