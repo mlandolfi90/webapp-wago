@@ -51,11 +51,12 @@ patchearlo allí sería el lugar equivocado y causaría divergencia.
 - `go build ./... && go vet ./... && go test ./...` verdes; el helper
   `resolveReadSender` queda cubierto por test unitario; `node --check`
   de los módulos JS OK; call-site revisado.
-- **PENDIENTE — validación real**: no hay dispositivo/WhatsApp en el
-  sandbox. La prueba definitiva (en un grupo de 2, confirmar que el
-  check azul registra) queda **a cargo del humano**. Se commitea igual
-  por contenedor efímero (criterio acordado: no perder el fix; el check
-  real queda explícitamente abierto en RUN-LEDGER y aquí).
+- **Validación real — PROVISORIA, no cerrada**: no hay dispositivo en
+  el sandbox. El humano reportó verbalmente "eso funciona" (2026-05-17),
+  pero por decisión explícita suya queda como **observación provisoria**,
+  NO como validación formal: falta una prueba **reproducible y con
+  evidencia** (grupo de 2, registro del doble check azul) antes de darla
+  por cerrada. Hasta entonces: no asumir validado end-to-end.
 
 ## Consecuencias
 
@@ -65,5 +66,5 @@ patchearlo allí sería el lugar equivocado y causaría divergencia.
 - Negativas: el cliente debe **saber y enviar** el participante en
   grupos (es intrínseco al protocolo de WhatsApp; documentado en los 3
   lados).
-- Abierto: confirmación en dispositivo real (humano) antes de dar el
-  fix por validado end-to-end.
+- Abierto: el humano dijo "eso funciona" (provisorio); falta prueba
+  reproducible con evidencia para cerrar la validación end-to-end.

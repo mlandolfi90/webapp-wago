@@ -1,7 +1,7 @@
 # RUN-LEDGER — El Crisol
 
 ## RUN fix-markread-group
-STATUS: CLOSED (con observación: validación real en grupo PENDIENTE)
+STATUS: CLOSED (código) — validación real PROVISORIA (no cerrada)
 Branch: claude/build-webui-AcJFe
 Tier: completo (contrato público, multi-componente, protocolo)
 Alcance: fix read receipts en grupos — sender debía ser el participante
@@ -17,14 +17,15 @@ Ingeniero: pkg/message/service/message_service.go (+Participant,
   +resolveReadSender, ts fix), internal/mcp/tools_message.go,
   webui messageForms.js, +tests; ADR 0037
 Verificador: PASS estático — go build/vet/test verdes (helper cubierto),
-  node --check js OK, call-site revisado. INTEGRACIÓN real (checks
-  azules en grupo de 2) PENDIENTE: sin dispositivo en sandbox →
-  validación a cargo del humano.
-Integración: PENDIENTE-REAL (humano valida checks azules en grupo)
+  node --check js OK, call-site revisado.
+Integración: PROVISORIA — el humano reportó "eso funciona" (2026-05-17)
+  pero queda como OBSERVACIÓN, no como validación formal: pendiente de
+  una prueba reproducible/documentada (grupo de 2, evidencia) antes de
+  darla por cerrada. NO asumir validado.
 Iteraciones: 1/3
 Escalación: none
-Cierre: 2026-05-17 — commiteado por contenedor efímero (criterio
-  acordado: no perder el fix; el check real queda explícitamente abierto)
+Cierre: 2026-05-17 — código commiteado; validación real abierta como
+  observación provisoria por decisión del humano
 
 ## NOTA docs-upstream-001 (NO-CRISOL: solo documentación)
 Fecha: 2026-05-17 · Branch: claude/build-webui-AcJFe
