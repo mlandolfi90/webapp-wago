@@ -87,3 +87,17 @@ export const setProfileStatus = (token, body) =>
   request("POST", "/user/profileStatus", { key: token, body });
 export const setProfilePicture = (token, body) =>
   request("POST", "/user/profilePicture", { key: token, body });
+
+/* Mensajes (apikey = token de instancia) */
+export const reactMessage = (token, body) =>
+  request("POST", "/message/react", { key: token, body });
+export const markRead = (token, body) =>
+  request("POST", "/message/markread", { key: token, body });
+export const deleteMessage = (token, body) =>
+  request("POST", "/message/delete", { key: token, body });
+export const editMessage = (token, body) =>
+  request("POST", "/message/edit", { key: token, body });
+export const messageStatus = (token, body) =>
+  request("POST", "/message/status", { key: token, body });
+export const downloadMedia = (token, body) =>
+  request("POST", "/message/downloadmedia", { key: token, body });

@@ -6,6 +6,7 @@ import { openQrModal } from "./qrModal.js";
 import { openSendModal } from "./send/sendModal.js";
 import { openGroupsModal } from "./groups/groupsModal.js";
 import { openUsersModal } from "./users/usersModal.js";
+import { openMessagesModal } from "./messages/messagesModal.js";
 import { openAdvancedModal } from "./advancedModal.js";
 import { openProxyModal } from "./proxyModal.js";
 
@@ -63,6 +64,7 @@ export function instanceCard(inst, reload) {
       h("button", { class: "btn btn-sm", onclick: () => openSendModal(inst) }, ["Enviar"]),
       h("button", { class: "btn btn-sm", onclick: () => openGroupsModal(inst) }, ["Grupos"]),
       h("button", { class: "btn btn-sm", onclick: () => openUsersModal(inst) }, ["Contactos"]),
+      h("button", { class: "btn btn-sm", onclick: () => openMessagesModal(inst) }, ["Mensajes"]),
       h("button", { class: "btn btn-sm", onclick: () => openAdvancedModal(inst) }, ["Avanzado"]),
       h("button", { class: "btn btn-sm", onclick: () => openProxyModal(inst) }, ["Proxy"]),
       h("button", { class: "btn btn-sm btn-ghost", onclick: () => doDisconnect(inst, reload) }, ["Desconectar"]),

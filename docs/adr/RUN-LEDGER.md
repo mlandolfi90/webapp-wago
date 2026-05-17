@@ -1,5 +1,28 @@
 # RUN-LEDGER — El Crisol
 
+## RUN webui-messages-001
+STATUS: CLOSED
+Branch: claude/build-webui-AcJFe
+Tier: completo (dominio nuevo + extracción de helper compartido)
+Alcance: dominio Mensajes (react/markread/delete/edit/status/
+  downloadmedia) + helper _shared/tabbedForms.js
+Carriles: webui (carril único)
+Planificador: contratos /message/* confirmados; orquestación de
+  pestañas-formulario duplicada en users → 3ª ocurrencia = extraer
+Arquitecto: APPROVE — _shared/tabbedForms.js (consolida patrón),
+  messages/ (catálogo + modal fino) + fns api; migración groups/users
+  diferida y registrada (no tocar lo que funciona); ADR 0028
+Ingeniero: _shared/tabbedForms.js, messages/messageForms.js,
+  messages/messagesModal.js, core/api.js (+6 fns), instanceCard
+  (import+botón Mensajes); ADR 0028
+Verificador: PASS — node --check 29/29; render real Chromium 4 vistas
+  (reaccionar/editar/estado-result/descargar), 0 errores de consola
+Integración: N/A (carril único)
+Iteraciones: 1/3
+Escalación: none
+Cierre: 2026-05-17
+DEUDA-REGISTRADA: migrar groups/users a _shared/tabbedForms.js
+
 ## RUN webui-users-001
 STATUS: CLOSED
 Branch: claude/build-webui-AcJFe
