@@ -1,5 +1,26 @@
 # RUN-LEDGER — El Crisol
 
+## RUN mcp-tools-ext-001
+STATUS: CLOSED
+Branch: claude/build-webui-AcJFe
+Tier: completo (amplía contrato del componente, multi-tool)
+Alcance: catálogo MCP completo (send/instance/user/group/message/
+  community/label/newsletter/polls/call) reusando wago.Do
+Carriles: mcp (carril único)
+Planificador: tools.go con 13 tools + helpers; un solo archivo con ~65
+  sería cajón de sastre → partir por dominio
+Arquitecto: APPROVE — tools_helpers.go + builders por dominio +
+  BuildTools agregador; aditivo, credenciales intactas; ADR 0033
+Ingeniero: tools_helpers.go, tools.go (agg), tools_{instance,send,
+  message,user,group,misc}.go (~65 tools), tools_test.go; ADR 0033
+Verificador: PASS (iter 2) — go vet/build limpios; go test verde;
+  e2e stdio tools/list = 65; iter1 FAIL test path-escape → re-plan
+  (aserción EscapedPath) → PASS
+Integración: N/A (carril único)
+Iteraciones: 2/3
+Escalación: none
+Cierre: 2026-05-17
+
 ## RUN mcp-server-001
 STATUS: CLOSED
 Branch: claude/build-webui-AcJFe
