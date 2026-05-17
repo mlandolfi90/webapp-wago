@@ -100,19 +100,24 @@ Once the server is running, Swagger UI is available at:
 http://localhost:8080/swagger/index.html
 ```
 
-> Nota: la tabla "Key endpoints" de abajo está desactualizada; usá
-> `docs/MANUAL.md` o Swagger como referencia real de rutas.
-
 ### Key endpoints
+
+La referencia **completa y al día** de la API (auth, ciclo de vida,
+catálogo de endpoints, eventos, ejemplos) está en
+**[docs/MANUAL.md](./docs/MANUAL.md)**, o el Swagger en vivo
+(`/swagger/index.html`). Atajos más usados:
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
-| `POST` | `/instance/create` | Create a WhatsApp instance |
-| `GET`  | `/instance/{name}/qrcode` | Get QR code for pairing |
-| `POST` | `/message/sendText` | Send text message |
-| `POST` | `/message/sendMedia` | Send media message |
-| `GET`  | `/instance/{name}/status` | Get instance status |
-| `DELETE` | `/instance/{name}` | Delete instance |
+| `POST` | `/instance/create` | Crear instancia (admin) |
+| `GET`  | `/instance/qr` | QR para vincular |
+| `GET`  | `/instance/status` | Estado de la instancia |
+| `POST` | `/send/text` | Enviar texto |
+| `POST` | `/send/media` | Enviar media |
+| `POST` | `/send/album` | Enviar álbum |
+| `DELETE` | `/instance/delete/{instanceId}` | Borrar instancia (admin) |
+
+> Tabla de atajos, no exhaustiva. Fuente de verdad: `docs/MANUAL.md`.
 
 ## Project Structure
 

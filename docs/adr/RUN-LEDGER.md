@@ -1,5 +1,30 @@
 # RUN-LEDGER — El Crisol
 
+## RUN repo-organize-001
+STATUS: CLOSED
+Branch: claude/build-webui-AcJFe
+Tier: completo (transversal, multi-archivo, borrado)
+Alcance: organizar repo — 5 carriles auditoría read-only paralelos →
+  Steward consolida → limpieza + docs al día
+Carriles: backend-go, mcp-internal, webui, docs, infra-raíz
+Planificador: 5 archaeologists Explore en paralelo (read-only); repo
+  sano en general; hallazgos consolidados
+Arquitecto: APPROVE acotado — solo bajo riesgo/alto valor; VETÓ mover
+  RUN-LEDGER, gitignore de manager/dist+swagger (rompe build/UI),
+  refactor de monolitos, y el fix profileName (→ corrida propia);
+  ADR 0043
+Ingeniero: borrado de 3 bloques de código muerto comentado
+  (utils/instance_service/whatsmeow), docs/README.md + docs/adr/
+  README.md (índices), README.md (endpoints reales), COMMANDS.md
+  (ref rota), .gitignore (binarios); ADR 0043
+Verificador: PASS — go build/vet verdes, go test pkg+internal verde,
+  node --check 37, diff solo archivos previstos (cero cambio de
+  comportamiento: solo comentarios muertos + docs)
+Integración: PASS — combinado verde (build+test+webui)
+Iteraciones: 1/3
+Escalación: none
+Cierre: 2026-05-17
+
 ## PENDIENTES (no bloquean; requieren acción externa al sandbox)
 - **Sync upstream tulir→wago-patches** (DEGRADADO por pedido del humano):
   hay 3 commits de tulir nuevos (incl. proto bump v1039406452); al día
@@ -11,6 +36,16 @@
   checks azules en grupo (ADR 0037). Sin WhatsApp en el sandbox.
 - **CI en GitHub Actions**: revisar verde del primer run de ci.yml
   (ADR 0040).
+- **BUG confirmado — profile name/status** (hallado en repo-organize-001):
+  backend usa `SetProfileNameStruct{name}` y `SetProfileStatusStruct
+  {status}`, pero MCP (`internal/mcp/tools_user.go`) y webui
+  (`users/userForms.js`) envían `{image}` → setean vacío. ADR 0027 lo
+  asumió mal. Fix = corrida propia (verificable estático, sin
+  dispositivo). Ref: ADR 0043.
+- **Deuda técnica registrada** (no urgente, corridas dedicadas):
+  monolitos `pkg/sendMessage/service/send_service.go` (~2960 líneas) y
+  `pkg/whatsmeow/service/whatsmeow.go` (~2708) a factorizar; dedup
+  `formatBR/MX` en `pkg/utils`. Ref: ADR 0043.
 
 ## RUN submodule-fork-001
 STATUS: CLOSED
