@@ -1,5 +1,27 @@
 # RUN-LEDGER — El Crisol
 
+## RUN mcp-ws-events-001
+STATUS: CLOSED
+Branch: claude/build-webui-AcJFe
+Tier: completo (subsistema nuevo, contratos, multi-archivo)
+Alcance: cliente WebSocket entrante para el MCP → mismo events.Buffer;
+  aditivo y opcional (MCP_WS_URL), no rompe el webhook
+Carriles: mcp (carril único)
+Planificador: gorilla/websocket v1.5.3 ya en go.mod (sin dep nueva);
+  Buffer.Push(json.RawMessage); main.go arma buf y webhook
+Arquitecto: APPROVE — internal/events/wsclient.go (RunWS con backoff,
+  WSConfig inyectable para test), wiring en main (go RunWS si
+  MCP_WS_URL); aditivo, sin tocar webhook/contrato; ADR 0041
+Ingeniero: internal/events/wsclient.go (RunWS+WSConfig+DefaultWSConfig),
+  cmd/mcp/main.go (wiring MCP_WS_URL + doc), wsclient_test.go; ADR 0041
+Verificador: PASS — go build/vet/test verdes; tests con WS mock
+  (recibe evento; reconecta tras corte, >=2 conexiones). 100%
+  verificable en sandbox (sin dispositivo/backend real).
+Integración: N/A (carril único)
+Iteraciones: 1/3
+Escalación: none
+Cierre: 2026-05-17
+
 ## RUN ci-pipeline-001
 STATUS: CLOSED
 Branch: claude/build-webui-AcJFe

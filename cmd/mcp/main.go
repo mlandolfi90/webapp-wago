@@ -10,6 +10,8 @@
 //	MCP_WEBHOOK_ADDR  if set under stdio, runs the webhook receiver here
 //	                  (e.g. :8090). Under http it shares MCP_HTTP_ADDR.
 //	MCP_EVENTS_MAX    inbound event buffer size (default 500)
+//	MCP_WS_URL        si se setea, el MCP se conecta a ese WebSocket del
+//	                  backend y bufferiza eventos (aditivo al webhook)
 //
 // Inbound events: register the receiver URL (".../webhook") via the
 // wago_connect tool's webhookUrl arg; pull them with wago_events_poll.
@@ -59,6 +61,15 @@ func main() {
 
 	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
 	defer stop()
+
+	// Recepción de eventos por WebSocket (opcional, aditivo: convive con
+	// el webhook, mismo buffer). Activar con MCP_WS_URL.
+	if wsURL := os.Getenv("MCP_WS_URL"); wsURL != "" {
+		cfg := events.DefaultWSConfig(wsURL)
+		cfg.Logf = log.Printf
+		go events.RunWS(ctx, cfg, buf)
+		log.Printf("MCP ws cliente → %s", wsURL)
+	}
 
 	switch transport {
 	case "http":
