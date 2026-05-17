@@ -1,5 +1,31 @@
 # RUN-LEDGER — El Crisol
 
+## RUN send-album-001
+STATUS: CLOSED (código) — validación real PENDIENTE (sin dispositivo)
+Branch: claude/build-webui-AcJFe
+Tier: completo (contrato público nuevo, protocolo, multi-archivo)
+Alcance: POST /send/album — AlbumMessage padre + N hijos media con
+  MessageContextInfo.MessageAssociation(MEDIA_ALBUM); solo backend
+Carriles: backend (carril único)
+Planificador: pipeline media (Upload+SendMessage) y proto waE2E
+  (AlbumMessage f83, MessageContextInfo f35, MessageAssociation,
+  waCommon.MessageKey) confirmados; API pública alcanza, sin patch al
+  submódulo (ADR 0036)
+Arquitecto: APPROVE — pkg/sendMessage/service/album.go (builders puros
+  testeables + SendAlbum), handler+ruta+interfaz; reusa Upload; sin
+  tocar submódulo; ADR 0038
+Ingeniero: album.go, send_service.go (interfaz +SendAlbum), send_handler
+  (+SendAlbum), routes.go (/send/album), +tests; ADR 0038
+Verificador: PASS estático — go build/vet/test verdes (builders puros
+  cubiertos: padre counts, hijo association/index/parentkey, caption
+  solo en i=0). Validación real (álbum agrupado en WhatsApp) PENDIENTE
+  del humano: sin dispositivo en sandbox.
+Integración: PENDIENTE-REAL (humano valida que llegue como álbum)
+Iteraciones: 1/3
+Escalación: none
+Cierre: 2026-05-17 — commiteado por contenedor efímero; check real
+  abierto explícitamente (criterio acordado)
+
 ## RUN fix-markread-group
 STATUS: CLOSED (código) — validación real PROVISORIA (no cerrada)
 Branch: claude/build-webui-AcJFe

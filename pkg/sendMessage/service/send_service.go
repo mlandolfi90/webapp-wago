@@ -38,6 +38,7 @@ type SendService interface {
 	SendLink(data *LinkStruct, instance *instance_model.Instance) (*MessageSendStruct, error)
 	SendMediaUrl(data *MediaStruct, instance *instance_model.Instance) (*MessageSendStruct, error)
 	SendMediaFile(data *MediaStruct, fileData []byte, instance *instance_model.Instance) (*MessageSendStruct, error)
+	SendAlbum(data *AlbumStruct, instance *instance_model.Instance) (*MessageSendStruct, error)
 	SendPoll(data *PollStruct, instance *instance_model.Instance) (*MessageSendStruct, error)
 	SendSticker(data *StickerStruct, instance *instance_model.Instance) (*MessageSendStruct, error)
 	SendLocation(data *LocationStruct, instance *instance_model.Instance) (*MessageSendStruct, error)
