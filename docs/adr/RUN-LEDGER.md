@@ -1,5 +1,26 @@
 # RUN-LEDGER — El Crisol
 
+## RUN webui-seqsend-001
+STATUS: CLOSED
+Branch: claude/build-webui-AcJFe
+Tier: completo (extiende patrón send + contrato sender)
+Alcance: tipo "Varios (secuencial)" en el compositor: envía N medias en
+  cola con pausa, reportando progreso en el botón
+Carriles: webui (carril único)
+Planificador: orquestador llama api(token,body); contrato extensible a
+  api(token,body,onProgress?) retrocompatible; compone sendMedia
+Arquitecto: APPROVE — extensión mínima retrocompatible del contrato
+  sender, sin tocar backend, factorizado; ADR 0024
+Ingeniero: send/senders.js (+tipo sequential), send/sendModal.js
+  (onProgress), ADR 0024
+Verificador: PASS — node --check 20/20; render real Chromium: 3 envíos
+  secuenciales (gaps ~465ms respetan pausa), progreso 1/3..3/3, toast
+  ok, 0 errores de consola
+Integración: N/A (carril único)
+Iteraciones: 1/3
+Escalación: none
+Cierre: 2026-05-17
+
 ## RUN webui-richsend-001
 STATUS: CLOSED
 Branch: claude/build-webui-AcJFe

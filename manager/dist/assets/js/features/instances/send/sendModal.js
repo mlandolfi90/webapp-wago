@@ -53,7 +53,8 @@ export function openSendModal(inst) {
     if (err) { toast(err, "err"); return; }
     const body = { number: number.value.trim(), ...current.body() };
     const reset = busy(sendBtn, "Enviando...");
-    active.api(inst.token, body)
+    const onProgress = (done, total) => { sendBtn.textContent = `Enviando ${done}/${total}...`; };
+    active.api(inst.token, body, onProgress)
       .then(() => { m.close(); toast(active.label + " enviado"); })
       .catch((e) => { reset(); toastError(e); });
   });

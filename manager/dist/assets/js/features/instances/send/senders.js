@@ -7,7 +7,9 @@ import {
 /**
  * Catálogo declarativo de tipos de envío. Cada entrada expone:
  *  - id, label
- *  - api: fn(token, body) de core/api.js
+ *  - api: fn(token, body, onProgress?) -> Promise. `onProgress(hecho,total)`
+ *    es opcional; los tipos de un solo paso lo ignoran (retrocompatible),
+ *    los multi-paso (secuencial) lo invocan para reportar avance.
  *  - build(): { fields:[Node], validate:()->string|null, body:()->object }
  * El orquestador (sendModal) agrega el campo común `number` y el submit.
  */
@@ -183,6 +185,57 @@ export const SENDERS = [
         validate: () => sticker.value.trim() ? null : "El sticker es obligatorio",
         body: () => ({ sticker: sticker.value.trim() })
       };
+    }
+  },
+  {
+    id: "sequential", label: "Varios (secuencial)",
+    build() {
+      const type = selectEl(["image", "video", "audio", "document"]);
+      const urls = textarea({ rows: "5", placeholder: "Una URL por línea\nhttps://.../1.jpg\nhttps://.../2.jpg" });
+      const caption = input({ placeholder: "Epígrafe común (opcional)" });
+      const pause = input({ type: "number", min: "0", value: "1200" });
+      return {
+        fields: [
+          field("Tipo de media", type,
+            "Clase de archivo para TODOS los envíos de la lista. Ej: image para varias fotos."),
+          field("URLs (una por línea)", urls,
+            "Lista de archivos a enviar uno tras otro, una URL por línea. No es un álbum: llegan como mensajes seguidos. Ej:\nhttps://misitio.com/1.jpg\nhttps://misitio.com/2.jpg"),
+          field("Epígrafe común", caption,
+            "Texto que acompaña a cada archivo. Opcional. Ej: Foto del evento"),
+          field("Pausa entre envíos (ms)", pause,
+            "Milisegundos de espera entre un envío y el siguiente, para no saturar. Ej: 1200 (1,2 s)")
+        ],
+        validate: () => {
+          const list = urls.value.split("\n").map((s) => s.trim()).filter(Boolean);
+          if (list.length < 1) return "Cargá al menos una URL (una por línea)";
+          if (list.length < 2) return "Para un solo archivo usá el tipo \"Media\"";
+          return null;
+        },
+        body: () => ({
+          type: type.value,
+          urls: urls.value.split("\n").map((s) => s.trim()).filter(Boolean),
+          caption: caption.value,
+          pauseMs: Math.max(0, parseInt(pause.value, 10) || 0)
+        })
+      };
+    },
+    api(token, body, onProgress) {
+      const { urls, type, caption, number, pauseMs } = body;
+      const wait = (ms) => new Promise((r) => setTimeout(r, ms));
+      return urls.reduce(
+        (chain, url, i) => chain.then(async () => {
+          if (onProgress) onProgress(i + 1, urls.length);
+          try {
+            await sendMedia(token, { number, type, url, caption });
+          } catch (e) {
+            const err = new Error(`Falló en ${i + 1}/${urls.length} (${url}): ${e.message}`);
+            err.status = e.status;
+            throw err;
+          }
+          if (i < urls.length - 1 && pauseMs > 0) await wait(pauseMs);
+        }),
+        Promise.resolve()
+      );
     }
   }
 ];
