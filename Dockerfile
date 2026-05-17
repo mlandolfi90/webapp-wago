@@ -27,6 +27,12 @@ RUN --mount=type=cache,target=/go/pkg/mod \
     --mount=type=cache,target=/root/.cache/go-build \
     CGO_ENABLED=1 go build -ldflags "-X main.version=${VERSION}" -o server ./cmd/webapp-wago
 
+# Servidor MCP (cmd/mcp): stdlib puro, sin CGO. Reusa los MISMOS cache
+# mounts para no rebajar deps ni recompilar lo inalterado.
+RUN --mount=type=cache,target=/go/pkg/mod \
+    --mount=type=cache,target=/root/.cache/go-build \
+    CGO_ENABLED=0 go build -o wago-mcp ./cmd/mcp
+
 FROM alpine:3.19.1 AS final
 
 RUN apk update && apk add --no-cache tzdata ffmpeg libjpeg-turbo libwebp
@@ -34,9 +40,14 @@ RUN apk update && apk add --no-cache tzdata ffmpeg libjpeg-turbo libwebp
 WORKDIR /app
 
 COPY --from=build /build/server .
+COPY --from=build /build/wago-mcp .
 COPY --from=build /build/manager/dist ./manager/dist
 COPY --from=build /build/VERSION ./VERSION
 
 ENV TZ=America/Sao_Paulo
 
+# ENTRYPOINT principal: la API. El servidor MCP es un binario aparte en
+# la misma imagen; correr con override de entrypoint, p.ej.:
+#   docker run --entrypoint /app/wago-mcp -e WAGO_BASE_URL=... -e \
+#     WAGO_ADMIN_KEY=... -e MCP_TRANSPORT=http -p 8089:8089 <img>
 ENTRYPOINT ["/app/server"]

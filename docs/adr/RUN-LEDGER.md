@@ -1,5 +1,28 @@
 # RUN-LEDGER — El Crisol
 
+## RUN mcp-docker-001
+STATUS: CLOSED
+Branch: claude/build-webui-AcJFe
+Tier: completo (build/infra sensible, contrato de imagen)
+Alcance: compilar y copiar el binario MCP en el Dockerfile sin romper
+  caché/builder/submódulo; ENTRYPOINT principal intacto
+Carriles: mcp (carril único)
+Planificador: Dockerfile 2 stages; server build con doble cache mount;
+  agregar RUN para ./cmd/mcp reusando mounts + COPY a final
+Arquitecto: APPROVE — RUN aditivo (CGO off) con los mismos mounts,
+  COPY wago-mcp, ENTRYPOINT sin cambios; docker build no validable en
+  sandbox (verificación honesta documentada); ADR 0035
+Ingeniero: Dockerfile (+RUN cmd/mcp CGO=0, +COPY wago-mcp, comentario
+  de uso), ADR 0035
+Verificador: PASS (limitación documentada) — build equivalente
+  CGO_ENABLED=0 ./cmd/mcp = ELF estático OK; invariantes intactas
+  (syntax, mounts 3/2, submódulo, ENTRYPOINT); go vet/test verdes
+  (no-regresión). docker build no ejecutable (sin daemon) → CI/host
+Integración: N/A (carril único)
+Iteraciones: 1/3
+Escalación: none
+Cierre: 2026-05-17
+
 ## RUN mcp-events-001
 STATUS: CLOSED
 Branch: claude/build-webui-AcJFe
