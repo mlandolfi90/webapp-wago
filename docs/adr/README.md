@@ -37,6 +37,8 @@ decisión, alternativas y consecuencias.
 | 0040 | Pipeline de CI |
 | 0041 | Recepción de eventos por WebSocket en el MCP |
 | 0042 | Submódulo whatsmeow repuntado al fork propio |
+| 0043 | Organización del repo: limpieza, índices y vetos del Steward |
+| 0044 | Fix: contrato profileName/profileStatus (MCP + webui) |
 
 Para el detalle de cada corrida y los pendientes abiertos: ver
 [RUN-LEDGER.md](./RUN-LEDGER.md).

@@ -148,6 +148,48 @@ func TestSendAlbumBuildsBody(t *testing.T) {
 	}
 }
 
+func TestProfileToolsUseBackendContractKeys(t *testing.T) {
+	cases := []struct {
+		tool, arg, wantKey string
+	}{
+		{"wago_profile_name", "value", "name"},
+		{"wago_profile_status", "value", "status"},
+		{"wago_profile_picture", "image", "image"},
+	}
+	for _, tc := range cases {
+		t.Run(tc.tool, func(t *testing.T) {
+			var body map[string]any
+			srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				_ = json.NewDecoder(r.Body).Decode(&body)
+				w.Header().Set("Content-Type", "application/json")
+				_, _ = w.Write([]byte(`{"data":"ok"}`))
+			}))
+			defer srv.Close()
+
+			c := wago.New(srv.URL, "ADMIN")
+			c.UseInstance("TOK")
+			var tl Tool
+			for _, x := range BuildTools(c) {
+				if x.Name == tc.tool {
+					tl = x
+				}
+			}
+			if tl.Name == "" {
+				t.Fatalf("%s ausente", tc.tool)
+			}
+			if _, err := tl.Handler(context.Background(), map[string]any{tc.arg: "V"}); err != nil {
+				t.Fatalf("handler: %v", err)
+			}
+			if body[tc.wantKey] != "V" {
+				t.Fatalf("%s: esperaba clave %q=V, body=%v", tc.tool, tc.wantKey, body)
+			}
+			if len(body) != 1 {
+				t.Fatalf("%s: body debía tener solo %q, body=%v", tc.tool, tc.wantKey, body)
+			}
+		})
+	}
+}
+
 func TestInstanceScopeRequiresActiveToken(t *testing.T) {
 	c := wago.New("http://x", "ADMIN")
 	var status Tool

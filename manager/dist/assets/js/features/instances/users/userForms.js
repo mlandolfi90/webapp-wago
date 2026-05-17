@@ -130,7 +130,7 @@ export const USER_FORMS = [
       return {
         fields: [field("Nombre de perfil", v, "Nombre público de tu cuenta de WhatsApp. Ej: Soporte Wago")],
         validate: () => v.value.trim() ? null : "El nombre es obligatorio",
-        body: () => ({ image: v.value.trim() })
+        body: () => ({ name: v.value.trim() })
       };
     }
   },
@@ -141,7 +141,7 @@ export const USER_FORMS = [
       return {
         fields: [field("Mensaje de estado", v, "Texto de estado/recado de tu perfil. Ej: Respondemos en el día")],
         validate: () => v.value.trim() ? null : "El estado es obligatorio",
-        body: () => ({ image: v.value.trim() })
+        body: () => ({ status: v.value.trim() })
       };
     }
   },

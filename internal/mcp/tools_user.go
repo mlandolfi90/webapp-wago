@@ -116,7 +116,7 @@ func userTools(c *wago.Client) []Tool {
 				if err != nil {
 					return "", err
 				}
-				return okJSON(c.Do(ctx, wago.Instance, "POST", "/user/profileName", map[string]any{"image": v}))
+				return okJSON(c.Do(ctx, wago.Instance, "POST", "/user/profileName", map[string]any{"name": v}))
 			},
 		},
 		{
@@ -128,7 +128,7 @@ func userTools(c *wago.Client) []Tool {
 				if err != nil {
 					return "", err
 				}
-				return okJSON(c.Do(ctx, wago.Instance, "POST", "/user/profileStatus", map[string]any{"image": v}))
+				return okJSON(c.Do(ctx, wago.Instance, "POST", "/user/profileStatus", map[string]any{"status": v}))
 			},
 		},
 		{

@@ -1,5 +1,33 @@
 # RUN-LEDGER — El Crisol
 
+## RUN profile-name-status-fix-001
+STATUS: CLOSED
+Branch: claude/build-webui-AcJFe
+Tier: completo (toca contrato de 2 capas: MCP + webui)
+Alcance: alinear callers al contrato backend real — MCP y webui mandan
+  `{image}` a /user/profileName|profileStatus pero backend espera
+  `{name}`/`{status}`; profilePicture (`{image}`) está OK y NO se toca
+Carriles: mcp-internal, webui (serializados por el Steward; archivos
+  disjuntos → sin colisión)
+Planificador: contrato backend confirmado verdad
+  (SetProfileNameStruct{name}, SetProfileStatusStruct{status},
+  SetProfilePictureStruct{image}); bug en tools_user.go:119,131 y
+  userForms.js:133,144; profilePicture correcto
+Arquitecto: APPROVE — cambiar solo las 2 keys mal en cada capa; cero
+  scope creep (no tocar profilePicture, no renombrar arg MCP `value`);
+  test Go que captura el body POST; node --check webui; ADR 0044
+Ingeniero: tools_user.go (profileName→{name}, profileStatus→{status};
+  profilePicture intacto), userForms.js (pname→{name}, pstatus→{status};
+  ppic intacto), tools_test.go (+TestProfileToolsUseBackendContractKeys)
+Verificador: PASS — go build/vet verdes; go test -race ./internal/...
+  verde (mcp+events+wago, nuevo test fija las 3 keys); node --check
+  userForms OK; diff = solo 4 archivos previstos; profile_picture sin
+  tocar (test lo fija en `image`)
+Integración: N/A (carriles disjuntos, sin colisión de archivos)
+Iteraciones: 1/3
+Escalación: none
+Cierre: 2026-05-17 — ADR 0044; corrige supuesto de ADR 0027
+
 ## RUN repo-organize-001
 STATUS: CLOSED
 Branch: claude/build-webui-AcJFe
@@ -36,12 +64,11 @@ Cierre: 2026-05-17
   checks azules en grupo (ADR 0037). Sin WhatsApp en el sandbox.
 - **CI en GitHub Actions**: revisar verde del primer run de ci.yml
   (ADR 0040).
-- **BUG confirmado — profile name/status** (hallado en repo-organize-001):
-  backend usa `SetProfileNameStruct{name}` y `SetProfileStatusStruct
-  {status}`, pero MCP (`internal/mcp/tools_user.go`) y webui
-  (`users/userForms.js`) envían `{image}` → setean vacío. ADR 0027 lo
-  asumió mal. Fix = corrida propia (verificable estático, sin
-  dispositivo). Ref: ADR 0043.
+- ~~BUG confirmado — profile name/status~~ **RESUELTO** en
+  profile-name-status-fix-001 (ADR 0044): MCP y webui ahora mandan
+  `{name}`/`{status}`; test de contrato fija las 3 keys. Pendiente
+  opcional: validación del efecto visible en dispositivo real (el
+  contrato ya está fijado por test estático).
 - **Deuda técnica registrada** (no urgente, corridas dedicadas):
   monolitos `pkg/sendMessage/service/send_service.go` (~2960 líneas) y
   `pkg/whatsmeow/service/whatsmeow.go` (~2708) a factorizar; dedup
