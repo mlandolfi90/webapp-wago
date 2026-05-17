@@ -27,3 +27,15 @@ export const updateAdvancedSettings = (id, token, body) =>
   request("PUT", `/instance/${enc(id)}/advanced-settings`, { key: token, body });
 export const sendText = (token, body) =>
   request("POST", "/send/text", { key: token, body });
+export const sendLink = (token, body) =>
+  request("POST", "/send/link", { key: token, body });
+export const sendMedia = (token, body) =>
+  request("POST", "/send/media", { key: token, body });
+export const sendLocation = (token, body) =>
+  request("POST", "/send/location", { key: token, body });
+export const sendPoll = (token, body) =>
+  request("POST", "/send/poll", { key: token, body });
+export const sendContact = (token, body) =>
+  request("POST", "/send/contact", { key: token, body });
+export const sendSticker = (token, body) =>
+  request("POST", "/send/sticker", { key: token, body });

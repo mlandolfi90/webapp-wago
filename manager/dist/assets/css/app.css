@@ -112,6 +112,26 @@ a:hover { text-decoration: underline; }
 }
 .check-row { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
 .check-row .check { margin-bottom: 0; }
+
+/* Segmented control (selector de tipo de mensaje) */
+.seg {
+  display: flex; flex-wrap: wrap; gap: 6px;
+  padding: 5px; margin-bottom: 16px;
+  background: var(--surface-2); border: 1px solid var(--border);
+  border-radius: 10px;
+}
+.seg button {
+  flex: 1 1 auto; min-width: 84px;
+  padding: 7px 10px; border: 1px solid transparent; border-radius: 7px;
+  background: transparent; color: var(--muted);
+  font-size: 13px; font-weight: 600;
+  transition: background .15s, color .15s, border-color .15s;
+}
+.seg button:hover { color: var(--text); }
+.seg button.is-active {
+  background: var(--brand); border-color: var(--brand);
+  color: var(--brand-ink); font-weight: 700;
+}
 .input {
   width: 100%;
   padding: 10px 12px;

@@ -3,7 +3,7 @@ import { toast, toastError } from "../../ui/feedback.js";
 import { getStatus, disconnectInstance, deleteInstance } from "../../core/api.js";
 import { openConnectModal } from "./connectModal.js";
 import { openQrModal } from "./qrModal.js";
-import { openSendModal } from "./sendModal.js";
+import { openSendModal } from "./send/sendModal.js";
 import { openAdvancedModal } from "./advancedModal.js";
 import { openProxyModal } from "./proxyModal.js";
 
@@ -58,7 +58,7 @@ export function instanceCard(inst, reload) {
       h("button", { class: "btn btn-sm btn-primary", onclick: () => openConnectModal(inst) }, ["Conectar"]),
       h("button", { class: "btn btn-sm", onclick: () => openQrModal(inst) }, ["QR"]),
       h("button", { class: "btn btn-sm", onclick: () => refreshStatus(inst) }, ["Estado"]),
-      h("button", { class: "btn btn-sm", onclick: () => openSendModal(inst) }, ["Probar envío"]),
+      h("button", { class: "btn btn-sm", onclick: () => openSendModal(inst) }, ["Enviar"]),
       h("button", { class: "btn btn-sm", onclick: () => openAdvancedModal(inst) }, ["Avanzado"]),
       h("button", { class: "btn btn-sm", onclick: () => openProxyModal(inst) }, ["Proxy"]),
       h("button", { class: "btn btn-sm btn-ghost", onclick: () => doDisconnect(inst, reload) }, ["Desconectar"]),

@@ -1,5 +1,26 @@
 # RUN-LEDGER — El Crisol
 
+## RUN webui-richsend-001
+STATUS: CLOSED
+Branch: claude/build-webui-AcJFe
+Tier: completo (multi-archivo, nuevo patrón UI, core/api.js)
+Alcance: compositor multi-tipo de envío (text/media/link/location/poll/
+  contact/sticker) en la webui /manager
+Carriles: webui (carril único)
+Planificador: contratos send/* extraídos de swagger; helpers modal/form/
+  api mapeados; sendModal actual reemplazable
+Arquitecto: APPROVE — carpeta send/ (senders.js declarativo + sendModal
+  orquestador), reusa modal/field/helpHint/tema, sin tocar contratos
+  backend; ADR 0023
+Ingeniero: core/api.js (+6 fn send), send/senders.js, send/sendModal.js,
+  instanceCard import, app.css (.seg); sendModal viejo eliminado; ADR 0023
+Verificador: PASS — node --check 20/20; render real Chromium 5 vistas
+  (texto/media/ubicación/encuesta+ayuda/contacto), 0 errores de consola
+Integración: N/A (carril único)
+Iteraciones: 1/3
+Escalación: none
+Cierre: 2026-05-17
+
 ## RUN webui-fieldhelp-001
 STATUS: CLOSED
 Branch: claude/build-webui-AcJFe
