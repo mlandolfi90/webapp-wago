@@ -101,3 +101,45 @@ export const messageStatus = (token, body) =>
   request("POST", "/message/status", { key: token, body });
 export const downloadMedia = (token, body) =>
   request("POST", "/message/downloadmedia", { key: token, body });
+
+/* Comunidades */
+export const createCommunity = (token, body) =>
+  request("POST", "/community/create", { key: token, body });
+export const communityAdd = (token, body) =>
+  request("POST", "/community/add", { key: token, body });
+export const communityRemove = (token, body) =>
+  request("POST", "/community/remove", { key: token, body });
+
+/* Etiquetas */
+export const listLabels = (token) =>
+  request("GET", "/label", { key: token });
+export const labelChat = (token, body) =>
+  request("POST", "/label/chat", { key: token, body });
+export const labelMessage = (token, body) =>
+  request("POST", "/label/message", { key: token, body });
+export const editLabel = (token, body) =>
+  request("POST", "/label/edit", { key: token, body });
+export const unlabelChat = (token, body) =>
+  request("POST", "/unlabel/chat", { key: token, body });
+export const unlabelMessage = (token, body) =>
+  request("POST", "/unlabel/message", { key: token, body });
+
+/* Newsletters (canales) */
+export const createNewsletter = (token, body) =>
+  request("POST", "/newsletter/create", { key: token, body });
+export const listNewsletters = (token) =>
+  request("GET", "/newsletter/list", { key: token });
+export const newsletterInfo = (token, body) =>
+  request("POST", "/newsletter/info", { key: token, body });
+export const newsletterLink = (token, body) =>
+  request("POST", "/newsletter/link", { key: token, body });
+export const newsletterSubscribe = (token, body) =>
+  request("POST", "/newsletter/subscribe", { key: token, body });
+export const newsletterMessages = (token, body) =>
+  request("POST", "/newsletter/messages", { key: token, body });
+
+/* Polls / Llamadas */
+export const pollResults = (token, id) =>
+  request("GET", `/polls/${enc(id)}/results`, { key: token });
+export const rejectCall = (token, body) =>
+  request("POST", "/call/reject", { key: token, body });

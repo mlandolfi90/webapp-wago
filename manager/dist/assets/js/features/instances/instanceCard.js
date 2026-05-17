@@ -7,6 +7,10 @@ import { openSendModal } from "./send/sendModal.js";
 import { openGroupsModal } from "./groups/groupsModal.js";
 import { openUsersModal } from "./users/usersModal.js";
 import { openMessagesModal } from "./messages/messagesModal.js";
+import { openCommunityModal } from "./community/communityModal.js";
+import { openLabelsModal } from "./labels/labelsModal.js";
+import { openNewslettersModal } from "./newsletters/newslettersModal.js";
+import { openUtilsModal } from "./utils/utilsModal.js";
 import { openAdvancedModal } from "./advancedModal.js";
 import { openProxyModal } from "./proxyModal.js";
 
@@ -65,6 +69,10 @@ export function instanceCard(inst, reload) {
       h("button", { class: "btn btn-sm", onclick: () => openGroupsModal(inst) }, ["Grupos"]),
       h("button", { class: "btn btn-sm", onclick: () => openUsersModal(inst) }, ["Contactos"]),
       h("button", { class: "btn btn-sm", onclick: () => openMessagesModal(inst) }, ["Mensajes"]),
+      h("button", { class: "btn btn-sm", onclick: () => openCommunityModal(inst) }, ["Comunidades"]),
+      h("button", { class: "btn btn-sm", onclick: () => openLabelsModal(inst) }, ["Etiquetas"]),
+      h("button", { class: "btn btn-sm", onclick: () => openNewslettersModal(inst) }, ["Newsletters"]),
+      h("button", { class: "btn btn-sm", onclick: () => openUtilsModal(inst) }, ["Utilidades"]),
       h("button", { class: "btn btn-sm", onclick: () => openAdvancedModal(inst) }, ["Avanzado"]),
       h("button", { class: "btn btn-sm", onclick: () => openProxyModal(inst) }, ["Proxy"]),
       h("button", { class: "btn btn-sm btn-ghost", onclick: () => doDisconnect(inst, reload) }, ["Desconectar"]),

@@ -1,5 +1,26 @@
 # RUN-LEDGER — El Crisol
 
+## RUN webui-rest-001
+STATUS: CLOSED
+Branch: claude/build-webui-AcJFe
+Tier: completo (varios dominios nuevos, multi-archivo, reuso patrón)
+Alcance: Comunidades, Etiquetas, Newsletters, Polls, Llamadas vía
+  _shared/tabbedForms.js
+Carriles: webui (carril único)
+Planificador: contratos community/label/newsletter/polls/call ya
+  extraídos; tabbedForms reusable; evitar bloat de la tarjeta
+Arquitecto: APPROVE — 4 catálogos (community/labels/newsletters/utils)
+  + modales finos + fns api + 4 botones; sin tocar contratos; ADR 0029
+Ingeniero: core/api.js (+16 fns), community/ labels/ newsletters/
+  utils/ (catálogo+modal c/u), instanceCard (+4 botones); ADR 0029
+Verificador: PASS — node --check 37/37; render real Chromium 5 vistas
+  (comunidades/etiquetas/etiquetas-listar/newsletters/utilidades),
+  0 errores de consola
+Integración: N/A (carril único)
+Iteraciones: 1/3
+Escalación: none
+Cierre: 2026-05-17
+
 ## RUN webui-messages-001
 STATUS: CLOSED
 Branch: claude/build-webui-AcJFe
