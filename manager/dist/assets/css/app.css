@@ -210,6 +210,13 @@ a:hover { text-decoration: underline; }
 .meta { color: var(--muted); font-size: 12.5px; word-break: break-all; }
 .meta b { color: var(--text); font-weight: 600; }
 .card-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
+.action-group { margin-top: 14px; }
+.action-group:first-of-type { margin-top: 16px; }
+.action-group .card-actions { margin-top: 7px; }
+.action-group-label {
+  color: var(--muted-2); font-size: 11px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: .05em;
+}
 
 .badge {
   display: inline-flex; align-items: center; gap: 6px;

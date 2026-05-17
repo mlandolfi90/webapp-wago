@@ -52,6 +52,13 @@ function doDelete(inst, reload) {
     .catch(toastError);
 }
 
+function actionGroup(label, buttons) {
+  return h("div", { class: "action-group" }, [
+    h("div", { class: "action-group-label" }, [label]),
+    h("div", { class: "card-actions" }, buttons)
+  ]);
+}
+
 export function instanceCard(inst, reload) {
   return h("div", { class: "card" }, [
     h("div", { class: "row", style: "justify-content:space-between;align-items:flex-start" }, [
@@ -61,10 +68,14 @@ export function instanceCard(inst, reload) {
     h("div", { class: "meta" }, [h("b", {}, ["ID: "]), inst.id || "-"]),
     h("div", { class: "meta" }, [h("b", {}, ["Token: "]), maskToken(inst.token)]),
     inst.jid ? h("div", { class: "meta" }, [h("b", {}, ["JID: "]), inst.jid]) : null,
-    h("div", { class: "card-actions" }, [
+    actionGroup("Sesión", [
       h("button", { class: "btn btn-sm btn-primary", onclick: () => openConnectModal(inst) }, ["Conectar"]),
       h("button", { class: "btn btn-sm", onclick: () => openQrModal(inst) }, ["QR"]),
       h("button", { class: "btn btn-sm", onclick: () => refreshStatus(inst) }, ["Estado"]),
+      h("button", { class: "btn btn-sm", onclick: () => openAdvancedModal(inst) }, ["Avanzado"]),
+      h("button", { class: "btn btn-sm", onclick: () => openProxyModal(inst) }, ["Proxy"])
+    ]),
+    actionGroup("Operar", [
       h("button", { class: "btn btn-sm", onclick: () => openSendModal(inst) }, ["Enviar"]),
       h("button", { class: "btn btn-sm", onclick: () => openGroupsModal(inst) }, ["Grupos"]),
       h("button", { class: "btn btn-sm", onclick: () => openUsersModal(inst) }, ["Contactos"]),
@@ -72,9 +83,9 @@ export function instanceCard(inst, reload) {
       h("button", { class: "btn btn-sm", onclick: () => openCommunityModal(inst) }, ["Comunidades"]),
       h("button", { class: "btn btn-sm", onclick: () => openLabelsModal(inst) }, ["Etiquetas"]),
       h("button", { class: "btn btn-sm", onclick: () => openNewslettersModal(inst) }, ["Newsletters"]),
-      h("button", { class: "btn btn-sm", onclick: () => openUtilsModal(inst) }, ["Utilidades"]),
-      h("button", { class: "btn btn-sm", onclick: () => openAdvancedModal(inst) }, ["Avanzado"]),
-      h("button", { class: "btn btn-sm", onclick: () => openProxyModal(inst) }, ["Proxy"]),
+      h("button", { class: "btn btn-sm", onclick: () => openUtilsModal(inst) }, ["Utilidades"])
+    ]),
+    actionGroup("Zona peligro", [
       h("button", { class: "btn btn-sm btn-ghost", onclick: () => doDisconnect(inst, reload) }, ["Desconectar"]),
       h("button", { class: "btn btn-sm btn-danger", onclick: () => doDelete(inst, reload) }, ["Borrar"])
     ])

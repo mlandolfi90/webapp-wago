@@ -1,5 +1,25 @@
 # RUN-LEDGER — El Crisol
 
+## RUN webui-cardux-001
+STATUS: CLOSED
+Branch: claude/build-webui-AcJFe
+Tier: completo (patrón UI de layout, multi-archivo, CSS)
+Alcance: agrupar los ~15 botones de instanceCard en 3 secciones
+  (Sesión / Operar / Zona peligro) sin cambiar comportamiento
+Carriles: webui (carril único)
+Planificador: instanceCard.js mapeado (15 botones en .card-actions);
+  comportamiento por onclick a preservar
+Arquitecto: APPROVE — helper local actionGroup, 3 grupos etiquetados,
+  CSS aditivo, sin cambio de conducta; ADR 0031
+Ingeniero: instanceCard.js (actionGroup + 3 grupos), app.css
+  (.action-group*); ADR 0031
+Verificador: PASS — node --check 37/37; render real Chromium: 3 grupos
+  ["Sesión","Operar","Zona peligro"], 15 botones intactos, 0 errores
+Integración: N/A (carril único)
+Iteraciones: 1/3
+Escalación: none
+Cierre: 2026-05-17
+
 ## RUN webui-debt-001
 STATUS: CLOSED
 Branch: claude/build-webui-AcJFe
