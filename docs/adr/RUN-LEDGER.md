@@ -1,5 +1,17 @@
 # RUN-LEDGER — El Crisol
 
+## NOTA docs-upstream-001 (NO-CRISOL: solo documentación)
+Fecha: 2026-05-17 · Branch: claude/build-webui-AcJFe
+Tipo: docs (.md) → por la regla de tiers de El Crisol NO dispara las 4
+  fases (no hay mutación código→commit). Se registra para trazabilidad.
+Entregable: ADR 0036 (estrategia de upstreaming) + docs/UPSTREAM.md
+  (runbook de sync con tulir/EvolutionAPI). Sin tocar código.
+Pendiente externo anotado: bug reportado por agente hermano —
+  /message/markread (read receipts) pasaría el JID del grupo como
+  sender en vez del participante; a investigar read-only y, si se
+  confirma, su PROPIA corrida de Crisol (backend Go) con visto del
+  humano. No se aplica desde un reporte relayado.
+
 ## RUN mcp-docker-001
 STATUS: CLOSED
 Branch: claude/build-webui-AcJFe
