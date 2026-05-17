@@ -61,3 +61,29 @@ export const joinGroup = (token, body) =>
   request("POST", "/group/join", { key: token, body });
 export const leaveGroup = (token, body) =>
   request("POST", "/group/leave", { key: token, body });
+
+/* Usuarios / contactos (apikey = token de instancia) */
+export const getContacts = (token) =>
+  request("GET", "/user/contacts", { key: token });
+export const checkUser = (token, body) =>
+  request("POST", "/user/check", { key: token, body });
+export const getUserInfo = (token, body) =>
+  request("POST", "/user/info", { key: token, body });
+export const getAvatar = (token, body) =>
+  request("POST", "/user/avatar", { key: token, body });
+export const getBlocklist = (token) =>
+  request("GET", "/user/blocklist", { key: token });
+export const blockContact = (token, body) =>
+  request("POST", "/user/block", { key: token, body });
+export const unblockContact = (token, body) =>
+  request("POST", "/user/unblock", { key: token, body });
+export const getPrivacy = (token) =>
+  request("GET", "/user/privacy", { key: token });
+export const setPrivacy = (token, body) =>
+  request("POST", "/user/privacy", { key: token, body });
+export const setProfileName = (token, body) =>
+  request("POST", "/user/profileName", { key: token, body });
+export const setProfileStatus = (token, body) =>
+  request("POST", "/user/profileStatus", { key: token, body });
+export const setProfilePicture = (token, body) =>
+  request("POST", "/user/profilePicture", { key: token, body });

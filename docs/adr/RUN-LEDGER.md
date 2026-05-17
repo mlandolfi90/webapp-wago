@@ -1,5 +1,27 @@
 # RUN-LEDGER — El Crisol
 
+## RUN webui-users-001
+STATUS: CLOSED
+Branch: claude/build-webui-AcJFe
+Tier: completo (dominio nuevo, multi-archivo, patrón)
+Alcance: dominio Usuarios/Contactos en la webui (contacts/check/info/
+  avatar/blocklist/block/unblock/privacy/profile*)
+Carriles: webui (carril único)
+Planificador: contratos /user/* + enum PrivacySetting confirmados;
+  reusa patrón groups (orquestador tabs + catálogo) + identityBlock
+Arquitecto: APPROVE — users/ (usersModal orquestador + contactsList +
+  userForms catálogo) + fns api, reusa modal/seg/field/helpHint/
+  identityBlock/tema, instance-scoped, render defensivo; ADR 0027
+Ingeniero: core/api.js (+12 fns user), users/usersModal.js,
+  users/contactsList.js, users/userForms.js, instanceCard
+  (import+botón Contactos); ADR 0027
+Verificador: PASS — node --check 26/26; render real Chromium 4 vistas
+  (contactos/verificar+LID/privacidad-prefill/perfil), 0 errores consola
+Integración: N/A (carril único)
+Iteraciones: 1/3
+Escalación: none
+Cierre: 2026-05-17
+
 ## RUN webui-identity-001
 STATUS: CLOSED
 Branch: claude/build-webui-AcJFe
