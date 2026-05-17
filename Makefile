@@ -55,6 +55,12 @@ build: ## Compila a aplicação
 	$(GO) build $(GOFLAGS) $(LDFLAGS) -o $(BUILD_DIR)/$(APP_NAME) $(MAIN_PATH)
 	@echo "$(GREEN)✅ Build completo: $(BUILD_DIR)/$(APP_NAME)$(NC)"
 
+mcp: ## Compila el servidor MCP (cmd/mcp)
+	@echo "$(GREEN)🔨 Compilando MCP...$(NC)"
+	@mkdir -p $(BUILD_DIR)
+	$(GO) build $(GOFLAGS) -o $(BUILD_DIR)/wago-mcp ./cmd/mcp
+	@echo "$(GREEN)✅ Build MCP completo: $(BUILD_DIR)/wago-mcp$(NC)"
+
 build-linux: ## Compila para Linux
 	@echo "$(GREEN)🔨 Compilando para Linux...$(NC)"
 	@mkdir -p $(BUILD_DIR)

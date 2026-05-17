@@ -1,5 +1,28 @@
 # RUN-LEDGER — El Crisol
 
+## RUN mcp-server-001
+STATUS: CLOSED
+Branch: claude/build-webui-AcJFe
+Tier: completo (componente nuevo, contratos, arquitectura)
+Alcance: servidor MCP en Go (cmd/mcp) que envuelve la API REST;
+  transportes stdio + HTTP; catálogo de tools del núcleo
+Carriles: mcp (carril único)
+Planificador: módulo webapp-wago go1.25; replace whatsmeow→submódulo;
+  sin internal/; Makefile sin target mcp; Dockerfile sensible (CLAUDE.md)
+Arquitecto: APPROVE — MCP hand-rolled stdlib-only (cero deps nuevas),
+  internal/wago + internal/mcp + cmd/mcp; Makefile +target; Dockerfile
+  intacto (follow-up); ADR 0032
+Ingeniero: internal/wago/client.go, internal/mcp/{jsonrpc,server,tools,
+  stdio,http}.go, cmd/mcp/main.go, Makefile (+mcp), ADR 0032; +tests
+Verificador: PASS — go vet limpio; go build OK; go test ./internal/...
+  verde (server+client); smoke e2e stdio (handshake/13 tools/scopes/
+  error) y HTTP (healthz/initialize/list); go.mod/go.sum sin cambios
+Integración: N/A (carril único)
+Iteraciones: 1/3
+Escalación: none
+Cierre: 2026-05-17
+FOLLOW-UP: integrar binario MCP en Dockerfile (corrida aparte)
+
 ## RUN webui-cardux-001
 STATUS: CLOSED
 Branch: claude/build-webui-AcJFe
