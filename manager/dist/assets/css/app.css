@@ -132,6 +132,36 @@ a:hover { text-decoration: underline; }
   background: var(--brand); border-color: var(--brand);
   color: var(--brand-ink); font-weight: 700;
 }
+
+/* Patrón de identidad: nombre humano protagonista + id copiable */
+.identity { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.identity-name {
+  font-family: var(--display); color: #fff;
+  font-size: 16px; font-weight: 700; line-height: 1.25;
+  word-break: break-word;
+}
+.identity-phone { color: var(--text); font-size: 13px; font-weight: 600; }
+.identity-id { display: flex; align-items: center; gap: 7px; min-width: 0; }
+.identity-id-label {
+  color: var(--muted-2); font-size: 11px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: .04em; flex: 0 0 auto;
+}
+.copy-chip {
+  display: inline-flex; align-items: center; gap: 6px; min-width: 0;
+  max-width: 100%; padding: 3px 8px;
+  background: var(--surface-2); border: 1px solid var(--border);
+  border-radius: 7px; color: var(--muted);
+  font-family: ui-monospace, "Geist Mono", "IBM Plex Mono", monospace;
+  font-size: 12px; transition: color .15s, border-color .15s, background .15s;
+}
+.copy-chip:hover, .copy-chip:focus-visible {
+  color: var(--brand); border-color: var(--brand); background: var(--brand-dim);
+  outline: none;
+}
+.copy-chip-val {
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0;
+}
+.copy-chip-ico { flex: 0 0 auto; font-size: 13px; opacity: .8; }
 .input {
   width: 100%;
   padding: 10px 12px;

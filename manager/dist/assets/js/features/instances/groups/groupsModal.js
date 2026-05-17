@@ -2,6 +2,7 @@ import { h, clear } from "../../../ui/dom.js";
 import { modal } from "../../../ui/modal.js";
 import { input, textarea, field, busy } from "../../../ui/form.js";
 import { toast, toastError } from "../../../ui/feedback.js";
+import { identityBlock } from "../../../ui/identity.js";
 import { listGroups, createGroup, joinGroup } from "../../../core/api.js";
 import { openGroupActions, groupLabel, groupJid } from "./groupActions.js";
 
@@ -56,14 +57,13 @@ export function openGroupsModal(inst) {
         }
         list.forEach((g) => {
           area.appendChild(h("div", { class: "card", style: "margin-bottom:10px" }, [
-            h("div", { class: "row", style: "justify-content:space-between;align-items:flex-start" }, [
-              h("h3", {}, [groupLabel(g)]),
+            h("div", { class: "row", style: "justify-content:space-between;align-items:flex-start;gap:12px" }, [
+              identityBlock({ name: groupLabel(g), id: groupJid(g) || "-", idLabel: "JID" }),
               h("button", {
                 class: "btn btn-sm btn-primary",
                 onclick: () => openGroupActions(inst, g, () => select(active))
               }, ["Gestionar"])
-            ]),
-            h("div", { class: "meta" }, [h("b", {}, ["JID: "]), groupJid(g) || "-"])
+            ])
           ]));
         });
       })

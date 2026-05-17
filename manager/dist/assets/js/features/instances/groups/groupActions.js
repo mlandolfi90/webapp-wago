@@ -2,6 +2,7 @@ import { h, clear } from "../../../ui/dom.js";
 import { modal } from "../../../ui/modal.js";
 import { input, textarea, field, busy } from "../../../ui/form.js";
 import { toast, toastError } from "../../../ui/feedback.js";
+import { identityBlock } from "../../../ui/identity.js";
 import {
   getGroupInfo, getGroupInviteLink, setGroupName, setGroupDescription,
   setGroupPhoto, updateGroupParticipants, leaveGroup
@@ -149,8 +150,8 @@ export function openGroupActions(inst, group, onChanged) {
   const m = modal(
     "Grupo — " + groupLabel(group),
     h("div", {}, [
-      h("div", { class: "meta", style: "margin-bottom:12px;word-break:break-all" }, [
-        h("b", {}, ["JID: "]), groupJid(group) || "(desconocido)"
+      h("div", { style: "margin-bottom:14px" }, [
+        identityBlock({ name: groupLabel(group), id: groupJid(group) || "(desconocido)", idLabel: "JID" })
       ]),
       seg, formArea, resultArea
     ]),

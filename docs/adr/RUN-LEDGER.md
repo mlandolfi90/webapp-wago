@@ -1,5 +1,26 @@
 # RUN-LEDGER — El Crisol
 
+## RUN webui-identity-001
+STATUS: CLOSED
+Branch: claude/build-webui-AcJFe
+Tier: completo (nuevo patrón UI, multi-archivo, CSS)
+Alcance: patrón de identidad — Nombre humano destacado + teléfono si
+  hay + LID/JID siempre visible y copiable 1-clic
+Carriles: webui (carril único)
+Planificador: puntos de render (groupsModal card, groupActions header);
+  toast/h reusables; clipboard necesita fallback (http)
+Arquitecto: APPROVE — ui/identity.js (copyChip+identityBlock) reusable,
+  sin tocar contratos, fallback execCommand, accesible; ADR 0026
+Ingeniero: ui/identity.js, app.css (.identity*/.copy-chip),
+  groups/groupsModal.js + groups/groupActions.js (identityBlock); ADR 0026
+Verificador: PASS — node --check 23/23; render real Chromium: nombre
+  protagonista, copia verificada (clipboard == JID exacto), toast,
+  0 errores de consola
+Integración: N/A (carril único)
+Iteraciones: 1/3
+Escalación: none
+Cierre: 2026-05-17
+
 ## RUN webui-groups-001
 STATUS: CLOSED
 Branch: claude/build-webui-AcJFe
