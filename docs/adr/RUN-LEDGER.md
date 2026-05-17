@@ -1,5 +1,26 @@
 # RUN-LEDGER — El Crisol
 
+## RUN mcp-test-hardening-001
+STATUS: CLOSED
+Branch: claude/build-webui-AcJFe
+Tier: completo (multi-archivo de test; endurece contrato verificado)
+Alcance: subir cobertura wago/mcp(http,stdio)/events SIN cambiar
+  producción; solo *_test.go nuevos; go test -race
+Carriles: tests (carril único)
+Planificador: APIs ya conocidas; reusar testServer()/push(); nombres
+  únicos para no colisionar con tests existentes
+Arquitecto: APPROVE — solo tests, aditivo, sin tocar producción ni
+  contratos → sin ADR (Regla #1 no aplica: no cambia arquitectura);
+  registrar en ledger
+Ingeniero: wago/client_hardening_test.go, mcp/http_transport_test.go,
+  mcp/stdio_transport_test.go, events/buffer_concurrency_test.go
+Verificador: PASS — go vet limpio; go test -race ./internal/... verde
+  (events/mcp/wago); diff = solo *_test.go + ledger (cero producción)
+Integración: N/A (carril único)
+Iteraciones: 1/3
+Escalación: none
+Cierre: 2026-05-17
+
 ## RUN mcp-ws-events-001
 STATUS: CLOSED
 Branch: claude/build-webui-AcJFe
