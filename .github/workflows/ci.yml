@@ -1,0 +1,87 @@
+name: CI
+
+on:
+  push:
+    branches-ignore:
+      - main # main lo cubre publish_docker_image.yml
+  pull_request:
+
+jobs:
+  go:
+    name: Go build / vet / test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout (con submódulo whatsmeow-lib)
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Dependencias CGO (libwebp/libjpeg)
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            build-essential pkg-config libwebp-dev libjpeg-dev
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+          cache: true
+
+      - name: Build
+        run: go build ./...
+
+      - name: Vet
+        run: go vet ./...
+
+      - name: Test
+        run: go test ./...
+
+  webui:
+    name: WebUI (node --check)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: node --check de los módulos
+        run: |
+          set -e
+          n=0
+          for f in $(find manager/dist/assets/js -name '*.js'); do
+            node --check "$f"
+            n=$((n+1))
+          done
+          echo "node --check OK ($n módulos)"
+
+  docker:
+    name: Docker build (valida imagen + wago-mcp)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout (con submódulo whatsmeow-lib)
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Read version
+        id: version
+        run: echo "version=$(cat VERSION 2>/dev/null || echo '0.0.0')" >> "$GITHUB_OUTPUT"
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build (sin push)
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: false
+          load: false
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          build-args: |
+            VERSION=${{ steps.version.outputs.version }}

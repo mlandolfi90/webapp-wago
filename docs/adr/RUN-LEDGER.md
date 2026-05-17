@@ -1,5 +1,27 @@
 # RUN-LEDGER — El Crisol
 
+## RUN ci-pipeline-001
+STATUS: CLOSED
+Branch: claude/build-webui-AcJFe
+Tier: completo (infra/CI, patrón de validación del repo)
+Alcance: .github/workflows/ci.yml — go build/vet/test + node --check +
+  docker build (validación), sin tocar publish_docker_image.yml ni código
+Carriles: ci (carril único)
+Planificador: ya existe publish_docker_image.yml (no tocar); go.mod
+  go1.25; CGO necesita libwebp/libjpeg; submódulo público recursive
+Arquitecto: APPROVE — ci.yml nuevo (jobs go/webui/docker), mirror de
+  convenciones del publish (checkout recursive, buildx, gha cache,
+  build-arg VERSION), push:false; ADR 0040
+Ingeniero: .github/workflows/ci.yml (jobs go/webui/docker); ADR 0040
+Verificador: PASS (limitación documentada) — YAML válido (PyYAML/yq),
+  jobs go/webui/docker, triggers push+pull_request, docker push:false,
+  publish_docker_image.yml intacto, sin tocar código. Ejecución real de
+  Actions = auto-validación en el push de esta corrida.
+Integración: N/A (carril único)
+Iteraciones: 1/3
+Escalación: none
+Cierre: 2026-05-17
+
 ## RUN album-propagate-001
 STATUS: CLOSED
 Branch: claude/build-webui-AcJFe
