@@ -13,7 +13,11 @@ import (
 //
 // Single endpoint path, method-dispatched. Suitable for one logical
 // session per connection; multi-session fan-out is out of scope here.
-func (s *Server) HTTPHandler() http.Handler {
+func (s *Server) HTTPHandler() http.Handler { return s.mux(nil) }
+
+// mux builds the base routes (/mcp, /healthz) plus any extra handlers
+// (e.g. /webhook), so the webhook receiver can share the MCP port.
+func (s *Server) mux(extra map[string]http.Handler) *http.ServeMux {
 	mux := http.NewServeMux()
 	mux.HandleFunc("/mcp", func(w http.ResponseWriter, r *http.Request) {
 		switch r.Method {
@@ -29,6 +33,9 @@ func (s *Server) HTTPHandler() http.Handler {
 		w.WriteHeader(http.StatusOK)
 		_, _ = w.Write([]byte("ok"))
 	})
+	for path, h := range extra {
+		mux.Handle(path, h)
+	}
 	return mux
 }
 
@@ -85,7 +92,13 @@ func writeJSON(w http.ResponseWriter, v any) {
 
 // Serve runs the HTTP transport on addr until ctx is done.
 func (s *Server) Serve(ctx context.Context, addr string) error {
-	srv := &http.Server{Addr: addr, Handler: s.HTTPHandler()}
+	return s.ServeWith(ctx, addr, nil)
+}
+
+// ServeWith is Serve plus extra HTTP routes (e.g. the webhook receiver)
+// mounted on the same listener.
+func (s *Server) ServeWith(ctx context.Context, addr string, extra map[string]http.Handler) error {
+	srv := &http.Server{Addr: addr, Handler: s.mux(extra)}
 	go func() {
 		<-ctx.Done()
 		sc, cancel := context.WithTimeout(context.Background(), 3*time.Second)

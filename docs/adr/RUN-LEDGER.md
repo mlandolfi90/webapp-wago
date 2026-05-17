@@ -1,5 +1,26 @@
 # RUN-LEDGER — El Crisol
 
+## RUN mcp-events-001
+STATUS: CLOSED
+Branch: claude/build-webui-AcJFe
+Tier: completo (subsistema nuevo, contratos, multi-archivo)
+Alcance: recepción de eventos — receptor webhook + buffer acotado +
+  tools wago_events_poll/clear; mismo server (http) o aparte (stdio)
+Carriles: mcp (carril único)
+Planificador: http.go monta su propio mux; main elige transporte;
+  BuildTools(c) → sumar EventTools(buf); buffer thread-safe acotado
+Arquitecto: APPROVE — internal/events (buffer+webhook), http.ServeWith
+  con rutas extra (retrocompat), tools_events, main compone; ADR 0034
+Ingeniero: internal/events/{buffer,webhook}.go, internal/mcp/
+  tools_events.go, http.go (ServeWith retrocompat), cmd/mcp/main.go,
+  +tests (buffer/webhook/tools_events); ADR 0034
+Verificador: PASS — go vet/build limpios; go test ./internal/... verde;
+  e2e: POST /webhook → wago_events_poll devuelve y consume (count1→0)
+Integración: N/A (carril único)
+Iteraciones: 1/3
+Escalación: none
+Cierre: 2026-05-17
+
 ## RUN mcp-tools-ext-001
 STATUS: CLOSED
 Branch: claude/build-webui-AcJFe
