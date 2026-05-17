@@ -62,8 +62,11 @@ Cierre: 2026-05-17
   dispositivo. Ref: docs/UPSTREAM.md, ADR 0042.
 - **Validación real en dispositivo**: álbum agrupado (ADR 0038/0039) y
   checks azules en grupo (ADR 0037). Sin WhatsApp en el sandbox.
-- **CI en GitHub Actions**: revisar verde del primer run de ci.yml
-  (ADR 0040).
+- ~~CI en GitHub Actions~~ **VERDE CONFIRMADO** (ADR 0040): commit
+  77af274 (PR #1) — 6/6 checks success: Go build/vet/test, WebUI
+  node --check, **Docker build (valida imagen + wago-mcp)**. Esto
+  además cubre la validación de Docker build que el sandbox no puede
+  correr (sin daemon): CI compila imagen + binario MCP en cada push.
 - ~~BUG confirmado — profile name/status~~ **RESUELTO** en
   profile-name-status-fix-001 (ADR 0044): MCP y webui ahora mandan
   `{name}`/`{status}`; test de contrato fija las 3 keys. Pendiente
