@@ -55,17 +55,24 @@ export const MESSAGE_FORMS = [
     build() {
       const number = input({ placeholder: "5491122334455" });
       const ids = textarea({ rows: "3", placeholder: "Un ID por línea" });
+      const participant = input({ placeholder: "(grupos) JID del autor del mensaje" });
       return {
         fields: [
           field("Número / chat", number, "Chat de los mensajes. Ej: 5491122334455"),
-          field("IDs (uno por línea)", ids, "messageId de cada mensaje a marcar leído, uno por línea.")
+          field("IDs (uno por línea)", ids, "messageId de cada mensaje a marcar leído, uno por línea."),
+          field("Participante (grupos)", participant,
+            "En GRUPOS: JID de quien envió el mensaje. Sin esto el check azul NO registra en grupos. Vacío en chats 1-a-1.")
         ],
         validate: () => {
           if (!number.value.trim()) return "El número/chat es obligatorio";
           if (!lines(ids).length) return "Cargá al menos un ID";
           return null;
         },
-        body: () => ({ number: number.value.trim(), id: lines(ids) })
+        body: () => {
+          const b = { number: number.value.trim(), id: lines(ids) };
+          if (participant.value.trim()) b.participant = participant.value.trim();
+          return b;
+        }
       };
     }
   },

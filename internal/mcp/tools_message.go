@@ -29,8 +29,8 @@ func messageTools(c *wago.Client) []Tool {
 		},
 		{
 			Name:        "wago_mark_read",
-			Description: "Marca mensajes como leídos. Args: number, id[].",
-			InputSchema: schema(`{"type":"object","properties":{"number":{"type":"string"},"id":{"type":"array","items":{"type":"string"}}},"required":["number","id"]}`),
+			Description: "Marca mensajes como leídos (checks azules). Args: number (chat), id[]. En GRUPOS pasá participant = JID del autor del mensaje (sin él, el receipt no registra en grupos).",
+			InputSchema: schema(`{"type":"object","properties":{"number":{"type":"string"},"id":{"type":"array","items":{"type":"string"}},"participant":{"type":"string"}},"required":["number","id"]}`),
 			Handler: func(ctx context.Context, a map[string]any) (string, error) {
 				number, err := reqStr(a, "number")
 				if err != nil {
@@ -40,7 +40,11 @@ func messageTools(c *wago.Client) []Tool {
 				if len(ids) == 0 {
 					return "", errors.New("id debe ser un array no vacío")
 				}
-				return okJSON(c.Do(ctx, wago.Instance, "POST", "/message/markread", map[string]any{"number": number, "id": ids}))
+				body := map[string]any{"number": number, "id": ids}
+				if p := str(a, "participant"); p != "" {
+					body["participant"] = p
+				}
+				return okJSON(c.Do(ctx, wago.Instance, "POST", "/message/markread", body))
 			},
 		},
 		{

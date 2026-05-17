@@ -57,6 +57,25 @@ type ChatPresenceStruct struct {
 type MarkReadStruct struct {
 	Id     []string `json:"id"`
 	Number string   `json:"number"`
+	// Participant es el autor del mensaje. OBLIGATORIO en grupos: el
+	// receipt de lectura debe ir con sender = quien envió el mensaje,
+	// no el JID del grupo (doc whatsmeow.MarkRead). Vacío => 1-a-1:
+	// sender = chat (comportamiento histórico, no rompe DMs).
+	Participant string `json:"participant,omitempty"`
+}
+
+// resolveReadSender decide el JID `sender` para whatsmeow.MarkRead.
+// Sin participant => el propio chat (correcto en DMs). Con participant
+// => ese JID (correcto en grupos). Aislado y puro para poder testearlo.
+func resolveReadSender(chat types.JID, participant string) (types.JID, error) {
+	if participant == "" {
+		return chat, nil
+	}
+	jid, ok := utils.ParseJID(participant)
+	if !ok {
+		return types.JID{}, errors.New("invalid participant jid")
+	}
+	return jid, nil
 }
 
 type DownloadMediaStruct struct {
@@ -241,15 +260,20 @@ func (m *messageService) MarkRead(data *MarkReadStruct, instance *instance_model
 		return "", err
 	}
 
-	var ts time.Time
-
 	jid, ok := utils.ParseJID(data.Number)
 	if !ok {
 		m.loggerWrapper.GetLogger(instance.Id).LogError("[%s] Error validating message fields", instance.Id)
 		return "", errors.New("invalid phone number")
 	}
 
-	err = client.MarkRead(context.Background(), data.Id, time.Now(), jid, jid)
+	sender, err := resolveReadSender(jid, data.Participant)
+	if err != nil {
+		m.loggerWrapper.GetLogger(instance.Id).LogError("[%s] invalid participant for read receipt", instance.Id)
+		return "", err
+	}
+
+	ts := time.Now()
+	err = client.MarkRead(context.Background(), data.Id, ts, jid, sender)
 	if err != nil {
 		m.loggerWrapper.GetLogger(instance.Id).LogError("[%s] error marking message as read: %v", instance.Id, err)
 		return "", errors.New("error marking message as read")

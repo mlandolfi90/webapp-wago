@@ -1,5 +1,31 @@
 # RUN-LEDGER — El Crisol
 
+## RUN fix-markread-group
+STATUS: CLOSED (con observación: validación real en grupo PENDIENTE)
+Branch: claude/build-webui-AcJFe
+Tier: completo (contrato público, multi-componente, protocolo)
+Alcance: fix read receipts en grupos — sender debía ser el participante
+  autor, no el JID del grupo (riesgo de baneo)
+Carriles: backend (carril único; MCP+webui propagan el mismo contrato)
+Planificador: bug confirmado por doc whatsmeow.MarkRead; MarkReadStruct
+  sin campo participant; ts nunca seteado (devolvía tiempo cero)
+Arquitecto: APPROVE — campo opcional participant (retrocompat, DMs
+  intactos), helper puro resolveReadSender testeable, propagación a
+  MCP/webui en la misma corrida (mismo contrato, evita divergencia);
+  ADR 0037
+Ingeniero: pkg/message/service/message_service.go (+Participant,
+  +resolveReadSender, ts fix), internal/mcp/tools_message.go,
+  webui messageForms.js, +tests; ADR 0037
+Verificador: PASS estático — go build/vet/test verdes (helper cubierto),
+  node --check js OK, call-site revisado. INTEGRACIÓN real (checks
+  azules en grupo de 2) PENDIENTE: sin dispositivo en sandbox →
+  validación a cargo del humano.
+Integración: PENDIENTE-REAL (humano valida checks azules en grupo)
+Iteraciones: 1/3
+Escalación: none
+Cierre: 2026-05-17 — commiteado por contenedor efímero (criterio
+  acordado: no perder el fix; el check real queda explícitamente abierto)
+
 ## NOTA docs-upstream-001 (NO-CRISOL: solo documentación)
 Fecha: 2026-05-17 · Branch: claude/build-webui-AcJFe
 Tipo: docs (.md) → por la regla de tiers de El Crisol NO dispara las 4
