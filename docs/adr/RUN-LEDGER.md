@@ -1,5 +1,37 @@
 # RUN-LEDGER — El Crisol
 
+## RUN webhook-filter-ux-001
+STATUS: CLOSED
+Branch: claude/build-webui-AcJFe
+Tier: completo (extiende contrato filtro + patrón webui)
+Alcance: (A) wildcards/glob en allowlists `chatIds`/`senders` con
+  `path.Match` (`*@g.us`, `549*`, etc.); (B) selector por nombre en
+  la webUI que llena los textareas con JIDs (lee /group/list y
+  /user/contacts). Sin cambios al backend para B (la UI guarda JIDs).
+Carriles: backend (matchAllowlist + tests), webui (webhookForm
+  +selectores de grupos/contactos). Disjuntos — sin colisión.
+Planificador: extiende ADR 0045 sin romper su contrato (un JID sin
+  metacaracteres sigue siendo exact match — retrocompat 100%).
+Arquitecto: APPROVE — usar stdlib `path.Match` (glob shell `*?[]`,
+  no matchea separador pero los JIDs no llevan `/`); mantener
+  `jid==""` como rechazo previo (no permitir bypass con `*`); UI lee
+  endpoints existentes (no API nueva); ADR 0046
+Ingeniero: (A) pkg/webhook/service/webhook_service.go: `path.Match`
+  con guarda `ContainsAny("*?[")` en matchAllowlist; (B) nuevo
+  manager/dist/assets/js/features/instances/webhooks/jidPicker.js +
+  webhookForm.js (botones "Elegir grupos/contactos" + textareas con
+  ayuda de wildcards) + webhooksList.js (pasa `inst.token`); ADR 0046
+Verificador: PASS — go build verde; go test -race
+  ./pkg/webhook/... ./internal/mcp/... verde (7 casos glob nuevos
+  incluyendo edge case `*` con jid vacío); node --check verde en los
+  3 archivos webui; retrocompat 100% (JIDs sin metacaracteres siguen
+  siendo exact match)
+Integración: PASS — backend acepta globs, webUI elige por nombre y
+  guarda JIDs; ortogonales, no chocan
+Iteraciones: 1/3
+Escalación: none
+Cierre: 2026-05-27 — ADR 0046
+
 ## RUN multi-webhook-filters-001
 STATUS: CLOSED
 Branch: claude/build-webui-AcJFe

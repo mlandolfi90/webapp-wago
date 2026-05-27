@@ -77,6 +77,25 @@ func TestMatchesFilter(t *testing.T) {
 		{"combo: una dim falla → rechaza",
 			wh([]string{"MESSAGE"}, "group", []string{"12345@g.us"}, []string{"alice@s.whatsapp.net"}),
 			"MESSAGE", "99999@g.us", "alice@s.whatsapp.net", false},
+
+		// Wildcards / glob.
+		{"glob *@g.us matchea cualquier grupo",
+			wh(nil, "any", []string{"*@g.us"}, nil), "Message", "12345@g.us", "", true},
+		{"glob *@g.us NO matchea individual",
+			wh(nil, "any", []string{"*@g.us"}, nil), "Message", "549@s.whatsapp.net", "", false},
+		{"glob por prefijo 549*",
+			wh(nil, "any", nil, []string{"549*@s.whatsapp.net"}),
+			"Message", "g@g.us", "549123@s.whatsapp.net", true},
+		{"glob por prefijo 549* no matchea 555",
+			wh(nil, "any", nil, []string{"549*@s.whatsapp.net"}),
+			"Message", "g@g.us", "555123@s.whatsapp.net", false},
+		{"glob 12036*@g.us matchea por prefijo de grupo",
+			wh(nil, "any", []string{"12036*@g.us"}, nil), "Message", "12036304@g.us", "", true},
+		{"glob `*` NO bypassa jid vacío (semántica de dato faltante)",
+			wh(nil, "any", []string{"*"}, nil), "Message", "", "", false},
+		{"glob + exact match en la misma lista",
+			wh(nil, "any", []string{"12@g.us", "*@s.whatsapp.net"}, nil),
+			"Message", "alice@s.whatsapp.net", "", true},
 	}
 	for _, c := range cases {
 		t.Run(c.name, func(t *testing.T) {

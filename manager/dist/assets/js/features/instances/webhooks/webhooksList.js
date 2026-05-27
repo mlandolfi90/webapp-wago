@@ -78,7 +78,7 @@ export function renderWebhooks(area, inst) {
   function openForm(prefill) {
     formBox.style.display = "block";
     clear(formBox);
-    const { fields, build, validate } = buildWebhookForm(prefill || undefined);
+    const { fields, build, validate } = buildWebhookForm(prefill || undefined, inst.token);
     const saveBtn = h("button", { class: "btn btn-primary" }, [prefill ? "Guardar cambios" : "Crear webhook"]);
     const cancelBtn = h("button", { class: "btn" }, ["Cancelar"]);
     cancelBtn.addEventListener("click", closeForm);

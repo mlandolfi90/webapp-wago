@@ -293,7 +293,12 @@ paralelo). Cap **20 webhooks por instancia**.
 - `chatType`: `any` no filtra; `group` exige `@g.us`; `individual`
   exige no-grupo / no-newsletter / no-broadcast.
 - `chatIds` / `senders`: vacía ⇒ no filtra; **no vacía + dato faltante
-  ⇒ rechaza**.
+  ⇒ rechaza**. Cada entry puede ser un JID exacto o un **wildcard
+  glob** (ADR 0046): `*@g.us` (todos los grupos), `549*@s.whatsapp.net`
+  (autores argentinos), `12036*@g.us` (grupos por prefijo). Sin
+  metacaracteres es exact match. El webUI ofrece un picker que arma
+  estas listas por nombre humano (lee `/group/list` y `/user/contacts`)
+  y guarda los JIDs.
 
 Validaciones (rechazan con `400`): URL debe ser `http(s)://host/...`,
 `chatType` ∈ {any,group,individual}, `events` ⊂ catálogo canónico

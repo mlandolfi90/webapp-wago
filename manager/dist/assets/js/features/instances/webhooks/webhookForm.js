@@ -1,6 +1,7 @@
-import { h } from "../../../ui/dom.js";
+import { h, clear } from "../../../ui/dom.js";
 import { input, textarea, field, checkboxRow, helpHint } from "../../../ui/form.js";
 import { EVENTS } from "../../../constants.js";
+import { mountJidPicker } from "./jidPicker.js";
 
 /** Convierte textarea con un valor por línea a array (limpio). */
 export function lines(t) {
@@ -10,8 +11,10 @@ export function lines(t) {
 /**
  * Devuelve los controles + un builder de body para crear/editar un
  * webhook. Reutilizado por webhooksList (modo crear inline + editar).
+ * `token` es opcional: si se pasa, habilita los pickers "Elegir
+ * grupos/contactos" que consultan /group/list y /user/contacts.
  */
-export function buildWebhookForm(prefill) {
+export function buildWebhookForm(prefill, token) {
   const cur = prefill || {};
   const urlIn = input({ placeholder: "https://miapp.com/whatsapp/hook", value: cur.url || "" });
   const enabledRow = checkboxRow("Habilitado", cur.enabled !== false,
@@ -39,14 +42,36 @@ export function buildWebhookForm(prefill) {
 
   const chatIds = textarea({
     rows: "3",
-    placeholder: "Un JID por línea\n5491122334455@s.whatsapp.net\n12036304...@g.us",
+    placeholder: "Un JID por línea (acepta wildcards: *@g.us, 549*@s.whatsapp.net)\n12036304...@g.us",
     value: (cur.chatIds || []).join("\n")
   });
   const senders = textarea({
     rows: "3",
-    placeholder: "Un JID por línea\n5491122334455@s.whatsapp.net",
+    placeholder: "Un JID por línea (acepta wildcards: *@s.whatsapp.net)\n5491122334455@s.whatsapp.net",
     value: (cur.senders || []).join("\n")
   });
+
+  // Pickers por nombre — sólo se montan si tenemos token.
+  const chatPicker = h("div", {});
+  const senderPicker = h("div", {});
+  function pickChats() {
+    if (!token) return;
+    mountJidPicker({
+      host: chatPicker, source: "groups", token, targetTextarea: chatIds,
+      onClose: () => clear(chatPicker)
+    });
+  }
+  function pickSenders() {
+    if (!token) return;
+    mountJidPicker({
+      host: senderPicker, source: "contacts", token, targetTextarea: senders,
+      onClose: () => clear(senderPicker)
+    });
+  }
+  const chatPickBtn = h("button", { class: "btn btn-sm", type: "button" }, ["Elegir grupos…"]);
+  const sendPickBtn = h("button", { class: "btn btn-sm", type: "button" }, ["Elegir contactos…"]);
+  chatPickBtn.addEventListener("click", pickChats);
+  sendPickBtn.addEventListener("click", pickSenders);
 
   function readChatType() {
     if (ctGroup.querySelector("input").checked) return "group";
@@ -69,9 +94,13 @@ export function buildWebhookForm(prefill) {
     ]),
     ctRow,
     field("Chats permitidos (allowlist)", chatIds,
-      "Si está vacío, no filtra por chat. Si tiene JIDs, solo dispara cuando el evento pertenece a uno de esos chats. Uno por línea."),
+      "Vacío = no filtra. Acepta JIDs exactos o wildcards (glob): *@g.us (todos los grupos), 12036*@g.us (prefijo), *@s.whatsapp.net (todos los individuales). Uno por línea."),
+    token ? h("div", { class: "row", style: "gap:6px;margin-top:-4px;margin-bottom:8px" }, [chatPickBtn]) : null,
+    chatPicker,
     field("Autores permitidos (allowlist)", senders,
-      "Solo dispara cuando el autor del mensaje (sender) está en esta lista. Útil para filtrar por persona en grupos. Vacío = no filtra. Uno por línea.")
+      "Vacío = no filtra. Acepta JIDs exactos o wildcards (glob): 549*@s.whatsapp.net (autores argentinos), *@s.whatsapp.net (cualquier usuario). Uno por línea."),
+    token ? h("div", { class: "row", style: "gap:6px;margin-top:-4px;margin-bottom:8px" }, [sendPickBtn]) : null,
+    senderPicker
   ]);
 
   function build() {

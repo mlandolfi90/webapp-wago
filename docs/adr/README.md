@@ -40,6 +40,7 @@ decisión, alternativas y consecuencias.
 | 0043 | Organización del repo: limpieza, índices y vetos del Steward |
 | 0044 | Fix: contrato profileName/profileStatus (MCP + webui) |
 | 0045 | Webhooks múltiples por instancia con filtros inline |
+| 0046 | Webhook filter: wildcards en JID + selector por nombre en UI |
 
 Para el detalle de cada corrida y los pendientes abiertos: ver
 [RUN-LEDGER.md](./RUN-LEDGER.md).

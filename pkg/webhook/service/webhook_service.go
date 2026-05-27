@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"net/url"
+	"path"
 	"strings"
 	"sync"
 
@@ -266,8 +267,11 @@ func matchChatType(chatType, chatJID string) bool {
 	return true
 }
 
-// matchAllowlist: vacía = pasa. No vacía + jid="" = rechaza.
-// No vacía + jid match = pasa.
+// matchAllowlist: vacía = pasa. No vacía + jid="" = rechaza (no se
+// puede dar bypass con `*` cuando falta el dato). Cada entry es:
+//   - exact match si no contiene metacaracteres glob (`*`, `?`, `[`)
+//   - glob estilo shell vía `path.Match` si los contiene
+//     (`*@g.us`, `549*@s.whatsapp.net`, `12036*@g.us`, etc.).
 func matchAllowlist(allow []string, jid string) bool {
 	if len(allow) == 0 {
 		return true
@@ -278,6 +282,11 @@ func matchAllowlist(allow []string, jid string) bool {
 	for _, a := range allow {
 		if a == jid {
 			return true
+		}
+		if strings.ContainsAny(a, "*?[") {
+			if ok, _ := path.Match(a, jid); ok {
+				return true
+			}
 		}
 	}
 	return false
