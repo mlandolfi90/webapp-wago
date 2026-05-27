@@ -47,6 +47,7 @@ import (
 	poll_service "github.com/webapp-wago/webapp-wago/pkg/poll/service"
 	storage_interfaces "github.com/webapp-wago/webapp-wago/pkg/storage/interfaces"
 	"github.com/webapp-wago/webapp-wago/pkg/utils"
+	webhook_service "github.com/webapp-wago/webapp-wago/pkg/webhook/service"
 )
 
 type WhatsmeowService interface {
@@ -89,6 +90,7 @@ type whatsmeowService struct {
 	processedMessages  *cache.Cache
 	natsProducer       producer_interfaces.Producer
 	loggerWrapper      *logger_wrapper.LoggerManager
+	webhookService     webhook_service.WebhookService
 }
 
 type MyClient struct {
@@ -1976,6 +1978,13 @@ func (w *whatsmeowService) CallWebhook(instance *instance_model.Instance, queueN
 		return
 	}
 
+	// Dispatch a webhooks múltiples (tabla instance_webhooks), filtro
+	// inline. Orthogonal al legacy (instance.Webhook) — ambos coexisten.
+	if w.webhookService != nil {
+		chatJID, senderJID := w.webhookService.ExtractChatSender(data)
+		w.webhookService.Dispatch(instance.Id, eventType, chatJID, senderJID, jsonData)
+	}
+
 	eventArray := strings.Split(instance.Events, ",")
 
 	var subscriptions []string
@@ -2650,6 +2659,7 @@ func NewWhatsmeowService(
 	mediaStorage storage_interfaces.MediaStorage,
 	natsProducer producer_interfaces.Producer,
 	loggerWrapper *logger_wrapper.LoggerManager,
+	webhookService webhook_service.WebhookService,
 ) WhatsmeowService {
 	// Inicializar PollService de forma segura
 	pollSvc := poll_service.NewPollService(authDB, loggerWrapper)
@@ -2674,6 +2684,7 @@ func NewWhatsmeowService(
 		processedMessages:  cache.New(30*time.Minute, 1*time.Hour),
 		natsProducer:       natsProducer,
 		loggerWrapper:      loggerWrapper,
+		webhookService:     webhookService,
 	}
 }
 

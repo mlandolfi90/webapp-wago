@@ -190,6 +190,51 @@ func TestProfileToolsUseBackendContractKeys(t *testing.T) {
 	}
 }
 
+func TestWebhookCreateForwardsFilterBody(t *testing.T) {
+	var body map[string]any
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		_ = json.NewDecoder(r.Body).Decode(&body)
+		w.Header().Set("Content-Type", "application/json")
+		_, _ = w.Write([]byte(`{"data":{"id":"x"}}`))
+	}))
+	defer srv.Close()
+
+	c := wago.New(srv.URL, "ADMIN")
+	c.UseInstance("TOK")
+	var cr Tool
+	for _, x := range BuildTools(c) {
+		if x.Name == "wago_webhook_create" {
+			cr = x
+		}
+	}
+	if cr.Name == "" {
+		t.Fatal("wago_webhook_create ausente")
+	}
+
+	// URL obligatoria.
+	if _, err := cr.Handler(context.Background(), map[string]any{}); err == nil {
+		t.Fatal("debía exigir url")
+	}
+
+	// OK: pasa todas las dimensiones del filtro.
+	if _, err := cr.Handler(context.Background(), map[string]any{
+		"url":      "https://x/h",
+		"enabled":  true,
+		"events":   []any{"MESSAGE", "CONNECTION"},
+		"chatType": "group",
+		"chatIds":  []any{"12@g.us"},
+		"senders":  []any{"a@s.whatsapp.net"},
+	}); err != nil {
+		t.Fatalf("handler: %v", err)
+	}
+	if body["url"] != "https://x/h" || body["chatType"] != "group" {
+		t.Fatalf("body sin armar bien: %v", body)
+	}
+	if evs, _ := body["events"].([]any); len(evs) != 2 {
+		t.Fatalf("events no propagado: %v", body)
+	}
+}
+
 func TestInstanceScopeRequiresActiveToken(t *testing.T) {
 	c := wago.New("http://x", "ADMIN")
 	var status Tool

@@ -61,6 +61,10 @@ import (
 	minio_storage "github.com/webapp-wago/webapp-wago/pkg/storage/minio"
 	user_handler "github.com/webapp-wago/webapp-wago/pkg/user/handler"
 	user_service "github.com/webapp-wago/webapp-wago/pkg/user/service"
+	webhook_handler "github.com/webapp-wago/webapp-wago/pkg/webhook/handler"
+	webhook_model "github.com/webapp-wago/webapp-wago/pkg/webhook/model"
+	webhook_repository "github.com/webapp-wago/webapp-wago/pkg/webhook/repository"
+	webhook_service "github.com/webapp-wago/webapp-wago/pkg/webhook/service"
 	whatsmeow_service "github.com/webapp-wago/webapp-wago/pkg/whatsmeow/service"
 	amqp "github.com/rabbitmq/amqp091-go"
 )
@@ -160,6 +164,8 @@ func setupRouter(db *gorm.DB, authDB *sql.DB, sqliteDB *sql.DB, config *config.C
 	instanceRepository := instance_repository.NewInstanceRepository(db)
 	messageRepository := message_repository.NewMessageRepository(db)
 	labelRepository := label_repository.NewLabelRepository(db)
+	webhookRepository := webhook_repository.NewWebhookRepository(db)
+	webhookService := webhook_service.NewWebhookService(webhookRepository, webhookProducer, loggerWrapper)
 
 	whatsmeowService := whatsmeow_service.NewWhatsmeowService(
 		instanceRepository,
@@ -177,6 +183,7 @@ func setupRouter(db *gorm.DB, authDB *sql.DB, sqliteDB *sql.DB, config *config.C
 		mediaStorage,
 		natsProducer,
 		loggerWrapper,
+		webhookService,
 	)
 	instanceService := instance_service.NewInstanceService(
 		instanceRepository,
@@ -234,6 +241,7 @@ func setupRouter(db *gorm.DB, authDB *sql.DB, sqliteDB *sql.DB, config *config.C
 		newsletter_handler.NewNewsletterHandler(newsletterService),
 		pollHandler,
 		server_handler.NewServerHandler(),
+		webhook_handler.NewWebhookHandler(webhookService),
 	).AssignRoutes(r)
 
 	if config.ConnectOnStartup {
@@ -257,7 +265,12 @@ func setupRouter(db *gorm.DB, authDB *sql.DB, sqliteDB *sql.DB, config *config.C
 }
 
 func migrate(db *gorm.DB) {
-	err := db.AutoMigrate(&instance_model.Instance{}, &message_model.Message{}, &label_model.Label{})
+	err := db.AutoMigrate(
+		&instance_model.Instance{},
+		&message_model.Message{},
+		&label_model.Label{},
+		&webhook_model.Webhook{},
+	)
 
 	if err != nil {
 		log.Fatal(err)

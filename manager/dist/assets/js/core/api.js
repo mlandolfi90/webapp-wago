@@ -145,3 +145,13 @@ export const pollResults = (token, id) =>
   request("GET", `/polls/${enc(id)}/results`, { key: token });
 export const rejectCall = (token, body) =>
   request("POST", "/call/reject", { key: token, body });
+
+/* Webhooks múltiples con filtros inline (instance-scoped) */
+export const listWebhooks = (token) =>
+  request("GET", "/webhook", { key: token });
+export const createWebhook = (token, body) =>
+  request("POST", "/webhook", { key: token, body });
+export const updateWebhook = (token, id, body) =>
+  request("PUT", `/webhook/${enc(id)}`, { key: token, body });
+export const deleteWebhook = (token, id) =>
+  request("DELETE", `/webhook/${enc(id)}`, { key: token });

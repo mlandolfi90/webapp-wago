@@ -260,7 +260,46 @@ enviada con `/send/poll`.
 **I**. `POST /call/reject` (`callId*`, `callCreator`) — rechazar llamada
 entrante.
 
-### 7.12 Utilitarios (sin auth)
+### 7.12 Webhook — N destinos con filtro inline (ADR 0045)
+
+Permite registrar **N webhooks por instancia**, cada uno con su propio
+filtro (events + tipo de chat + allowlists de chats/autores). Coexiste
+con el `webhookUrl` legacy de `/instance/connect` (ambos disparan en
+paralelo). Cap **20 webhooks por instancia**.
+
+| Endpoint | Body | Devuelve |
+|---|---|---|
+| `GET /webhook` | — | `data: [Webhook]` |
+| `POST /webhook` | `WebhookInput` (ver abajo) | `data: Webhook` creado |
+| `PUT /webhook/:id` | `WebhookInput` (reemplaza) | `data: Webhook` |
+| `DELETE /webhook/:id` | — | `message: "success"` |
+
+`WebhookInput`:
+
+```json
+{
+  "url": "https://miapp.com/whatsapp/hook",
+  "enabled": true,
+  "events": ["MESSAGE", "CONNECTION"],
+  "chatType": "any | group | individual",
+  "chatIds": ["12345@g.us", "549...@s.whatsapp.net"],
+  "senders": ["alice@s.whatsapp.net"]
+}
+```
+
+**Semántica del filtro** (todas las dimensiones se cumplen — AND):
+
+- `events` vacío o con `ALL` ⇒ todos los tipos.
+- `chatType`: `any` no filtra; `group` exige `@g.us`; `individual`
+  exige no-grupo / no-newsletter / no-broadcast.
+- `chatIds` / `senders`: vacía ⇒ no filtra; **no vacía + dato faltante
+  ⇒ rechaza**.
+
+Validaciones (rechazan con `400`): URL debe ser `http(s)://host/...`,
+`chatType` ∈ {any,group,individual}, `events` ⊂ catálogo canónico
+(ver §8), cap 20.
+
+### 7.13 Utilitarios (sin auth)
 
 | Ruta | Uso |
 |---|---|

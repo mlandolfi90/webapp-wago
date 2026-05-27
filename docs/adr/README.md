@@ -39,6 +39,7 @@ decisión, alternativas y consecuencias.
 | 0042 | Submódulo whatsmeow repuntado al fork propio |
 | 0043 | Organización del repo: limpieza, índices y vetos del Steward |
 | 0044 | Fix: contrato profileName/profileStatus (MCP + webui) |
+| 0045 | Webhooks múltiples por instancia con filtros inline |
 
 Para el detalle de cada corrida y los pendientes abiertos: ver
 [RUN-LEDGER.md](./RUN-LEDGER.md).

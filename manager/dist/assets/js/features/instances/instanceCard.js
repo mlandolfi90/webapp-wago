@@ -13,6 +13,7 @@ import { openNewslettersModal } from "./newsletters/newslettersModal.js";
 import { openUtilsModal } from "./utils/utilsModal.js";
 import { openAdvancedModal } from "./advancedModal.js";
 import { openProxyModal } from "./proxyModal.js";
+import { openWebhooksModal } from "./webhooksModal.js";
 
 function statusBadge(inst) {
   return inst.connected
@@ -73,7 +74,8 @@ export function instanceCard(inst, reload) {
       h("button", { class: "btn btn-sm", onclick: () => openQrModal(inst) }, ["QR"]),
       h("button", { class: "btn btn-sm", onclick: () => refreshStatus(inst) }, ["Estado"]),
       h("button", { class: "btn btn-sm", onclick: () => openAdvancedModal(inst) }, ["Avanzado"]),
-      h("button", { class: "btn btn-sm", onclick: () => openProxyModal(inst) }, ["Proxy"])
+      h("button", { class: "btn btn-sm", onclick: () => openProxyModal(inst) }, ["Proxy"]),
+      h("button", { class: "btn btn-sm", onclick: () => openWebhooksModal(inst) }, ["Webhooks"])
     ]),
     actionGroup("Operar", [
       h("button", { class: "btn btn-sm", onclick: () => openSendModal(inst) }, ["Enviar"]),

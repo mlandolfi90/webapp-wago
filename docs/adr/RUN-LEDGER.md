@@ -1,5 +1,44 @@
 # RUN-LEDGER — El Crisol
 
+## RUN multi-webhook-filters-001
+STATUS: CLOSED
+Branch: claude/build-webui-AcJFe
+Tier: completo (feature nueva: contrato REST + tabla + arquitectura +
+  refactor de firma + patrón webui)
+Alcance: webhooks múltiples por instancia con filtros inline
+  (events + chatType + chatIDs + senders); legacy convive intacto
+Carriles: backend (model/repo/service/handler/routes/migrate +
+  refactor CallWebhook), webui (api/list/form), mcp-internal (4 tools)
+Planificador: 2 Explore en paralelo + 1 Plan (validó diseño y forzó
+  3 ajustes críticos: cambiar firma de CallWebhook, cache anti-N+1,
+  separar Dispatch de sendToQueueOrWebhook); plan en
+  /root/.claude/plans/cozy-leaping-honey.md
+Arquitecto: APPROVE — tabla `instance_webhooks` nueva (no extender
+  Instance), filtro inline (no entidad), dual-dispatch (legacy intacto),
+  CallWebhook(+chatJID,+senderJID), cache RWMutex con Reload en CRUD,
+  cascade delete, cap 20/instancia, validación URL http/https; ADR 0045
+Ingeniero: nuevo paquete pkg/webhook (model + repository + service +
+  handler); routes.go + main.go (DI + AutoMigrate + cascade vía
+  DeleteByInstance); refactor mínimo CallWebhook (1 línea: Dispatch
+  antes del legacy, sin cambiar firma — desviación pragmática del plan
+  documentada en ADR 0045 §Extracción); webui (core/api.js +
+  webhooks/webhookForm.js + webhooks/webhooksList.js + webhooksModal.js
+  + botón en instanceCard.js); MCP (tools_webhooks.go + registro en
+  tools.go con 4 tools); tests (webhook_service_test.go con matriz
+  MatchesFilter + ExtractChatSender + Dispatch + validate;
+  tools_test.go +TestWebhookCreateForwardsFilterBody); ADR 0045
+Verificador: PASS — go build verde; go vet ./pkg/webhook/...
+  ./internal/... verde; go test -race ./pkg/... ./internal/... TODO
+  verde (incluye nuevo paquete + suite previa sin regresión); 5/5
+  archivos webui pasan `node --check`; diff acotado al alcance
+  aprobado; cap 20 + URL http/https + chatType enum + events ⊂ canónico
+  todos cubiertos por tests
+Integración: PASS — combinado verde (backend + mcp + webui); legacy
+  (`Instance.Webhook`) intacto, dispatch nuevo orthogonal
+Iteraciones: 1/3
+Escalación: none
+Cierre: 2026-05-27 — ADR 0045
+
 ## RUN profile-name-status-fix-001
 STATUS: CLOSED
 Branch: claude/build-webui-AcJFe
