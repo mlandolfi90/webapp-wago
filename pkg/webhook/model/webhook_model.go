@@ -27,10 +27,17 @@ type Webhook struct {
 	Enabled    bool   `json:"enabled" gorm:"default:true"`
 
 	// Filtro inline. Allowlist semantics: vacío = no filtra esa dimensión.
-	Events   []string `json:"events" gorm:"serializer:json"`
-	ChatType string   `json:"chatType" gorm:"default:'any'"`
-	ChatIDs  []string `json:"chatIds" gorm:"serializer:json"`
-	Senders  []string `json:"senders" gorm:"serializer:json"`
+	// Dimensiones JID: ChatIDs/Senders (matchean contra el JID del
+	// evento — soportan wildcards glob `*@g.us`, `549*`, etc).
+	// Dimensiones NOMBRE: ChatNames/SenderNames (matchean contra el
+	// nombre humano del grupo/contacto — el backend lo resuelve via
+	// whatsmeow Store + GetJoinedGroups; soportan glob `Harness*`).
+	Events      []string `json:"events" gorm:"serializer:json"`
+	ChatType    string   `json:"chatType" gorm:"default:'any'"`
+	ChatIDs     []string `json:"chatIds" gorm:"serializer:json"`
+	Senders     []string `json:"senders" gorm:"serializer:json"`
+	ChatNames   []string `json:"chatNames" gorm:"serializer:json"`
+	SenderNames []string `json:"senderNames" gorm:"serializer:json"`
 
 	CreatedAt time.Time `json:"createdAt" gorm:"autoCreateTime"`
 	UpdatedAt time.Time `json:"updatedAt" gorm:"autoUpdateTime"`

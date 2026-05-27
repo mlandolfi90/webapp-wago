@@ -64,6 +64,7 @@ import (
 	webhook_handler "github.com/webapp-wago/webapp-wago/pkg/webhook/handler"
 	webhook_model "github.com/webapp-wago/webapp-wago/pkg/webhook/model"
 	webhook_repository "github.com/webapp-wago/webapp-wago/pkg/webhook/repository"
+	webhook_resolver "github.com/webapp-wago/webapp-wago/pkg/webhook/resolver"
 	webhook_service "github.com/webapp-wago/webapp-wago/pkg/webhook/service"
 	whatsmeow_service "github.com/webapp-wago/webapp-wago/pkg/whatsmeow/service"
 	amqp "github.com/rabbitmq/amqp091-go"
@@ -165,7 +166,8 @@ func setupRouter(db *gorm.DB, authDB *sql.DB, sqliteDB *sql.DB, config *config.C
 	messageRepository := message_repository.NewMessageRepository(db)
 	labelRepository := label_repository.NewLabelRepository(db)
 	webhookRepository := webhook_repository.NewWebhookRepository(db)
-	webhookService := webhook_service.NewWebhookService(webhookRepository, webhookProducer, loggerWrapper)
+	nameResolver := webhook_resolver.NewWagoResolver(clientPointer)
+	webhookService := webhook_service.NewWebhookService(webhookRepository, webhookProducer, loggerWrapper, nameResolver)
 
 	whatsmeowService := whatsmeow_service.NewWhatsmeowService(
 		instanceRepository,

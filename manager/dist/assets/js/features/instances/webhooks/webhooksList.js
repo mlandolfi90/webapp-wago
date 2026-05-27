@@ -8,11 +8,18 @@ const CT_LABEL = { any: "cualquiera", group: "solo grupos", individual: "solo in
 
 /** Resumen humano del filtro para una fila. */
 function filterSummary(w) {
-  const ev = Array.isArray(w.events) && w.events.length ? `${w.events.length} eventos` : "todos los eventos";
-  const ct = CT_LABEL[w.chatType || "any"] || w.chatType;
-  const chats = Array.isArray(w.chatIds) && w.chatIds.length ? `${w.chatIds.length} chats` : "cualquier chat";
-  const sndrs = Array.isArray(w.senders) && w.senders.length ? `${w.senders.length} autores` : "cualquier autor";
-  return `${ev} · ${ct} · ${chats} · ${sndrs}`;
+  const parts = [];
+  parts.push(Array.isArray(w.events) && w.events.length ? `${w.events.length} eventos` : "todos los eventos");
+  parts.push(CT_LABEL[w.chatType || "any"] || w.chatType);
+  parts.push(Array.isArray(w.chatIds) && w.chatIds.length ? `${w.chatIds.length} chats` : "cualquier chat");
+  parts.push(Array.isArray(w.senders) && w.senders.length ? `${w.senders.length} autores` : "cualquier autor");
+  if (Array.isArray(w.chatNames) && w.chatNames.length) {
+    parts.push(`nombres grupo: ${w.chatNames.join(", ")}`);
+  }
+  if (Array.isArray(w.senderNames) && w.senderNames.length) {
+    parts.push(`nombres autor: ${w.senderNames.join(", ")}`);
+  }
+  return parts.join(" · ");
 }
 
 function row(w, onEdit, onDelete) {

@@ -1,6 +1,9 @@
 package webhook_service
 
 import (
+	"context"
+	"sync"
+	"sync/atomic"
 	"testing"
 
 	webhook_model "github.com/webapp-wago/webapp-wago/pkg/webhook/model"
@@ -13,6 +16,18 @@ func wh(events []string, ct string, chats, senders []string) *webhook_model.Webh
 		ChatType: ct,
 		ChatIDs:  chats,
 		Senders:  senders,
+	}
+}
+
+func whFull(events []string, ct string, chats, senders, chatNames, senderNames []string) *webhook_model.Webhook {
+	return &webhook_model.Webhook{
+		Enabled:     true,
+		Events:      events,
+		ChatType:    ct,
+		ChatIDs:     chats,
+		Senders:     senders,
+		ChatNames:   chatNames,
+		SenderNames: senderNames,
 	}
 }
 
@@ -99,7 +114,7 @@ func TestMatchesFilter(t *testing.T) {
 	}
 	for _, c := range cases {
 		t.Run(c.name, func(t *testing.T) {
-			got := MatchesFilter(c.w, c.evType, c.chat, c.sender)
+			got := MatchesFilter(c.w, c.evType, c.chat, c.sender, "", "")
 			if got != c.wantMatch {
 				t.Fatalf("MatchesFilter(%+v, %q, %q, %q) = %v, want %v",
 					c.w, c.evType, c.chat, c.sender, got, c.wantMatch)
@@ -146,6 +161,176 @@ func TestExtractChatSender(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestMatchesFilterByName(t *testing.T) {
+	cases := []struct {
+		name      string
+		w         *webhook_model.Webhook
+		chatJID   string
+		senderJID string
+		chatName  string
+		senderNm  string
+		want      bool
+	}{
+		{"chatNames vacío no filtra",
+			whFull(nil, "any", nil, nil, nil, nil),
+			"x@g.us", "", "Harness Pruebas", "", true},
+		{"chatNames glob Harness* matchea",
+			whFull(nil, "any", nil, nil, []string{"Harness*"}, nil),
+			"x@g.us", "", "Harness Pruebas", "", true},
+		{"chatNames glob Harness* no matchea Familia",
+			whFull(nil, "any", nil, nil, []string{"Harness*"}, nil),
+			"x@g.us", "", "Familia", "", false},
+		{"chatNames con name='' rechaza",
+			whFull(nil, "any", nil, nil, []string{"Harness*"}, nil),
+			"x@g.us", "", "", "", false},
+		{"chatNames exact match",
+			whFull(nil, "any", nil, nil, []string{"Harness Pruebas"}, nil),
+			"x@g.us", "", "Harness Pruebas", "", true},
+		{"chatNames OR de varios patrones",
+			whFull(nil, "any", nil, nil, []string{"Harness*", "Soporte*"}, nil),
+			"x@g.us", "", "Soporte L1", "", true},
+		{"senderNames glob Mauro* matchea",
+			whFull(nil, "any", nil, nil, nil, []string{"Mauro*"}),
+			"g@g.us", "a@s.whatsapp.net", "", "Mauro Landolfi", true},
+		{"chatNames + senderNames combo AND falla si una falla",
+			whFull(nil, "any", nil, nil, []string{"Harness*"}, []string{"Mauro*"}),
+			"g@g.us", "a@s.whatsapp.net", "Harness Pruebas", "Otra Persona", false},
+		{"chatNames + chatIDs ambos exigidos (AND)",
+			whFull(nil, "any", []string{"12*@g.us"}, nil, []string{"Harness*"}, nil),
+			"12345@g.us", "", "Harness Pruebas", "", true},
+		{"chatIDs match pero chatNames falla → rechaza",
+			whFull(nil, "any", []string{"12*@g.us"}, nil, []string{"Harness*"}, nil),
+			"12345@g.us", "", "Familia", "", false},
+	}
+	for _, c := range cases {
+		t.Run(c.name, func(t *testing.T) {
+			got := MatchesFilter(c.w, "MESSAGE", c.chatJID, c.senderJID, c.chatName, c.senderNm)
+			if got != c.want {
+				t.Fatalf("MatchesFilter(name=%q sender=%q) = %v, want %v",
+					c.chatName, c.senderNm, got, c.want)
+			}
+		})
+	}
+}
+
+// Fake resolver que cuenta los lookups, para verificar cache hits.
+type fakeResolver struct {
+	groupCalls   int32
+	contactCalls int32
+	groups       map[string]string
+	contacts     map[string]string
+}
+
+func (f *fakeResolver) GroupNames(_ context.Context, _ string) (map[string]string, error) {
+	atomic.AddInt32(&f.groupCalls, 1)
+	return f.groups, nil
+}
+func (f *fakeResolver) ContactNames(_ context.Context, _ string) (map[string]string, error) {
+	atomic.AddInt32(&f.contactCalls, 1)
+	return f.contacts, nil
+}
+
+func TestNameLookupCachesAndInvalidates(t *testing.T) {
+	fr := &fakeResolver{
+		groups:   map[string]string{"12@g.us": "Harness Pruebas", "13@g.us": "Familia"},
+		contacts: map[string]string{"a@s.whatsapp.net": "Mauro Landolfi"},
+	}
+	s := &webhookService{
+		producer:  &fakeProducer{},
+		resolver:  fr,
+		cache:     map[string][]webhook_model.Webhook{},
+		nameCache: map[string]*instanceNames{},
+	}
+	// 1ra y 2da llamada: 1 sola call al resolver (cache hit).
+	if n := s.groupName("I", "12@g.us"); n != "Harness Pruebas" {
+		t.Fatalf("groupName 1: got %q", n)
+	}
+	if n := s.groupName("I", "13@g.us"); n != "Familia" {
+		t.Fatalf("groupName 2 (cache hit): got %q", n)
+	}
+	if got := atomic.LoadInt32(&fr.groupCalls); got != 1 {
+		t.Fatalf("groupCalls = %d, want 1 (cache fallaste)", got)
+	}
+	// Invalidate y volver a pedir → 2 llamadas totales.
+	s.InvalidateNames("I")
+	if n := s.groupName("I", "12@g.us"); n != "Harness Pruebas" {
+		t.Fatalf("groupName tras invalidate: %q", n)
+	}
+	if got := atomic.LoadInt32(&fr.groupCalls); got != 2 {
+		t.Fatalf("groupCalls tras invalidate = %d, want 2", got)
+	}
+	// Contactos cargan independiente (groupsLoaded no implica contactsLoaded).
+	if n := s.contactName("I", "a@s.whatsapp.net"); n != "Mauro Landolfi" {
+		t.Fatalf("contactName: %q", n)
+	}
+	if got := atomic.LoadInt32(&fr.contactCalls); got != 1 {
+		t.Fatalf("contactCalls = %d, want 1", got)
+	}
+}
+
+func TestDispatchSkipsNameLookupIfNoWebhookNeedsIt(t *testing.T) {
+	fr := &fakeResolver{groups: map[string]string{}}
+	fp := &fakeProducer{}
+	s := &webhookService{
+		producer:  fp,
+		resolver:  fr,
+		cache:     map[string][]webhook_model.Webhook{},
+		nameCache: map[string]*instanceNames{},
+	}
+	// Webhook sin chatNames/senderNames — Dispatch NO debe llamar resolver.
+	s.cache["I"] = []webhook_model.Webhook{
+		{ID: "1", InstanceID: "I", URL: "https://a/", Enabled: true, ChatType: "any"},
+	}
+	s.Dispatch("I", "MESSAGE", "x@g.us", "", []byte(`{}`))
+	if atomic.LoadInt32(&fr.groupCalls) != 0 {
+		t.Fatal("Dispatch llamó al resolver sin necesidad")
+	}
+	if len(fp.calls) != 1 {
+		t.Fatal("Dispatch debía mandar 1 POST")
+	}
+}
+
+func TestDispatchUsesNameLookupWhenWebhookNeedsIt(t *testing.T) {
+	fr := &fakeResolver{
+		groups: map[string]string{"12@g.us": "Harness Pruebas", "99@g.us": "Familia"},
+	}
+	fp := &fakeProducer{}
+	s := &webhookService{
+		producer:  fp,
+		resolver:  fr,
+		cache:     map[string][]webhook_model.Webhook{},
+		nameCache: map[string]*instanceNames{},
+	}
+	s.cache["I"] = []webhook_model.Webhook{
+		{ID: "1", InstanceID: "I", URL: "https://harness/", Enabled: true,
+			ChatType: "any", ChatNames: []string{"Harness*"}},
+		{ID: "2", InstanceID: "I", URL: "https://otro/", Enabled: true,
+			ChatType: "any", ChatNames: []string{"Familia"}},
+	}
+	// Evento en chat "Harness Pruebas" → solo el primer webhook matchea.
+	s.Dispatch("I", "MESSAGE", "12@g.us", "", []byte(`{}`))
+	if len(fp.calls) != 1 || fp.calls[0].url != "https://harness/" {
+		t.Fatalf("esperaba 1 dispatch a https://harness/, hubo: %+v", fp.calls)
+	}
+}
+
+func TestNameCacheConcurrentAccessNoRace(t *testing.T) {
+	fr := &fakeResolver{groups: map[string]string{"12@g.us": "Harness Pruebas"}}
+	s := &webhookService{
+		producer:  &fakeProducer{},
+		resolver:  fr,
+		cache:     map[string][]webhook_model.Webhook{},
+		nameCache: map[string]*instanceNames{},
+	}
+	var wg sync.WaitGroup
+	for i := 0; i < 50; i++ {
+		wg.Add(2)
+		go func() { defer wg.Done(); _ = s.groupName("I", "12@g.us") }()
+		go func() { defer wg.Done(); s.InvalidateNames("I") }()
+	}
+	wg.Wait()
 }
 
 // Fake producer para capturar dispatch sin tocar la red.

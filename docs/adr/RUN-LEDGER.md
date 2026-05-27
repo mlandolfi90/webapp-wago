@@ -1,5 +1,59 @@
 # RUN-LEDGER — El Crisol
 
+## RUN multi-webhook-name-filter-001
+STATUS: CLOSED
+Branch: claude/build-webui-AcJFe
+Tier: completo (extiende contrato del filtro con 2 dimensiones nuevas
+  + cache + invalidación + nuevo paquete resolver + UI)
+Alcance: la C "filtro por NOMBRE de grupo/contacto con glob"
+  (Harness* matchea grupos cuyo nombre empieza con Harness, sin
+  conocer JIDs y atrapando grupos creados después). Campos nuevos
+  `chatNames` y `senderNames`; backend resuelve nombres on-demand
+  (cache RAM por instancia, invalidación en GroupInfo/JoinedGroup/
+  Contact/Connected events). Wildcards/JIDs/picker (ADR 0045/0046/
+  0047) intactos.
+Carriles: backend (model/service/resolver/wago_resolver/whatsmeow
+  hook + MCP tool), webui (2 textareas en form). Disjuntos.
+Planificador: NameResolver interface en pkg/webhook/service para
+  romper ciclo (whatsmeow depende de webhook hoy via Dispatch);
+  implementación en pkg/webhook/resolver/ usa clientPointer +
+  GetJoinedGroups + Store.Contacts (APIs públicas estables de
+  whatsmeow); invalidación full por instancia (no incremental) =
+  más simple, mismo costo amortizado.
+Arquitecto: APPROVE — nameCache lazy con `groupsLoaded`/
+  `contactsLoaded` por instancia (evita refetch innecesario);
+  Dispatch resuelve nombres SOLO si algún webhook los pide
+  (perf-friendly); test exhaustivo de matchPatternAllowlist
+  unificado (reusa para JIDs y nombres); ADR 0048
+Ingeniero: webhook_model.go (+ChatNames, +SenderNames JSON);
+  webhook_service.go (NameResolver interface, nameCache+RWMutex con
+  flags loaded, lookups lazy groupName/contactName, InvalidateNames,
+  matcher unificado matchPatternAllowlist, MatchesFilter +chatName/
+  +senderName, Dispatch con short-circuit); nuevo paquete
+  pkg/webhook/resolver/wago_resolver.go (usa GetJoinedGroups +
+  Store.Contacts.GetAllContacts, APIs públicas estables); main.go
+  (wiring del resolver); whatsmeow.go (interface
+  +InvalidateWebhookNames, hook maybeInvalidateNames al fin de
+  CallWebhook por eventType); MCP tools_webhooks.go (+chatNames/
+  +senderNames en schema y body builder); webhookForm.js (+2
+  textareas + helpHints), webhooksList.js (resumen extendido)
+Verificador: PASS — go build/vet verdes; go test -race
+  ./pkg/... ./internal/... TODO verde (10+ casos nuevos de matching
+  por nombre: glob Harness*, exact match, OR de patrones, AND con
+  JIDs, edge case name=""); 3 tests más para cache+invalidación:
+  TestNameLookupCachesAndInvalidates (verifica 1 sola llamada con
+  cache + 2 tras Invalidate), TestDispatchSkipsNameLookupIfNoWebhook
+  NeedsIt (short-circuit verificado), TestNameCacheConcurrentAccess
+  NoRace (50 goroutines, race detector limpio); node --check verde;
+  Playwright captura 16/17 — form acepta `Harness*`/`Soporte*` y
+  lista muestra "nombres grupo: Harness*, Soporte*"
+Integración: PASS — contrato REST extendido (campos nuevos
+  opcionales); webhook con solo JIDs no paga costo de lookup
+  (short-circuit); legacy `Instance.Webhook` sigue intacto
+Iteraciones: 1/3
+Escalación: none
+Cierre: 2026-05-27 — ADR 0048
+
 ## RUN webhook-filter-name-display-001
 STATUS: CLOSED
 Branch: claude/build-webui-AcJFe

@@ -52,6 +52,21 @@ export function buildWebhookForm(prefill, token) {
     value: (cur.senders || []).join("\n")
   });
 
+  // Filtros por NOMBRE (matchean contra el nombre humano del grupo o
+  // contacto que llega del backend) — soportan glob: `Harness*`,
+  // `Soporte L?`. Atrapan grupos nuevos cuyo nombre cumple el patrón
+  // (lo que un picker de JIDs fijos no hace).
+  const chatNames = textarea({
+    rows: "2",
+    placeholder: "Un patrón por línea sobre el NOMBRE del grupo:\n  Harness*\n  Soporte L?\n  Familia",
+    value: (cur.chatNames || []).join("\n")
+  });
+  const senderNames = textarea({
+    rows: "2",
+    placeholder: "Un patrón por línea sobre el NOMBRE del contacto:\n  Mauro*\n  Soporte Nivel ?",
+    value: (cur.senderNames || []).join("\n")
+  });
+
   // Enriquece el prefill con nombres (asincrónico). Wildcards quedan
   // como están porque formatJid devuelve el JID crudo si no hay nombre.
   if (token && ((cur.chatIds && cur.chatIds.length) || (cur.senders && cur.senders.length))) {
@@ -114,7 +129,11 @@ export function buildWebhookForm(prefill, token) {
     field("Autores permitidos (allowlist)", senders,
       "Vacío = no filtra. Cada línea es `Nombre <JID>` (lo arma el picker), `<JID>` o wildcard glob: 549*@s.whatsapp.net, *@s.whatsapp.net. Al guardar se manda solo el JID."),
     token ? h("div", { class: "row", style: "gap:6px;margin-top:-4px;margin-bottom:8px" }, [sendPickBtn]) : null,
-    senderPicker
+    senderPicker,
+    field("Filtro por NOMBRE de grupo (glob)", chatNames,
+      "Patrón sobre el nombre humano del grupo: `Harness*` matchea cualquier grupo cuyo nombre empieza con Harness, incluido uno creado mañana. Vacío = no filtra. Un patrón por línea."),
+    field("Filtro por NOMBRE de contacto (glob)", senderNames,
+      "Patrón sobre el nombre del autor: `Mauro*` matchea Mauro Landolfi, Mauro García, etc. Vacío = no filtra. Un patrón por línea.")
   ]);
 
   function build() {
@@ -123,10 +142,13 @@ export function buildWebhookForm(prefill, token) {
       enabled: enabledRow.checkbox.checked,
       events: EVENTS.filter((ev) => eventChecks[ev].checked),
       chatType: readChatType(),
-      // Cada línea puede ser `Nombre <JID>`, `<JID>` o `JID/wildcard`
-      // crudo: se manda solo el JID al backend.
+      // chatIds/senders: cada línea puede ser `Nombre <JID>`, `<JID>`
+      // o `JID/wildcard` crudo — se manda solo el JID al backend.
       chatIds: parseTextareaToJids(chatIds),
-      senders: parseTextareaToJids(senders)
+      senders: parseTextareaToJids(senders),
+      // chatNames/senderNames: patrones glob sobre nombre. Crudo.
+      chatNames: lines(chatNames),
+      senderNames: lines(senderNames)
     };
   }
 

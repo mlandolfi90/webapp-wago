@@ -57,6 +57,7 @@ type WhatsmeowService interface {
 	ReconnectClient(instanceId string) error
 	ClearInstanceCache(instanceId string, token string) error
 	CallWebhook(instance *instance_model.Instance, queueName string, jsonData []byte)
+	InvalidateWebhookNames(instanceID string)
 	SendToGlobalQueues(event string, jsonData []byte, userId string)
 	ForceUpdateJid(instanceId string, number string) error
 	UpdateInstanceSettings(instanceId string) error
@@ -1985,6 +1986,8 @@ func (w *whatsmeowService) CallWebhook(instance *instance_model.Instance, queueN
 		w.webhookService.Dispatch(instance.Id, eventType, chatJID, senderJID, jsonData)
 	}
 
+	_ = w.maybeInvalidateNames(instance.Id, eventType)
+
 	eventArray := strings.Split(instance.Events, ",")
 
 	var subscriptions []string
@@ -2137,6 +2140,31 @@ func contains(subscriptions []string, event string) bool {
 		}
 	}
 	return false
+}
+
+// maybeInvalidateNames descarta el cache de nombres del webhookService
+// cuando un evento puede haber cambiado nombres de grupos/contactos.
+// Se ejecuta al final de CallWebhook para que el próximo Dispatch que
+// pida nombres los re-resuelva. Lazy invalidación = simple + barata.
+func (w *whatsmeowService) maybeInvalidateNames(instanceID, eventType string) bool {
+	if w.webhookService == nil {
+		return false
+	}
+	switch eventType {
+	case "Contact", "PushName", "GroupInfo", "JoinedGroup", "Connected":
+		w.webhookService.InvalidateNames(instanceID)
+		return true
+	}
+	return false
+}
+
+// InvalidateWebhookNames cumple la interface WhatsmeowService; deja al
+// listener interno (y a callers eventuales) invalidar el cache de
+// nombres del webhookService sin acoplarse al campo privado.
+func (w *whatsmeowService) InvalidateWebhookNames(instanceID string) {
+	if w.webhookService != nil {
+		w.webhookService.InvalidateNames(instanceID)
+	}
 }
 
 func (w *whatsmeowService) sendToQueueOrWebhook(instance *instance_model.Instance, queueName string, jsonData []byte) {

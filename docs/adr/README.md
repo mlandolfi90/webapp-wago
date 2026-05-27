@@ -42,6 +42,7 @@ decisión, alternativas y consecuencias.
 | 0045 | Webhooks múltiples por instancia con filtros inline |
 | 0046 | Webhook filter: wildcards en JID + selector por nombre en UI |
 | 0047 | Webhook allowlist: display `Nombre <JID>` (RFC 5322) |
+| 0048 | Webhook filter por NOMBRE de grupo/contacto (opción C) |
 
 Para el detalle de cada corrida y los pendientes abiertos: ver
 [RUN-LEDGER.md](./RUN-LEDGER.md).

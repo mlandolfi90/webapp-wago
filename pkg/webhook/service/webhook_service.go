@@ -1,6 +1,7 @@
 package webhook_service
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"net/url"
@@ -14,6 +15,15 @@ import (
 	webhook_model "github.com/webapp-wago/webapp-wago/pkg/webhook/model"
 	webhook_repository "github.com/webapp-wago/webapp-wago/pkg/webhook/repository"
 )
+
+// NameResolver resuelve JID → nombre humano (grupo o contacto). La
+// interface vive acá para evitar ciclo de import: whatsmeowService
+// ya depende de webhookService (Dispatch); el resolver concreto vive
+// en pkg/webhook/resolver/ y se inyecta en main.go.
+type NameResolver interface {
+	GroupNames(ctx context.Context, instanceID string) (map[string]string, error)
+	ContactNames(ctx context.Context, instanceID string) (map[string]string, error)
+}
 
 // WebhookService maneja N webhooks por instancia con filtros inline.
 // Mantiene cache in-memory por instancia (anti-N+1: cada evento de
@@ -38,38 +48,62 @@ type WebhookService interface {
 
 	// Reload fuerza recarga del cache para una instancia (testing).
 	Reload(instanceID string) error
+
+	// InvalidateNames descarta el cache de nombres (grupos/contactos)
+	// de la instancia. Se invoca desde el listener de eventos
+	// whatsmeow ante GroupInfo/JoinedGroup/Contact/Connected.
+	InvalidateNames(instanceID string)
 }
 
 // WebhookInput es el body que aceptan Create/Update — separado del
 // model para no exponer ID/CreatedAt en el contrato de entrada.
 type WebhookInput struct {
-	URL      string   `json:"url"`
-	Enabled  *bool    `json:"enabled,omitempty"`
-	Events   []string `json:"events,omitempty"`
-	ChatType string   `json:"chatType,omitempty"`
-	ChatIDs  []string `json:"chatIds,omitempty"`
-	Senders  []string `json:"senders,omitempty"`
+	URL         string   `json:"url"`
+	Enabled     *bool    `json:"enabled,omitempty"`
+	Events      []string `json:"events,omitempty"`
+	ChatType    string   `json:"chatType,omitempty"`
+	ChatIDs     []string `json:"chatIds,omitempty"`
+	Senders     []string `json:"senders,omitempty"`
+	ChatNames   []string `json:"chatNames,omitempty"`
+	SenderNames []string `json:"senderNames,omitempty"`
+}
+
+// instanceNames cachea los nombres resueltos de una instancia. Las
+// flags `groupsLoaded`/`contactsLoaded` evitan re-fetchear cuando un
+// dispatch solo necesita una de las dos dimensiones.
+type instanceNames struct {
+	groups         map[string]string
+	contacts       map[string]string
+	groupsLoaded   bool
+	contactsLoaded bool
 }
 
 type webhookService struct {
 	repo     webhook_repository.WebhookRepository
 	producer producer_interfaces.Producer
 	logger   *logger_wrapper.LoggerManager
+	resolver NameResolver
 
 	mu    sync.RWMutex
 	cache map[string][]webhook_model.Webhook
+
+	nameMu    sync.RWMutex
+	nameCache map[string]*instanceNames
 }
 
 func NewWebhookService(
 	repo webhook_repository.WebhookRepository,
 	producer producer_interfaces.Producer,
 	logger *logger_wrapper.LoggerManager,
+	resolver NameResolver,
 ) WebhookService {
 	return &webhookService{
-		repo:     repo,
-		producer: producer,
-		logger:   logger,
-		cache:    map[string][]webhook_model.Webhook{},
+		repo:      repo,
+		producer:  producer,
+		logger:    logger,
+		resolver:  resolver,
+		cache:     map[string][]webhook_model.Webhook{},
+		nameCache: map[string]*instanceNames{},
 	}
 }
 
@@ -109,13 +143,15 @@ func toModel(instanceID string, in *WebhookInput) *webhook_model.Webhook {
 		chatType = webhook_model.ChatTypeAny
 	}
 	return &webhook_model.Webhook{
-		InstanceID: instanceID,
-		URL:        strings.TrimSpace(in.URL),
-		Enabled:    enabled,
-		Events:     in.Events,
-		ChatType:   chatType,
-		ChatIDs:    in.ChatIDs,
-		Senders:    in.Senders,
+		InstanceID:  instanceID,
+		URL:         strings.TrimSpace(in.URL),
+		Enabled:     enabled,
+		Events:      in.Events,
+		ChatType:    chatType,
+		ChatIDs:     in.ChatIDs,
+		Senders:     in.Senders,
+		ChatNames:   in.ChatNames,
+		SenderNames: in.SenderNames,
 	}
 }
 
@@ -213,15 +249,15 @@ func (s *webhookService) getCached(instanceID string) []webhook_model.Webhook {
 	return v
 }
 
-// MatchesFilter es pura: dado un webhook y los datos del evento, dice
-// si dispara o no. Semántica:
+// MatchesFilter es pura: dado un webhook y los datos del evento
+// (JIDs + nombres resueltos), dice si dispara o no. Semántica
+// allowlist (todas AND, una bloquea si falla):
 //   - events vacío o contiene "ALL" → cualquier eventType pasa.
-//   - chatType: any pasa; group requiere chat con sufijo @g.us;
-//     individual requiere chat no-grupo y no-newsletter.
-//   - chatIDs vacío → no filtra; no vacío + chatJID="" → rechaza
-//     (allowlist con dato faltante = no pasa).
-//   - senders idem.
-func MatchesFilter(w *webhook_model.Webhook, eventType, chatJID, senderJID string) bool {
+//   - chatType: any pasa; group requiere @g.us; individual no-grupo.
+//   - chatIDs/senders vacío → no filtra; no vacío + jid="" → rechaza.
+//   - chatNames/senderNames vacío → no filtra; no vacío + name="" →
+//     rechaza (allowlist con dato faltante = no pasa). Patrón glob.
+func MatchesFilter(w *webhook_model.Webhook, eventType, chatJID, senderJID, chatName, senderName string) bool {
 	if !w.Enabled {
 		return false
 	}
@@ -231,13 +267,26 @@ func MatchesFilter(w *webhook_model.Webhook, eventType, chatJID, senderJID strin
 	if !matchChatType(w.ChatType, chatJID) {
 		return false
 	}
-	if !matchAllowlist(w.ChatIDs, chatJID) {
+	if !matchPatternAllowlist(w.ChatIDs, chatJID) {
 		return false
 	}
-	if !matchAllowlist(w.Senders, senderJID) {
+	if !matchPatternAllowlist(w.Senders, senderJID) {
+		return false
+	}
+	if !matchPatternAllowlist(w.ChatNames, chatName) {
+		return false
+	}
+	if !matchPatternAllowlist(w.SenderNames, senderName) {
 		return false
 	}
 	return true
+}
+
+// webhookNeedsNames informa si el filtro mira nombres en alguna
+// dimensión. Sirve al Dispatch para evitar lookups (potencialmente
+// remotos) si ningún webhook los requiere.
+func webhookNeedsNames(w *webhook_model.Webhook) bool {
+	return len(w.ChatNames) > 0 || len(w.SenderNames) > 0
 }
 
 func matchEvents(events []string, eventType string) bool {
@@ -267,24 +316,25 @@ func matchChatType(chatType, chatJID string) bool {
 	return true
 }
 
-// matchAllowlist: vacía = pasa. No vacía + jid="" = rechaza (no se
-// puede dar bypass con `*` cuando falta el dato). Cada entry es:
+// matchPatternAllowlist: vacía = pasa. No vacía + value="" = rechaza
+// (no permite bypass con `*` cuando falta el dato). Cada entry es:
 //   - exact match si no contiene metacaracteres glob (`*`, `?`, `[`)
 //   - glob estilo shell vía `path.Match` si los contiene
-//     (`*@g.us`, `549*@s.whatsapp.net`, `12036*@g.us`, etc.).
-func matchAllowlist(allow []string, jid string) bool {
+//     (`*@g.us`, `549*`, `Harness*`, `Soporte L?`, etc.).
+// Función única para JIDs y nombres — sólo cambia el `value`.
+func matchPatternAllowlist(allow []string, value string) bool {
 	if len(allow) == 0 {
 		return true
 	}
-	if jid == "" {
+	if value == "" {
 		return false
 	}
 	for _, a := range allow {
-		if a == jid {
+		if a == value {
 			return true
 		}
 		if strings.ContainsAny(a, "*?[") {
-			if ok, _ := path.Match(a, jid); ok {
+			if ok, _ := path.Match(a, value); ok {
 				return true
 			}
 		}
@@ -294,22 +344,107 @@ func matchAllowlist(allow []string, jid string) bool {
 
 // Dispatch evalúa el cache y dispara webhookProducer.Produce por cada
 // match. Fire-and-forget consistente con el producer (mismas 5 retries
-// internas, no propaga errores).
+// internas, no propaga errores). Si algún webhook usa filtro por
+// nombre, resuelve nombres una sola vez (lookup cacheado en RAM por
+// instancia, con flags `groupsLoaded`/`contactsLoaded` para no
+// refetchear).
 func (s *webhookService) Dispatch(instanceID, eventType, chatJID, senderJID string, jsonData []byte) {
 	whs := s.getCached(instanceID)
 	if len(whs) == 0 {
 		return
 	}
+
+	// Solo resolvemos nombres si algún webhook los pide.
+	var chatName, senderName string
+	needNames := false
+	for i := range whs {
+		if webhookNeedsNames(&whs[i]) {
+			needNames = true
+			break
+		}
+	}
+	if needNames {
+		if strings.HasSuffix(chatJID, "@g.us") {
+			chatName = s.groupName(instanceID, chatJID)
+		}
+		if senderJID != "" {
+			senderName = s.contactName(instanceID, senderJID)
+		}
+	}
+
 	for i := range whs {
 		w := &whs[i]
-		if !MatchesFilter(w, eventType, chatJID, senderJID) {
+		if !MatchesFilter(w, eventType, chatJID, senderJID, chatName, senderName) {
 			continue
 		}
-		// queueName mock — el producer arma el split internamente; le
-		// pasamos `<instance>.<event>` igual que el legacy.
 		queueName := strings.ToLower(fmt.Sprintf("%s.%s", instanceID, eventType))
 		_ = s.producer.Produce(queueName, jsonData, w.URL, instanceID)
 	}
+}
+
+// groupName devuelve el nombre humano del grupo. Lazy-load del map
+// completo de la instancia (una sola llamada a `GetJoinedGroups`).
+func (s *webhookService) groupName(instanceID, jid string) string {
+	s.nameMu.RLock()
+	if inst, ok := s.nameCache[instanceID]; ok && inst.groupsLoaded {
+		n := inst.groups[jid]
+		s.nameMu.RUnlock()
+		return n
+	}
+	s.nameMu.RUnlock()
+	if s.resolver == nil {
+		return ""
+	}
+	names, err := s.resolver.GroupNames(context.Background(), instanceID)
+	if err != nil {
+		return ""
+	}
+	s.nameMu.Lock()
+	inst := s.nameCache[instanceID]
+	if inst == nil {
+		inst = &instanceNames{}
+		s.nameCache[instanceID] = inst
+	}
+	inst.groups = names
+	inst.groupsLoaded = true
+	s.nameMu.Unlock()
+	return names[jid]
+}
+
+// contactName devuelve el nombre humano del contacto. Lazy-load.
+func (s *webhookService) contactName(instanceID, jid string) string {
+	s.nameMu.RLock()
+	if inst, ok := s.nameCache[instanceID]; ok && inst.contactsLoaded {
+		n := inst.contacts[jid]
+		s.nameMu.RUnlock()
+		return n
+	}
+	s.nameMu.RUnlock()
+	if s.resolver == nil {
+		return ""
+	}
+	names, err := s.resolver.ContactNames(context.Background(), instanceID)
+	if err != nil {
+		return ""
+	}
+	s.nameMu.Lock()
+	inst := s.nameCache[instanceID]
+	if inst == nil {
+		inst = &instanceNames{}
+		s.nameCache[instanceID] = inst
+	}
+	inst.contacts = names
+	inst.contactsLoaded = true
+	s.nameMu.Unlock()
+	return names[jid]
+}
+
+// InvalidateNames descarta el cache de nombres de la instancia
+// (próximo Dispatch que pida nombres los re-resolverá).
+func (s *webhookService) InvalidateNames(instanceID string) {
+	s.nameMu.Lock()
+	delete(s.nameCache, instanceID)
+	s.nameMu.Unlock()
 }
 
 // ExtractChatSender mira los shapes conocidos de payloads whatsmeow
