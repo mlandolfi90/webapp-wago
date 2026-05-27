@@ -2,6 +2,7 @@ import { h, clear } from "../../../ui/dom.js";
 import { input, textarea, field, checkboxRow, helpHint } from "../../../ui/form.js";
 import { EVENTS } from "../../../constants.js";
 import { mountJidPicker } from "./jidPicker.js";
+import { loadNameMap, formatJid, parseTextareaToJids } from "./nameResolver.js";
 
 /** Convierte textarea con un valor por línea a array (limpio). */
 export function lines(t) {
@@ -42,14 +43,27 @@ export function buildWebhookForm(prefill, token) {
 
   const chatIds = textarea({
     rows: "3",
-    placeholder: "Un JID por línea (acepta wildcards: *@g.us, 549*@s.whatsapp.net)\n12036304...@g.us",
+    placeholder: "Una entrada por línea. Formato:\n  Nombre <JID>   (lo arma el picker)\n  *@g.us         (wildcard)",
     value: (cur.chatIds || []).join("\n")
   });
   const senders = textarea({
     rows: "3",
-    placeholder: "Un JID por línea (acepta wildcards: *@s.whatsapp.net)\n5491122334455@s.whatsapp.net",
+    placeholder: "Una entrada por línea. Formato:\n  Nombre <JID>           (lo arma el picker)\n  549*@s.whatsapp.net    (wildcard)",
     value: (cur.senders || []).join("\n")
   });
+
+  // Enriquece el prefill con nombres (asincrónico). Wildcards quedan
+  // como están porque formatJid devuelve el JID crudo si no hay nombre.
+  if (token && ((cur.chatIds && cur.chatIds.length) || (cur.senders && cur.senders.length))) {
+    loadNameMap(token).then((map) => {
+      if (cur.chatIds && cur.chatIds.length) {
+        chatIds.value = cur.chatIds.map((j) => formatJid(j, map)).join("\n");
+      }
+      if (cur.senders && cur.senders.length) {
+        senders.value = cur.senders.map((j) => formatJid(j, map)).join("\n");
+      }
+    });
+  }
 
   // Pickers por nombre — sólo se montan si tenemos token.
   const chatPicker = h("div", {});
@@ -94,11 +108,11 @@ export function buildWebhookForm(prefill, token) {
     ]),
     ctRow,
     field("Chats permitidos (allowlist)", chatIds,
-      "Vacío = no filtra. Acepta JIDs exactos o wildcards (glob): *@g.us (todos los grupos), 12036*@g.us (prefijo), *@s.whatsapp.net (todos los individuales). Uno por línea."),
+      "Vacío = no filtra. Cada línea es `Nombre <JID>` (lo arma el picker), `<JID>` o un wildcard glob: *@g.us, 12036*@g.us, *@s.whatsapp.net. Al guardar se manda solo el JID."),
     token ? h("div", { class: "row", style: "gap:6px;margin-top:-4px;margin-bottom:8px" }, [chatPickBtn]) : null,
     chatPicker,
     field("Autores permitidos (allowlist)", senders,
-      "Vacío = no filtra. Acepta JIDs exactos o wildcards (glob): 549*@s.whatsapp.net (autores argentinos), *@s.whatsapp.net (cualquier usuario). Uno por línea."),
+      "Vacío = no filtra. Cada línea es `Nombre <JID>` (lo arma el picker), `<JID>` o wildcard glob: 549*@s.whatsapp.net, *@s.whatsapp.net. Al guardar se manda solo el JID."),
     token ? h("div", { class: "row", style: "gap:6px;margin-top:-4px;margin-bottom:8px" }, [sendPickBtn]) : null,
     senderPicker
   ]);
@@ -109,8 +123,10 @@ export function buildWebhookForm(prefill, token) {
       enabled: enabledRow.checkbox.checked,
       events: EVENTS.filter((ev) => eventChecks[ev].checked),
       chatType: readChatType(),
-      chatIds: lines(chatIds),
-      senders: lines(senders)
+      // Cada línea puede ser `Nombre <JID>`, `<JID>` o `JID/wildcard`
+      // crudo: se manda solo el JID al backend.
+      chatIds: parseTextareaToJids(chatIds),
+      senders: parseTextareaToJids(senders)
     };
   }
 

@@ -77,10 +77,14 @@ export function mountJidPicker({ host, source, token, targetTextarea, onClose })
   closeBtn.addEventListener("click", () => onClose && onClose());
   search.addEventListener("input", () => render(search.value));
   addBtn.addEventListener("click", () => {
-    const picked = items.filter((x) => x.cb.checked).map((x) => x.jid);
+    // Escribe en formato RFC 5322 `Nombre <JID>` (estilo email). Si
+    // no hay nombre, va `<JID>`. Wildcards/JIDs sueltos que ya estén
+    // en la textarea se preservan.
+    const picked = items.filter((x) => x.cb.checked);
     if (!picked.length) { onClose && onClose(); return; }
+    const formatted = picked.map((x) => x.name ? `${x.name} <${x.jid}>` : `<${x.jid}>`);
     const cur = (targetTextarea.value || "").split("\n").map((s) => s.trim()).filter(Boolean);
-    const merged = Array.from(new Set([...cur, ...picked]));
+    const merged = Array.from(new Set([...cur, ...formatted]));
     targetTextarea.value = merged.join("\n");
     onClose && onClose();
   });

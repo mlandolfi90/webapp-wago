@@ -1,5 +1,39 @@
 # RUN-LEDGER — El Crisol
 
+## RUN webhook-filter-name-display-001
+STATUS: CLOSED
+Branch: claude/build-webui-AcJFe
+Tier: completo (cambia contrato de visualización + parse bidireccional
+  en las allowlists; toca el patrón establecido en ADR 0046)
+Alcance: las allowlists chatIds/senders se ven y se escriben como
+  `Nombre <JID>` (estilo RFC 5322). Al guardar se parsea solo el JID
+  (el backend no cambia). Al editar un webhook existente, se enriquece
+  cada JID con su nombre desde /group/list + /user/contacts.
+Carriles: webui (1)
+Planificador: extiende ADR 0046 sin tocar backend; formato elegido
+  por usuario (estilo email Nombre <JID>)
+Arquitecto: APPROVE — nameResolver compartido con cache lazy
+  (Promise singleton por carga de form); parseLineToJid robusto
+  (regex `<([^>]+)>` con fallback a línea cruda — preserva wildcards);
+  prefill async (form renderiza, enrich se aplica cuando llega);
+  ADR 0047
+Ingeniero: nuevo manager/dist/assets/js/features/instances/webhooks/
+  nameResolver.js (cache singleton por token, formatJid, parseLineToJid,
+  parseTextareaToJids); jidPicker.js (append en formato `Nombre <JID>`);
+  webhookForm.js (prefill async con loadNameMap, build usa
+  parseTextareaToJids, placeholders + helpHints actualizados)
+Verificador: PASS — node --check verde en los 3 archivos; Playwright
+  end-to-end (12 capturas previas + 3 nuevas): picker escribe
+  `Harness Pruebas <120363...@g.us>`, wildcard `*@g.us` se preserva
+  mezclado, al editar un webhook guardado los JIDs del backend
+  vuelven enriquecidos via loadNameMap, al guardar el body POST trae
+  solo los JIDs (parseTextareaToJids verificado por log del console)
+Integración: PASS — contrato REST sin cambios; tests Go pasados en
+  corridas previas siguen verdes (esto es solo UI)
+Iteraciones: 1/3
+Escalación: none
+Cierre: 2026-05-27 — ADR 0047
+
 ## RUN webhook-filter-ux-001
 STATUS: CLOSED
 Branch: claude/build-webui-AcJFe
