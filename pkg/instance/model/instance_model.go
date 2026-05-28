@@ -33,6 +33,10 @@ type Instance struct {
 	ReadMessages  bool   `json:"readMessages" gorm:"default:false"`
 	IgnoreGroups  bool   `json:"ignoreGroups" gorm:"default:false"`
 	IgnoreStatus  bool   `json:"ignoreStatus" gorm:"default:false"`
+	// WAGO-PATCH(ADR-0049): rompe el loop webhook → /send/text →
+	// Message{IsFromMe:true} → webhook. Default true protege a
+	// instalaciones que no leen ADRs. Re-aplicar al mergear upstream.
+	IgnoreFromMe bool `json:"ignoreFromMe" gorm:"default:true"`
 }
 
 // AdvancedSettings representa as configurações avançadas de uma instância
@@ -43,6 +47,8 @@ type AdvancedSettings struct {
 	ReadMessages  bool   `json:"readMessages"`
 	IgnoreGroups  bool   `json:"ignoreGroups"`
 	IgnoreStatus  bool   `json:"ignoreStatus"`
+	// WAGO-PATCH(ADR-0049): ver Instance.IgnoreFromMe.
+	IgnoreFromMe bool `json:"ignoreFromMe"`
 }
 
 func (m *Instance) BeforeCreate(tx *gorm.DB) (err error) {

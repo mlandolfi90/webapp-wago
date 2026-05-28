@@ -40,11 +40,15 @@ type WebhookService interface {
 
 	// Dispatch evalúa todos los webhooks cacheados de la instancia y
 	// POSTea (fire-and-forget) a cada uno que matchee el filtro.
-	Dispatch(instanceID, eventType, chatJID, senderJID string, jsonData []byte)
+	// isFromMe permite filtrar mensajes propios per-webhook (ver
+	// Webhook.IgnoreFromMe, WAGO-PATCH(ADR-0049)).
+	Dispatch(instanceID, eventType, chatJID, senderJID string, isFromMe bool, jsonData []byte)
 
-	// ExtractChatSender saca chatJID y senderJID del payload parseado
-	// del evento (best-effort, sobre los shapes conocidos de whatsmeow).
-	ExtractChatSender(data map[string]interface{}) (string, string)
+	// ExtractEventMeta saca chatJID, senderJID y el flag isFromMe del
+	// payload parseado del evento (best-effort, sobre los shapes
+	// conocidos de whatsmeow). isFromMe lee data.data.Info.IsFromMe;
+	// default false para eventos no-Message.
+	ExtractEventMeta(data map[string]interface{}) (chatJID, senderJID string, isFromMe bool)
 
 	// Reload fuerza recarga del cache para una instancia (testing).
 	Reload(instanceID string) error
@@ -66,6 +70,9 @@ type WebhookInput struct {
 	Senders     []string `json:"senders,omitempty"`
 	ChatNames   []string `json:"chatNames,omitempty"`
 	SenderNames []string `json:"senderNames,omitempty"`
+	// WAGO-PATCH(ADR-0049): puntero para que Update distinga ausente
+	// (no toca) de false (auditar salientes explícitamente).
+	IgnoreFromMe *bool `json:"ignoreFromMe,omitempty"`
 }
 
 // instanceNames cachea los nombres resueltos de una instancia. Las
@@ -142,16 +149,23 @@ func toModel(instanceID string, in *WebhookInput) *webhook_model.Webhook {
 	if chatType == "" {
 		chatType = webhook_model.ChatTypeAny
 	}
+	// WAGO-PATCH(ADR-0049): default true cuando ausente — clientes
+	// (UI/MCP/curl) que no manden el campo quedan protegidos del loop.
+	ignoreFromMe := true
+	if in.IgnoreFromMe != nil {
+		ignoreFromMe = *in.IgnoreFromMe
+	}
 	return &webhook_model.Webhook{
-		InstanceID:  instanceID,
-		URL:         strings.TrimSpace(in.URL),
-		Enabled:     enabled,
-		Events:      in.Events,
-		ChatType:    chatType,
-		ChatIDs:     in.ChatIDs,
-		Senders:     in.Senders,
-		ChatNames:   in.ChatNames,
-		SenderNames: in.SenderNames,
+		InstanceID:   instanceID,
+		URL:          strings.TrimSpace(in.URL),
+		Enabled:      enabled,
+		Events:       in.Events,
+		ChatType:     chatType,
+		ChatIDs:      in.ChatIDs,
+		Senders:      in.Senders,
+		ChatNames:    in.ChatNames,
+		SenderNames:  in.SenderNames,
+		IgnoreFromMe: ignoreFromMe,
 	}
 }
 
@@ -257,8 +271,13 @@ func (s *webhookService) getCached(instanceID string) []webhook_model.Webhook {
 //   - chatIDs/senders vacío → no filtra; no vacío + jid="" → rechaza.
 //   - chatNames/senderNames vacío → no filtra; no vacío + name="" →
 //     rechaza (allowlist con dato faltante = no pasa). Patrón glob.
-func MatchesFilter(w *webhook_model.Webhook, eventType, chatJID, senderJID, chatName, senderName string) bool {
+//   - isFromMe + IgnoreFromMe → rechaza (WAGO-PATCH(ADR-0049):
+//     evita loops cuando un consumer responde con /send/text).
+func MatchesFilter(w *webhook_model.Webhook, eventType, chatJID, senderJID, chatName, senderName string, isFromMe bool) bool {
 	if !w.Enabled {
+		return false
+	}
+	if isFromMe && w.IgnoreFromMe {
 		return false
 	}
 	if !matchEvents(w.Events, eventType) {
@@ -348,7 +367,7 @@ func matchPatternAllowlist(allow []string, value string) bool {
 // nombre, resuelve nombres una sola vez (lookup cacheado en RAM por
 // instancia, con flags `groupsLoaded`/`contactsLoaded` para no
 // refetchear).
-func (s *webhookService) Dispatch(instanceID, eventType, chatJID, senderJID string, jsonData []byte) {
+func (s *webhookService) Dispatch(instanceID, eventType, chatJID, senderJID string, isFromMe bool, jsonData []byte) {
 	whs := s.getCached(instanceID)
 	if len(whs) == 0 {
 		return
@@ -374,7 +393,7 @@ func (s *webhookService) Dispatch(instanceID, eventType, chatJID, senderJID stri
 
 	for i := range whs {
 		w := &whs[i]
-		if !MatchesFilter(w, eventType, chatJID, senderJID, chatName, senderName) {
+		if !MatchesFilter(w, eventType, chatJID, senderJID, chatName, senderName, isFromMe) {
 			continue
 		}
 		queueName := strings.ToLower(fmt.Sprintf("%s.%s", instanceID, eventType))
@@ -447,18 +466,21 @@ func (s *webhookService) InvalidateNames(instanceID string) {
 	s.nameMu.Unlock()
 }
 
-// ExtractChatSender mira los shapes conocidos de payloads whatsmeow
-// (Message: data.Info.Chat/Sender; Receipt/Presence: data.Chat/Sender;
-// LegacyBuiltMaps: data.chat/sender en lowercase). Devuelve "" si no
-// encuentra — semántica de allowlist se ocupa del resto.
-func (s *webhookService) ExtractChatSender(data map[string]interface{}) (string, string) {
+// ExtractEventMeta mira los shapes conocidos de payloads whatsmeow
+// (Message: data.Info.Chat/Sender/IsFromMe; Receipt/Presence:
+// data.Chat/Sender; LegacyBuiltMaps: data.chat/sender en lowercase).
+// Devuelve "" / false si no encuentra — semántica de allowlist se
+// ocupa del resto, y isFromMe=false es el default seguro (eventos
+// no-Message no son auto-originados). WAGO-PATCH(ADR-0049).
+func (s *webhookService) ExtractEventMeta(data map[string]interface{}) (string, string, bool) {
 	inner, _ := data["data"].(map[string]interface{})
 	if inner == nil {
-		return "", ""
+		return "", "", false
 	}
 	chat := pickString(inner, "Chat", "chat", "RemoteJid", "remoteJid")
 	sender := pickString(inner, "Sender", "sender", "Participant", "participant")
-	// Message events tienen data.data.Info.{Chat,Sender}
+	var isFromMe bool
+	// Message events tienen data.data.Info.{Chat,Sender,IsFromMe}
 	if info, ok := inner["Info"].(map[string]interface{}); ok {
 		if chat == "" {
 			chat = pickString(info, "Chat", "chat")
@@ -466,8 +488,11 @@ func (s *webhookService) ExtractChatSender(data map[string]interface{}) (string,
 		if sender == "" {
 			sender = pickString(info, "Sender", "sender")
 		}
+		if v, ok := info["IsFromMe"].(bool); ok {
+			isFromMe = v
+		}
 	}
-	return chat, sender
+	return chat, sender, isFromMe
 }
 
 func pickString(m map[string]interface{}, keys ...string) string {

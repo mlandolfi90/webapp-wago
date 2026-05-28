@@ -59,6 +59,16 @@ func boolArg(args map[string]any, k string) bool {
 	return b
 }
 
+// boolArgOr respeta `def` cuando la key no fue pasada. Útil para flags
+// con default no-cero (ej. WAGO-PATCH(ADR-0049): IgnoreFromMe default
+// true — un MCP que no lo manda no debe destildarlo en el backend).
+func boolArgOr(args map[string]any, k string, def bool) bool {
+	if v, ok := args[k].(bool); ok {
+		return v
+	}
+	return def
+}
+
 func pathEsc(s string) string { return url.PathEscape(s) }
 
 // okJSON compresses the common "return error or JSON text" tail.

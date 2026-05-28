@@ -11,23 +11,25 @@ import (
 
 func wh(events []string, ct string, chats, senders []string) *webhook_model.Webhook {
 	return &webhook_model.Webhook{
-		Enabled:  true,
-		Events:   events,
-		ChatType: ct,
-		ChatIDs:  chats,
-		Senders:  senders,
+		Enabled:      true,
+		Events:       events,
+		ChatType:     ct,
+		ChatIDs:      chats,
+		Senders:      senders,
+		IgnoreFromMe: true,
 	}
 }
 
 func whFull(events []string, ct string, chats, senders, chatNames, senderNames []string) *webhook_model.Webhook {
 	return &webhook_model.Webhook{
-		Enabled:     true,
-		Events:      events,
-		ChatType:    ct,
-		ChatIDs:     chats,
-		Senders:     senders,
-		ChatNames:   chatNames,
-		SenderNames: senderNames,
+		Enabled:      true,
+		Events:       events,
+		ChatType:     ct,
+		ChatIDs:      chats,
+		Senders:      senders,
+		ChatNames:    chatNames,
+		SenderNames:  senderNames,
+		IgnoreFromMe: true,
 	}
 }
 
@@ -114,7 +116,7 @@ func TestMatchesFilter(t *testing.T) {
 	}
 	for _, c := range cases {
 		t.Run(c.name, func(t *testing.T) {
-			got := MatchesFilter(c.w, c.evType, c.chat, c.sender, "", "")
+			got := MatchesFilter(c.w, c.evType, c.chat, c.sender, "", "", false)
 			if got != c.wantMatch {
 				t.Fatalf("MatchesFilter(%+v, %q, %q, %q) = %v, want %v",
 					c.w, c.evType, c.chat, c.sender, got, c.wantMatch)
@@ -123,41 +125,112 @@ func TestMatchesFilter(t *testing.T) {
 	}
 }
 
-func TestExtractChatSender(t *testing.T) {
+// WAGO-PATCH(ADR-0049): cobertura del filtro de mensajes propios.
+// IgnoreFromMe + isFromMe interactúan independientemente del resto del
+// filtro — si isFromMe=false, el flag es no-op.
+func TestMatchesFilterIgnoreFromMe(t *testing.T) {
+	base := func(ignore bool) *webhook_model.Webhook {
+		return &webhook_model.Webhook{
+			Enabled:      true,
+			ChatType:     "any",
+			IgnoreFromMe: ignore,
+		}
+	}
+	cases := []struct {
+		name     string
+		w        *webhook_model.Webhook
+		isFromMe bool
+		want     bool
+	}{
+		{"IgnoreFromMe=true + isFromMe=true → rechaza (rompe loop)",
+			base(true), true, false},
+		{"IgnoreFromMe=true + isFromMe=false → pasa (default seguro)",
+			base(true), false, true},
+		{"IgnoreFromMe=false + isFromMe=true → pasa (auditoría opt-in)",
+			base(false), true, true},
+		{"IgnoreFromMe=false + isFromMe=false → pasa (no-op)",
+			base(false), false, true},
+	}
+	for _, c := range cases {
+		t.Run(c.name, func(t *testing.T) {
+			got := MatchesFilter(c.w, "MESSAGE", "x@s.whatsapp.net", "", "", "", c.isFromMe)
+			if got != c.want {
+				t.Fatalf("MatchesFilter isFromMe=%v IgnoreFromMe=%v = %v, want %v",
+					c.isFromMe, c.w.IgnoreFromMe, got, c.want)
+			}
+		})
+	}
+
+	// El filtro de isFromMe se evalúa ANTES que las otras dimensiones:
+	// un webhook con eventos/chats compatibles igual rechaza si es propio.
+	whCompleto := &webhook_model.Webhook{
+		Enabled:      true,
+		Events:       []string{"MESSAGE"},
+		ChatType:     "any",
+		ChatIDs:      []string{"12@g.us"},
+		IgnoreFromMe: true,
+	}
+	if MatchesFilter(whCompleto, "MESSAGE", "12@g.us", "", "", "", true) {
+		t.Fatal("IgnoreFromMe debe rechazar antes que matchee el resto del filtro")
+	}
+	if !MatchesFilter(whCompleto, "MESSAGE", "12@g.us", "", "", "", false) {
+		t.Fatal("mismo webhook con isFromMe=false debería pasar")
+	}
+}
+
+func TestExtractEventMeta(t *testing.T) {
 	svc := &webhookService{}
 	cases := []struct {
 		name             string
 		data             map[string]interface{}
 		wantChat, wantSn string
+		wantFromMe       bool
 	}{
 		{"vacío",
-			map[string]interface{}{}, "", ""},
+			map[string]interface{}{}, "", "", false},
 		{"sin data interno",
-			map[string]interface{}{"event": "X"}, "", ""},
+			map[string]interface{}{"event": "X"}, "", "", false},
 		{"data plano con Chat/Sender mayúsculas",
 			map[string]interface{}{"data": map[string]interface{}{"Chat": "12@g.us", "Sender": "a@s.whatsapp.net"}},
-			"12@g.us", "a@s.whatsapp.net"},
+			"12@g.us", "a@s.whatsapp.net", false},
 		{"data plano lowercase",
 			map[string]interface{}{"data": map[string]interface{}{"chat": "5@s.whatsapp.net", "sender": "b@s.whatsapp.net"}},
-			"5@s.whatsapp.net", "b@s.whatsapp.net"},
-		{"Message shape: data.Info.Chat/Sender",
+			"5@s.whatsapp.net", "b@s.whatsapp.net", false},
+		{"Message shape: data.Info.Chat/Sender (sin IsFromMe)",
 			map[string]interface{}{"data": map[string]interface{}{"Info": map[string]interface{}{
 				"Chat": "g@g.us", "Sender": "c@s.whatsapp.net",
 			}}},
-			"g@g.us", "c@s.whatsapp.net"},
-		{"Receipt shape: data.RemoteJid",
+			"g@g.us", "c@s.whatsapp.net", false},
+		// WAGO-PATCH(ADR-0049): IsFromMe es la dimensión crítica para
+		// romper el loop — se extrae del shape Message normal.
+		{"Message shape: IsFromMe=true",
+			map[string]interface{}{"data": map[string]interface{}{"Info": map[string]interface{}{
+				"Chat": "g@g.us", "Sender": "c@s.whatsapp.net", "IsFromMe": true,
+			}}},
+			"g@g.us", "c@s.whatsapp.net", true},
+		{"Message shape: IsFromMe=false explícito",
+			map[string]interface{}{"data": map[string]interface{}{"Info": map[string]interface{}{
+				"Chat": "g@g.us", "Sender": "c@s.whatsapp.net", "IsFromMe": false,
+			}}},
+			"g@g.us", "c@s.whatsapp.net", false},
+		{"Message shape: IsFromMe tipo no-bool se ignora (default false)",
+			map[string]interface{}{"data": map[string]interface{}{"Info": map[string]interface{}{
+				"Chat": "g@g.us", "IsFromMe": "true",
+			}}},
+			"g@g.us", "", false},
+		{"Receipt shape: data.RemoteJid (sin Info, sin IsFromMe)",
 			map[string]interface{}{"data": map[string]interface{}{"RemoteJid": "x@s.whatsapp.net"}},
-			"x@s.whatsapp.net", ""},
+			"x@s.whatsapp.net", "", false},
 		{"data.Participant como sender",
 			map[string]interface{}{"data": map[string]interface{}{"Chat": "g@g.us", "Participant": "p@s.whatsapp.net"}},
-			"g@g.us", "p@s.whatsapp.net"},
+			"g@g.us", "p@s.whatsapp.net", false},
 	}
 	for _, c := range cases {
 		t.Run(c.name, func(t *testing.T) {
-			chat, sender := svc.ExtractChatSender(c.data)
-			if chat != c.wantChat || sender != c.wantSn {
-				t.Fatalf("ExtractChatSender: chat=%q sender=%q, want chat=%q sender=%q",
-					chat, sender, c.wantChat, c.wantSn)
+			chat, sender, fromMe := svc.ExtractEventMeta(c.data)
+			if chat != c.wantChat || sender != c.wantSn || fromMe != c.wantFromMe {
+				t.Fatalf("ExtractEventMeta: chat=%q sender=%q fromMe=%v, want chat=%q sender=%q fromMe=%v",
+					chat, sender, fromMe, c.wantChat, c.wantSn, c.wantFromMe)
 			}
 		})
 	}
@@ -206,7 +279,7 @@ func TestMatchesFilterByName(t *testing.T) {
 	}
 	for _, c := range cases {
 		t.Run(c.name, func(t *testing.T) {
-			got := MatchesFilter(c.w, "MESSAGE", c.chatJID, c.senderJID, c.chatName, c.senderNm)
+			got := MatchesFilter(c.w, "MESSAGE", c.chatJID, c.senderJID, c.chatName, c.senderNm, false)
 			if got != c.want {
 				t.Fatalf("MatchesFilter(name=%q sender=%q) = %v, want %v",
 					c.chatName, c.senderNm, got, c.want)
@@ -283,7 +356,7 @@ func TestDispatchSkipsNameLookupIfNoWebhookNeedsIt(t *testing.T) {
 	s.cache["I"] = []webhook_model.Webhook{
 		{ID: "1", InstanceID: "I", URL: "https://a/", Enabled: true, ChatType: "any"},
 	}
-	s.Dispatch("I", "MESSAGE", "x@g.us", "", []byte(`{}`))
+	s.Dispatch("I", "MESSAGE", "x@g.us", "", false, []byte(`{}`))
 	if atomic.LoadInt32(&fr.groupCalls) != 0 {
 		t.Fatal("Dispatch llamó al resolver sin necesidad")
 	}
@@ -310,7 +383,7 @@ func TestDispatchUsesNameLookupWhenWebhookNeedsIt(t *testing.T) {
 			ChatType: "any", ChatNames: []string{"Familia"}},
 	}
 	// Evento en chat "Harness Pruebas" → solo el primer webhook matchea.
-	s.Dispatch("I", "MESSAGE", "12@g.us", "", []byte(`{}`))
+	s.Dispatch("I", "MESSAGE", "12@g.us", "", false, []byte(`{}`))
 	if len(fp.calls) != 1 || fp.calls[0].url != "https://harness/" {
 		t.Fatalf("esperaba 1 dispatch a https://harness/, hubo: %+v", fp.calls)
 	}
@@ -372,7 +445,7 @@ func TestDispatchFiltersAndPostsByMatch(t *testing.T) {
 	s.cache["I"] = whs
 	s.mu.Unlock()
 
-	s.Dispatch("I", "MESSAGE", "12345@g.us", "alice@s.whatsapp.net", []byte(`{"event":"MESSAGE"}`))
+	s.Dispatch("I", "MESSAGE", "12345@g.us", "alice@s.whatsapp.net", false, []byte(`{"event":"MESSAGE"}`))
 
 	if len(fp.calls) != 1 || fp.calls[0].url != "https://a/" {
 		t.Fatalf("esperaba 1 dispatch a https://a/, hubo: %+v", fp.calls)
@@ -383,9 +456,42 @@ func TestDispatchFiltersAndPostsByMatch(t *testing.T) {
 	s2.mu.Lock()
 	s2.cache["empty"] = []webhook_model.Webhook{}
 	s2.mu.Unlock()
-	s2.Dispatch("empty", "MESSAGE", "x", "", []byte(`{}`))
+	s2.Dispatch("empty", "MESSAGE", "x", "", false, []byte(`{}`))
 	if len(s2.producer.(*fakeProducer).calls) != 0 {
 		t.Fatal("no debía dispatchear con cache vacío")
+	}
+}
+
+// WAGO-PATCH(ADR-0049): integración del filtro isFromMe en el path
+// completo de Dispatch — verifica que entre N webhooks, los que
+// tienen IgnoreFromMe=true se saltean para mensajes propios mientras
+// los IgnoreFromMe=false los reciben.
+func TestDispatchRespectsIgnoreFromMePerWebhook(t *testing.T) {
+	fp := &fakeProducer{}
+	s := &webhookService{
+		producer: fp,
+		cache:    map[string][]webhook_model.Webhook{},
+	}
+	s.cache["I"] = []webhook_model.Webhook{
+		// Default: ignora salientes (rompe loop).
+		{ID: "1", InstanceID: "I", URL: "https://default/", Enabled: true,
+			ChatType: "any", IgnoreFromMe: true},
+		// Auditor opt-in: recibe TODO incluido propios.
+		{ID: "2", InstanceID: "I", URL: "https://auditor/", Enabled: true,
+			ChatType: "any", IgnoreFromMe: false},
+	}
+
+	// Mensaje propio → solo el auditor recibe.
+	s.Dispatch("I", "MESSAGE", "12@g.us", "me@s.whatsapp.net", true, []byte(`{}`))
+	if len(fp.calls) != 1 || fp.calls[0].url != "https://auditor/" {
+		t.Fatalf("isFromMe=true: esperaba solo https://auditor/, hubo: %+v", fp.calls)
+	}
+
+	// Mensaje entrante → ambos reciben.
+	fp.calls = nil
+	s.Dispatch("I", "MESSAGE", "12@g.us", "other@s.whatsapp.net", false, []byte(`{}`))
+	if len(fp.calls) != 2 {
+		t.Fatalf("isFromMe=false: esperaba 2 dispatches, hubo: %+v", fp.calls)
 	}
 }
 

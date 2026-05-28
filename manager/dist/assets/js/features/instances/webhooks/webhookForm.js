@@ -20,6 +20,11 @@ export function buildWebhookForm(prefill, token) {
   const urlIn = input({ placeholder: "https://miapp.com/whatsapp/hook", value: cur.url || "" });
   const enabledRow = checkboxRow("Habilitado", cur.enabled !== false,
     "Si está apagado, el webhook NO recibe eventos aunque matchee el filtro. Útil para pausar sin borrar.");
+  // WAGO-PATCH(ADR-0049): default tildado (cur.ignoreFromMe undefined
+  // cuenta como true por el !== false; webhooks nuevos arrancan
+  // protegidos contra el loop).
+  const ignoreFromMeRow = checkboxRow("Ignorar mis propios mensajes (rompe loops)", cur.ignoreFromMe !== false,
+    "Tildado (recomendado): este webhook NO recibe los mensajes que vos enviás. Rompe el loop infinito cuando un consumer responde un evento con /send/text. Destildar SOLO si necesitás auditar mensajes salientes en este webhook.");
 
   const selectedEvents = Array.isArray(cur.events) ? cur.events : [];
   const eventChecks = {};
@@ -112,6 +117,7 @@ export function buildWebhookForm(prefill, token) {
     field("URL del webhook", urlIn,
       "URL HTTPS a la que el servidor hará POST con cada evento que matchee el filtro. Ej: https://miapp.com/whatsapp/hook"),
     enabledRow.row,
+    ignoreFromMeRow.row,
     h("label", { class: "muted-sm", style: "display:flex;align-items:center;gap:7px;margin:8px 0" }, [
       "Eventos",
       helpHint("Tipos de evento que dispara este webhook. Vacío = todos. Ej: tildar MESSAGE para mensajes entrantes.")
@@ -148,7 +154,9 @@ export function buildWebhookForm(prefill, token) {
       senders: parseTextareaToJids(senders),
       // chatNames/senderNames: patrones glob sobre nombre. Crudo.
       chatNames: lines(chatNames),
-      senderNames: lines(senderNames)
+      senderNames: lines(senderNames),
+      // WAGO-PATCH(ADR-0049): per-webhook opt-in para mensajes propios.
+      ignoreFromMe: ignoreFromMeRow.checkbox.checked
     };
   }
 

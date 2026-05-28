@@ -171,9 +171,11 @@ func instanceTools(c *wago.Client) []Tool {
 			},
 		},
 		{
-			Name:        "wago_advanced_set",
-			Description: "Actualiza ajustes avanzados. Args: instanceId, alwaysOnline?, rejectCall?, readMessages?, ignoreGroups?, ignoreStatus?, msgRejectCall?.",
-			InputSchema: schema(`{"type":"object","properties":{"instanceId":{"type":"string"},"alwaysOnline":{"type":"boolean"},"rejectCall":{"type":"boolean"},"readMessages":{"type":"boolean"},"ignoreGroups":{"type":"boolean"},"ignoreStatus":{"type":"boolean"},"msgRejectCall":{"type":"string"}},"required":["instanceId"]}`),
+			Name: "wago_advanced_set",
+			// WAGO-PATCH(ADR-0049): +ignoreFromMe (default true en backend;
+			// pasarlo explícito si quieren auditar salientes).
+			Description: "Actualiza ajustes avanzados. Args: instanceId, alwaysOnline?, rejectCall?, readMessages?, ignoreGroups?, ignoreStatus?, ignoreFromMe? (default true: ignora mensajes propios para romper loops webhook→/send/text), msgRejectCall?.",
+			InputSchema: schema(`{"type":"object","properties":{"instanceId":{"type":"string"},"alwaysOnline":{"type":"boolean"},"rejectCall":{"type":"boolean"},"readMessages":{"type":"boolean"},"ignoreGroups":{"type":"boolean"},"ignoreStatus":{"type":"boolean"},"ignoreFromMe":{"type":"boolean"},"msgRejectCall":{"type":"string"}},"required":["instanceId"]}`),
 			Handler: func(ctx context.Context, a map[string]any) (string, error) {
 				id, err := reqStr(a, "instanceId")
 				if err != nil {
@@ -182,7 +184,10 @@ func instanceTools(c *wago.Client) []Tool {
 				return okJSON(c.Do(ctx, wago.Instance, "PUT", "/instance/"+pathEsc(id)+"/advanced-settings", map[string]any{
 					"alwaysOnline": boolArg(a, "alwaysOnline"), "rejectCall": boolArg(a, "rejectCall"),
 					"readMessages": boolArg(a, "readMessages"), "ignoreGroups": boolArg(a, "ignoreGroups"),
-					"ignoreStatus": boolArg(a, "ignoreStatus"), "msgRejectCall": str(a, "msgRejectCall"),
+					"ignoreStatus": boolArg(a, "ignoreStatus"),
+					// WAGO-PATCH(ADR-0049): default true cuando ausente.
+					"ignoreFromMe":  boolArgOr(a, "ignoreFromMe", true),
+					"msgRejectCall": str(a, "msgRejectCall"),
 				}))
 			},
 		},

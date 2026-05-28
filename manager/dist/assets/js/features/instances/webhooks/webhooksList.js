@@ -19,6 +19,11 @@ function filterSummary(w) {
   if (Array.isArray(w.senderNames) && w.senderNames.length) {
     parts.push(`nombres autor: ${w.senderNames.join(", ")}`);
   }
+  // WAGO-PATCH(ADR-0049): chip que destaca cuando el webhook recibe
+  // mensajes propios (excepción al default protector).
+  if (w.ignoreFromMe === false) {
+    parts.push("incluye propios");
+  }
   return parts.join(" · ");
 }
 

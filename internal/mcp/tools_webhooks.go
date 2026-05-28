@@ -19,12 +19,14 @@ func webhookTools(c *wago.Client) []Tool {
 		},
 		{
 			Name: "wago_webhook_create",
+			// WAGO-PATCH(ADR-0049): +ignoreFromMe (default true en backend).
 			Description: "Crea un webhook con filtro inline. Args: url (http/https obligatoria), " +
 				"enabled?, events? (lista; vacío o ALL = todos), chatType? (any|group|individual), " +
 				"chatIds? (JIDs o globs), senders? (JIDs o globs), " +
 				"chatNames? (globs sobre nombre del grupo, ej Harness*), " +
-				"senderNames? (globs sobre nombre del contacto, ej Mauro*).",
-			InputSchema: schema(`{"type":"object","properties":{"url":{"type":"string"},"enabled":{"type":"boolean"},"events":{"type":"array","items":{"type":"string"}},"chatType":{"type":"string","enum":["any","group","individual"]},"chatIds":{"type":"array","items":{"type":"string"}},"senders":{"type":"array","items":{"type":"string"}},"chatNames":{"type":"array","items":{"type":"string"}},"senderNames":{"type":"array","items":{"type":"string"}}},"required":["url"]}`),
+				"senderNames? (globs sobre nombre del contacto, ej Mauro*), " +
+				"ignoreFromMe? (default true: ignora mensajes propios para romper loops webhook→/send/text; pasar false solo si querés auditar salientes).",
+			InputSchema: schema(`{"type":"object","properties":{"url":{"type":"string"},"enabled":{"type":"boolean"},"events":{"type":"array","items":{"type":"string"}},"chatType":{"type":"string","enum":["any","group","individual"]},"chatIds":{"type":"array","items":{"type":"string"}},"senders":{"type":"array","items":{"type":"string"}},"chatNames":{"type":"array","items":{"type":"string"}},"senderNames":{"type":"array","items":{"type":"string"}},"ignoreFromMe":{"type":"boolean"}},"required":["url"]}`),
 			Handler: func(ctx context.Context, a map[string]any) (string, error) {
 				url, err := reqStr(a, "url")
 				if err != nil {
@@ -36,8 +38,8 @@ func webhookTools(c *wago.Client) []Tool {
 		},
 		{
 			Name:        "wago_webhook_update",
-			Description: "Actualiza un webhook por id (los campos no presentes se vacían: pasá los que quieras conservar).",
-			InputSchema: schema(`{"type":"object","properties":{"id":{"type":"string"},"url":{"type":"string"},"enabled":{"type":"boolean"},"events":{"type":"array","items":{"type":"string"}},"chatType":{"type":"string","enum":["any","group","individual"]},"chatIds":{"type":"array","items":{"type":"string"}},"senders":{"type":"array","items":{"type":"string"}},"chatNames":{"type":"array","items":{"type":"string"}},"senderNames":{"type":"array","items":{"type":"string"}}},"required":["id","url"]}`),
+			Description: "Actualiza un webhook por id (los campos no presentes se vacían: pasá los que quieras conservar). ignoreFromMe ausente = default true (WAGO-PATCH ADR-0049).",
+			InputSchema: schema(`{"type":"object","properties":{"id":{"type":"string"},"url":{"type":"string"},"enabled":{"type":"boolean"},"events":{"type":"array","items":{"type":"string"}},"chatType":{"type":"string","enum":["any","group","individual"]},"chatIds":{"type":"array","items":{"type":"string"}},"senders":{"type":"array","items":{"type":"string"}},"chatNames":{"type":"array","items":{"type":"string"}},"senderNames":{"type":"array","items":{"type":"string"}},"ignoreFromMe":{"type":"boolean"}},"required":["id","url"]}`),
 			Handler: func(ctx context.Context, a map[string]any) (string, error) {
 				id, err := reqStr(a, "id")
 				if err != nil {
@@ -91,6 +93,11 @@ func buildWebhookBody(a map[string]any, url string) map[string]any {
 	}
 	if v := strList(a, "senderNames"); len(v) > 0 {
 		body["senderNames"] = v
+	}
+	// WAGO-PATCH(ADR-0049): solo lo agrego si fue explícito — ausente
+	// deja que el backend aplique su default (true).
+	if v, ok := a["ignoreFromMe"].(bool); ok {
+		body["ignoreFromMe"] = v
 	}
 	return body
 }

@@ -1981,12 +1981,28 @@ func (w *whatsmeowService) CallWebhook(instance *instance_model.Instance, queueN
 
 	// Dispatch a webhooks múltiples (tabla instance_webhooks), filtro
 	// inline. Orthogonal al legacy (instance.Webhook) — ambos coexisten.
+	// WAGO-PATCH(ADR-0049): isFromMe se extrae acá y se propaga a ambos
+	// carriles. El multi-webhook recibe siempre; cada webhook filtra
+	// con su propio Webhook.IgnoreFromMe.
+	var chatJID, senderJID string
+	var isFromMe bool
 	if w.webhookService != nil {
-		chatJID, senderJID := w.webhookService.ExtractChatSender(data)
-		w.webhookService.Dispatch(instance.Id, eventType, chatJID, senderJID, jsonData)
+		chatJID, senderJID, isFromMe = w.webhookService.ExtractEventMeta(data)
+		w.webhookService.Dispatch(instance.Id, eventType, chatJID, senderJID, isFromMe, jsonData)
 	}
 
 	_ = w.maybeInvalidateNames(instance.Id, eventType)
+
+	// WAGO-PATCH(ADR-0049): skip legacy webhook + colas globales para
+	// mensajes propios (Info.IsFromMe == true) cuando IgnoreFromMe
+	// está activo. Rompe loops cuando un consumer del webhook responde
+	// a un evento vía /send/text. Re-aplicar al mergear upstream.
+	if isFromMe && instance.IgnoreFromMe {
+		w.loggerWrapper.GetLogger(instance.Id).LogInfo(
+			"[%s] WAGO-PATCH(ADR-0049): skipping legacy dispatch for self-originated msg eventType=%s chat=%s",
+			instance.Id, eventType, chatJID)
+		return
+	}
 
 	eventArray := strings.Split(instance.Events, ",")
 

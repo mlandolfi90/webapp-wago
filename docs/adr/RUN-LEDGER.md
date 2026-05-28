@@ -1,5 +1,69 @@
 # RUN-LEDGER — El Crisol
 
+## RUN webhook-skip-from-me-001
+STATUS: CLOSED
+Branch: claude/build-webui-AcJFe
+Tier: completo (extiende contrato dispatch + 2 modelos + 3 carriles)
+Alcance: flag opt-in `IgnoreFromMe` simétrico — Instance (legacy +
+  colas globales) y Webhook (multi-webhook ADR 0045+). Default true
+  rompe el loop reportado: webhook → consumer → /send/text →
+  *events.Message{IsFromMe:true} → webhook (loop infinito). Punto
+  único de filtrado en CallWebhook; handler de events NO se toca
+  (MarkRead/LID swap siguen normales). Markers WAGO-PATCH(ADR-0049)
+  para identificar el patch al mergear upstream Evolution Go.
+Carriles: backend (instance/webhook model + repo + service +
+  whatsmeow.CallWebhook), webui (advancedModal + webhookForm +
+  webhooksList), mcp (tools_instance + tools_webhooks). Disjuntos.
+Planificador: contratos congelados antes de carrilar:
+  ExtractEventMeta(data) (chat, sender string, isFromMe bool)
+  (renombre de ExtractChatSender, único caller actualiza);
+  MatchesFilter(..., isFromMe bool); Dispatch(..., isFromMe bool).
+  Default true en ambos modelos = comportamiento por defecto
+  protege contra loops sin requerir acción del usuario.
+Arquitecto: APPROVE — 3 carriles disjuntos sin superficies
+  calientes compartidas; sigue patrón existente de IgnoreGroups/
+  IgnoreStatus en los 5 puntos requeridos (model + AdvancedSettings
+  + repo Select + repo Updates + handler + UI). ADR 0049 con
+  procedimiento de re-aplicación al mergear upstream.
+Ingeniero: instance_model.go (+IgnoreFromMe en Instance +
+  AdvancedSettings, default true gorm); instance_repository.go
+  (Select + map Get/Update); webhook_model.go (+IgnoreFromMe default
+  true gorm); webhook_service.go (WebhookInput.IgnoreFromMe *bool,
+  toModel default true, MatchesFilter +isFromMe arg final, Dispatch
+  +isFromMe, ExtractChatSender→ExtractEventMeta con triple retorno);
+  whatsmeow.go CallWebhook (extrae isFromMe, propaga al dispatch
+  multi-webhook, skip legacy + colas globales si isFromMe && instance.
+  IgnoreFromMe con log marker); tools_helpers.go (boolArgOr helper);
+  tools_instance.go (wago_advanced_set +ignoreFromMe con boolArgOr
+  default true); tools_webhooks.go (create/update +ignoreFromMe en
+  schema + buildWebhookBody solo si explícito); advancedModal.js
+  (+checkboxRow Ignorar mis propios mensajes, default tildado);
+  webhookForm.js (+ignoreFromMeRow al lado de enabledRow, build
+  incluye ignoreFromMe); webhooksList.js (filterSummary +"incluye
+  propios" chip cuando ignoreFromMe===false); ADR 0049 + README +
+  RUN-LEDGER. 14 archivos con marker WAGO-PATCH(ADR-0049).
+Verificador: PASS — go build/vet limpios; go test -race ./... TODO
+  verde (7 paquetes con tests OK, 0 FAIL); nuevos casos cubren:
+  TestMatchesFilterIgnoreFromMe (4 combos isFromMe×IgnoreFromMe +
+  evaluación temprana antes del resto del filtro);
+  TestExtractEventMeta (Message con IsFromMe true/false/no-bool,
+  Receipt sin Info default false, todos los shapes legacy preservan
+  cero-falsos-positivos); TestDispatchRespectsIgnoreFromMePerWebhook
+  (2 webhooks con flags opuestos, isFromMe=true solo dispatcha al
+  auditor, isFromMe=false dispara ambos); regresión: 17 casos
+  existentes de TestMatchesFilter / TestExtractChatSender (renombrado)
+  / TestNameLookup* / TestDispatch* / TestValidate* siguen verdes
+  con las nuevas firmas; node --check verde en los 3 JS.
+Integración: PASS — `grep WAGO-PATCH(ADR-0049)` devuelve los 14
+  archivos del IMPACT-MATRIX (10 código + 2 docs + 2 tests/helpers);
+  contratos REST extendidos sin breaking (campo nuevo opcional);
+  multi-webhook recibe el isFromMe y filtra per-webhook, legacy
+  filtra por instance.IgnoreFromMe; flag visible en advancedModal
+  + webhookForm con default protector y help hint explicando el loop.
+Iteraciones: 1/3
+Escalación: none
+Cierre: 2026-05-28 — pendiente commit SHA
+
 ## RUN multi-webhook-name-filter-001
 STATUS: CLOSED
 Branch: claude/build-webui-AcJFe

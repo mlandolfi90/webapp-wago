@@ -27,10 +27,14 @@ export function openAdvancedModal(inst) {
         "No procesa ni reenvía por webhook los mensajes de grupos. Ej: tildar si el bot solo atiende chats individuales.");
       const ignoreStatus = checkboxRow("Ignorar estados", s.ignoreStatus,
         "No procesa las actualizaciones de Estados/Historias de los contactos. Ej: tildar para reducir ruido de eventos.");
+      // WAGO-PATCH(ADR-0049): rompe loops webhook → /send/text. Default
+      // tildado (s.ignoreFromMe undefined cuenta como true por el !== false).
+      const ignoreFromMe = checkboxRow("Ignorar mis propios mensajes (rompe loops webhook)", s.ignoreFromMe !== false,
+        "Tildado (recomendado): el webhook NO se dispara para los mensajes que vos enviás. Rompe el loop infinito cuando un consumer responde un evento con /send/text. Destildar SOLO si necesitás auditar mensajes salientes — vas a tener que evitar que tu consumer responda mensajes propios, o terminarás en un loop.");
       const msg = input({ value: s.msgRejectCall || "", placeholder: "Mensaje al rechazar llamada" });
 
       clear(body);
-      [alwaysOnline, rejectCall, readMessages, ignoreGroups, ignoreStatus]
+      [alwaysOnline, rejectCall, readMessages, ignoreGroups, ignoreStatus, ignoreFromMe]
         .forEach((c) => body.appendChild(c.row));
       body.appendChild(field("Mensaje al rechazar llamada", msg,
         "Texto que se envía automáticamente al contacto cuando se rechaza su llamada (requiere 'Rechazar llamadas'). Ej: No puedo atender llamadas, escribime por mensaje."));
@@ -43,6 +47,7 @@ export function openAdvancedModal(inst) {
           readMessages: readMessages.checkbox.checked,
           ignoreGroups: ignoreGroups.checkbox.checked,
           ignoreStatus: ignoreStatus.checkbox.checked,
+          ignoreFromMe: ignoreFromMe.checkbox.checked, // WAGO-PATCH(ADR-0049)
           msgRejectCall: msg.value
         };
         const reset = busy(saveBtn, "Guardando...");

@@ -39,6 +39,12 @@ type Webhook struct {
 	ChatNames   []string `json:"chatNames" gorm:"serializer:json"`
 	SenderNames []string `json:"senderNames" gorm:"serializer:json"`
 
+	// WAGO-PATCH(ADR-0049): equivalente per-webhook del flag legacy.
+	// Default true: ignora Info.IsFromMe == true para romper loops
+	// (webhook → consumer → /send/text → ...). Quien necesite auditar
+	// salientes lo destilda en el form.
+	IgnoreFromMe bool `json:"ignoreFromMe" gorm:"default:true"`
+
 	CreatedAt time.Time `json:"createdAt" gorm:"autoCreateTime"`
 	UpdatedAt time.Time `json:"updatedAt" gorm:"autoUpdateTime"`
 }
