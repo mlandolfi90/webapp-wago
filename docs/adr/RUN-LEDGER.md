@@ -62,7 +62,7 @@ Integración: PASS — `grep WAGO-PATCH(ADR-0049)` devuelve los 14
   + webhookForm con default protector y help hint explicando el loop.
 Iteraciones: 1/3
 Escalación: none
-Cierre: 2026-05-28 — pendiente commit SHA
+Cierre: 2026-05-28 commit 1e5f605
 
 ## RUN multi-webhook-name-filter-001
 STATUS: CLOSED
