@@ -848,3 +848,30 @@ Pendientes (Fase 2): vista detalle de instancia con Informações da
   Zona de Perigo expandidos inline (reemplaza modales de Sesión).
   Modales de Operar (Enviar/Grupos/etc.) NO se tocan.
 Cierre: 2026-05-28
+
+## RUN webui-restyle-webapp-002
+STATUS: CLOSED
+Branch: claude/build-webui-AcJFe
+Tier: completo (tema claro funcional + topbar completo con iconos)
+Alcance: paridad con el dashboard de referencia que el usuario confirmó
+  querer. Topbar API Tester (→swagger) + Swagger + toggle tema + Salir
+  con iconos SVG; sidebar con iconos; tema claro/oscuro funcional con
+  persistencia y anti-flash. Cards de instancia se conservan (el usuario
+  aclaró que su UX real eran cards con botones, no detalle inline).
+Planificador: 3 decisiones cerradas vía AskUserQuestion (detalle inline:
+  NO; API Tester: →swagger; tema: claro funcional). 5 archivos: theme.js
+  + icons.js nuevos; shell.js + app.css + index.html + main.js mods
+Arquitecto: APPROVE — tema claro revierte parcialmente ADR 0021
+  (dark-only) → ADR 0051 (regla de oro #1). Tokens en ambos temas, sin
+  CDN (ADR 0019), iconos SVG inline. Sin tocar backend ni cards
+Ingeniero: core/theme.js (NUEVO), ui/icons.js (NUEVO 7 iconos SVG),
+  core/shell.js (topbar completo + iconos + toggle), app.css (bloque
+  [data-theme=light] + --h-color + topbar/sidebar/footer theme-aware),
+  index.html (script anti-flash), main.js (applyTheme en boot)
+Verificador: PASS — node --check verde. Render headless: 4 acciones
+  topbar / 2 iconos sidebar / toggle a light / persistencia tras reload /
+  screenshots dark+light dashboard+instancias / 0 errores consola
+Integración: N/A (carril único — manager/dist)
+Iteraciones: 1/3
+Escalación: none
+Cierre: 2026-05-28

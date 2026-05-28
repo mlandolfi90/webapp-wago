@@ -8,6 +8,13 @@
     <meta name="theme-color" content="#000000" />
     <title>WebAPP-Wago</title>
     <link rel="stylesheet" href="/assets/css/app.css" />
+    <script>
+      // Anti-flash (ADR 0051): aplica el tema guardado antes del render.
+      (function () {
+        var t = localStorage.getItem("wago.theme") === "light" ? "light" : "dark";
+        document.documentElement.setAttribute("data-theme", t);
+      })();
+    </script>
   </head>
   <body>
     <div id="app"></div>

@@ -14,6 +14,7 @@ decisión, alternativas y consecuencias.
 |----|--------|
 | 0018 | Adopción de El Crisol (loop de calidad) |
 | 0050 | Restaurar look "WebAPP-Wago" (shell sidebar + topbar + footer) |
+| 0051 | Tema claro con toggle + topbar completo (API Tester, iconos) |
 | 0019 | Rebuild del panel: vanilla, sin build |
 | 0020 | Regla de Oro: código factorizado |
 | 0021 | Identidad visual del panel (Evolution) |

@@ -1,12 +1,18 @@
 // App shell (ADR 0050): sidebar + topbar + footer envolviendo cada vista,
-// recreando el look "WebAPP-Wago" pre-rebuild en vanilla puro.
+// recreando el look "WebAPP-Wago" pre-rebuild en vanilla puro. Topbar con
+// API Tester + Swagger + toggle de tema (ADR 0051) + Salir.
 import { h, clear } from "../ui/dom.js";
 import { clearApiKey } from "./state.js";
 import { goLogin } from "./router.js";
+import { getTheme, toggleTheme } from "./theme.js";
+import {
+  icoDashboard, icoInstances, icoApiTester, icoSwagger,
+  icoMoon, icoSun, icoLogout,
+} from "../ui/icons.js";
 
 const NAV = [
-  { key: "dashboard", label: "Dashboard", ico: "▦" },
-  { key: "instances", label: "Instancias", ico: "▢" },
+  { key: "dashboard", label: "Dashboard", ico: icoDashboard },
+  { key: "instances", label: "Instancias", ico: icoInstances },
 ];
 
 function logout() {
@@ -21,26 +27,47 @@ function brand() {
   ]);
 }
 
+function navItem(it, activeKey, onNav) {
+  return h(
+    "button",
+    {
+      class: "sidebar-item" + (it.key === activeKey ? " is-active" : ""),
+      onclick: () => onNav(it.key),
+    },
+    [
+      h("span", { class: "sidebar-item-ico", html: it.ico() }),
+      h("span", {}, [it.label]),
+    ]
+  );
+}
+
 function sidebar(activeKey, onNav) {
   return h(
     "aside",
     { class: "sidebar" },
-    [brand()].concat(
-      NAV.map((it) =>
-        h(
-          "button",
-          {
-            class:
-              "sidebar-item" + (it.key === activeKey ? " is-active" : ""),
-            onclick: () => onNav(it.key),
-          },
-          [
-            h("span", { class: "sidebar-item-ico" }, [it.ico]),
-            h("span", {}, [it.label]),
-          ]
-        )
-      )
-    )
+    [brand()].concat(NAV.map((it) => navItem(it, activeKey, onNav)))
+  );
+}
+
+function topAction(ico, label, attrs) {
+  return h("a", Object.assign({ class: "btn btn-sm btn-ghost top-link" }, attrs), [
+    h("span", { class: "top-ico", html: ico() }),
+    h("span", {}, [label]),
+  ]);
+}
+
+function themeToggle() {
+  const render = () => (getTheme() === "light" ? icoSun() : icoMoon());
+  const icon = h("span", { class: "top-ico", html: render() });
+  return h(
+    "button",
+    {
+      class: "btn btn-sm btn-ghost top-link top-icon-only",
+      title: "Cambiar tema claro/oscuro",
+      "aria-label": "Cambiar tema",
+      onclick: () => { toggleTheme(); icon.innerHTML = render(); },
+    },
+    [icon]
   );
 }
 
@@ -48,17 +75,18 @@ function topbar() {
   return h("div", { class: "topbar" }, [
     h("div", {}, []),
     h("div", { class: "topbar-actions" }, [
+      topAction(icoApiTester, "API Tester", {
+        href: "/swagger/index.html", target: "_blank", rel: "noopener",
+      }),
+      topAction(icoSwagger, "Swagger", {
+        href: "/swagger/index.html", target: "_blank", rel: "noopener",
+      }),
+      themeToggle(),
       h(
-        "a",
-        {
-          class: "btn btn-sm btn-ghost",
-          href: "/swagger/index.html",
-          target: "_blank",
-          rel: "noopener",
-        },
-        ["Swagger"]
+        "button",
+        { class: "btn btn-sm top-link", onclick: logout },
+        [h("span", { class: "top-ico", html: icoLogout() }), h("span", {}, ["Salir"])]
       ),
-      h("button", { class: "btn btn-sm", onclick: logout }, ["Salir"]),
     ]),
   ]);
 }
