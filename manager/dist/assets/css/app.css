@@ -14,6 +14,8 @@
   --brand-strong: #00e098;
   --brand-ink: #04130d;
   --brand-dim: rgba(0, 255, 167, .08);
+  --brand-emphasis: #22c55e;
+  --brand-emphasis-dim: rgba(34, 197, 94, .12);
   --gold: #ffb800;
   --purple: #8133aa;
   --danger: #ff6b6b;
@@ -272,3 +274,60 @@ a:hover { text-decoration: underline; }
 .row { display: flex; gap: 10px; align-items: center; }
 .muted-sm { color: var(--muted); font-size: 12px; }
 hr.sep { border: 0; border-top: 1px solid var(--border); margin: 18px 0; }
+
+/* App shell con sidebar + footer (ADR 0050: restore WebAPP-Wago look) */
+.shell { display: grid; grid-template-columns: 240px 1fr; min-height: 100vh; }
+.shell-right { display: flex; flex-direction: column; min-width: 0; }
+.shell-right .topbar { padding: 14px 22px; }
+.sidebar {
+  background: rgba(8, 12, 20, .55);
+  border-right: 1px solid var(--border);
+  padding: 18px 14px;
+  display: flex; flex-direction: column; gap: 4px;
+  position: sticky; top: 0; align-self: start; max-height: 100vh; overflow: auto;
+}
+.sidebar .brand-row {
+  padding: 4px 8px 16px;
+  margin-bottom: 12px;
+  border-bottom: 1px solid var(--border);
+}
+.sidebar .brand-row img { width: 26px; height: 26px; }
+.sidebar .brand-row h1 {
+  font-size: 16px; font-weight: 800; letter-spacing: -.01em;
+  color: var(--brand-emphasis);
+}
+.sidebar-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 12px; border-radius: 9px;
+  color: var(--muted); font-weight: 600; font-size: 14px;
+  background: transparent; border: 1px solid transparent;
+  text-align: left;
+  transition: background .15s, color .15s, border-color .15s;
+}
+.sidebar-item:hover { background: var(--surface-2); color: var(--text); }
+.sidebar-item.is-active {
+  background: var(--brand-emphasis-dim); color: var(--brand-emphasis);
+  border-color: rgba(34, 197, 94, .2);
+}
+.sidebar-item-ico { font-size: 15px; opacity: .9; width: 18px; text-align: center; }
+.main-area { flex: 1; min-height: 0; }
+.footer {
+  padding: 18px 22px; border-top: 1px solid var(--border);
+  background: rgba(8, 12, 20, .55);
+  color: var(--muted-2); font-size: 12px;
+}
+.footer-brand {
+  color: var(--brand-emphasis); font-weight: 700; font-size: 13px;
+  margin-bottom: 3px;
+}
+@media (max-width: 900px) {
+  .shell { grid-template-columns: 1fr; grid-template-rows: auto 1fr; }
+  .sidebar {
+    position: static; max-height: none;
+    flex-direction: row; gap: 6px; padding: 10px 14px;
+    border-right: 0; border-bottom: 1px solid var(--border);
+    overflow-x: auto;
+  }
+  .sidebar .brand-row { display: none; }
+  .sidebar-item { white-space: nowrap; padding: 8px 12px; }
+}

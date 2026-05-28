@@ -813,3 +813,38 @@ Integración: N/A (carril único)
 Iteraciones: 1/3
 Escalación: none
 Cierre: 2026-05-16 — commit 86aca02
+
+## RUN webui-restyle-webapp-001
+STATUS: CLOSED
+Branch: claude/build-webui-AcJFe
+Tier: completo (shell con sidebar + topbar + footer; Fase 1 de 2)
+Alcance: recuperar look "WebAPP-Wago" pre-rebuild (sidebar fija con
+  Dashboard/Instancias, topbar Swagger/Salir, footer con copyright,
+  branding verde emerald) en vanilla puro sin volver a React. NO toca
+  backend ni vista detalle inline (queda para Fase 2). Idioma base
+  español (clarificado por el usuario mid-corrida).
+Planificador: 5 archivos a tocar (2 nuevos shell.js + dashboardHomeView.js;
+  3 mods index.html + app.css + router.js + dashboardView.js). Patrón
+  shell factorizado para que vistas futuras hereden chrome
+Arquitecto: APPROVE — preserva ADR 0019 (vanilla sin build) + ADR 0018
+  (cache mounts Go intactos). Regla de oro #1 cumplida (ADR 0050).
+  Regla de oro #2 cumplida (shell factorizado, sin monolitos)
+Ingeniero: index.html (title + lang), app.css (var --brand-emphasis +
+  bloque shell/sidebar/footer 60 LOC + media query mobile), shell.js
+  (NUEVO 78 LOC), dashboardHomeView.js (NUEVO 21 LOC), router.js
+  (+goInstances/+renderDashboardHome import; goDashboard → home),
+  dashboardView.js (refactor para consumir renderShell, strings pt-BR
+  → es-ES mid-corrida por pedido del usuario)
+Verificador: PASS — node --check verde en los 4 JS. Render headless con
+  Playwright + mock fetch: desktop dashboard / desktop instancias /
+  mobile (390x844) sin errores en consola; sidebar / topbar / footer /
+  navegación click verificados. Screenshots capturados.
+Integración: N/A (carril único — manager/dist)
+Iteraciones: 1/3 (1 fix tras 1ª pasada: gap vertical en mobile, se
+  agregó grid-template-rows: auto 1fr)
+Escalación: none
+Pendientes (Fase 2): vista detalle de instancia con Informações da
+  Instância + Configurações de Webhook + Configurações Avançadas +
+  Zona de Perigo expandidos inline (reemplaza modales de Sesión).
+  Modales de Operar (Enviar/Grupos/etc.) NO se tocan.
+Cierre: 2026-05-28

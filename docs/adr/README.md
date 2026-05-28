@@ -13,6 +13,7 @@ decisión, alternativas y consecuencias.
 | ADR | Título |
 |----|--------|
 | 0018 | Adopción de El Crisol (loop de calidad) |
+| 0050 | Restaurar look "WebAPP-Wago" (shell sidebar + topbar + footer) |
 | 0019 | Rebuild del panel: vanilla, sin build |
 | 0020 | Regla de Oro: código factorizado |
 | 0021 | Identidad visual del panel (Evolution) |
