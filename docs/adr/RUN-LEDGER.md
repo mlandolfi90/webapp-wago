@@ -1230,3 +1230,47 @@ Iteraciones: 1/3 (5 fixes intra-corrida solo del test script —
   re-planificación).
 Escalación: none
 Cierre: 2026-05-29 (SHAs A=8482745, B=cc51adc, C al push final)
+
+## RUN webui-dashboard-real-metrics-01
+STATUS: CLOSED
+Branch: claude/build-webui-AcJFe
+Tier: completo (cierra Dashboard placeholder con datos reales)
+Alcance: reemplazar las 4 KPIs placeholder del Dashboard ("—") con
+  métricas reales: Instancias (count de /instance/all), Conectadas
+  (filter connected:true), Webhooks activos (enabled/total agregando
+  con useQueries paralelo sobre cada token de instancia). Mensajes
+  hoy queda como "—" honesto: el backend no expone counter sin
+  polling pesado.
+Carriles: único — frontend (Dashboard.tsx + i18n strings).
+Planificador: contrato congelado — useQuery para /instance/all
+  con refetch cada 30s, useQueries paralelo para webhooks
+  per-instance con retry:0 (errores per-token toleran). Total/active
+  agregados en render. data-testid="kpi-{key}" para selectors
+  estables de Playwright.
+Arquitecto: APPROVE — sin cambios arquitectónicos. Reutiliza los
+  clientes API existentes (instances.ts + webhooks.ts). Sin ADR
+  nueva (no aplica REGLA ORO #1). Factorización mantenida — el
+  Dashboard sigue siendo un único archivo cohesivo. Mobile-first:
+  grid sm:cols-2 lg:cols-4 (corrida actual mantiene corrida 3+4).
+Ingeniero: manager-src/src/pages/Dashboard.tsx (refactor completo
+  a useQuery + useQueries; KPI values dinámicos; botón Actualizar
+  con spinner; data-testid en cada card); manager-src/src/lib/i18n/
+  locales/{es,pt}.json (cambia placeholderNote por tip más útil).
+Defectos encontrados (1 — del backend, no del Dashboard):
+  - Backend POST /webhook con enabled:false termina como
+    enabled:true (GORM `gorm:"default:true"` aplica al zero-value
+    bool de Go aunque el JSON envíe false). Workaround en el test:
+    crear con enabled:true → PUT explícito con enabled:false. El
+    Dashboard lee correctamente el campo cuando viene del backend.
+    El bug del backend NO es scope de esta corrida; lo dejo
+    documentado para futura ADR/corrida (involucra cambiar el
+    model o el toModel para usar puntero, breaking).
+Verificador: PASS 11/11 — Playwright desktop 1280x720 y mobile
+  390x844. Cubre: empty state (0/0/—/0/0), con 2 instancias + 3
+  webhooks (1 disabled vía PUT) muestra 2/0/—/2/3, mobile cards
+  apiladas sin scroll horizontal. Sin errores de consola.
+Integración: PASS — imagen Docker rebuildeada con el nuevo
+  Dashboard.tsx; el backend no cambió.
+Iteraciones: 1/3 (1 fix del test para sortear el bug GORM).
+Escalación: none
+Cierre: 2026-05-29 (SHA al push final)

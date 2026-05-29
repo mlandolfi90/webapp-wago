@@ -36,7 +36,7 @@
       "messagesToday": "Mensajes hoy",
       "webhooksActive": "Webhooks activos"
     },
-    "placeholderNote": "Placeholder — métricas reales en una corrida futura."
+    "tip": "Webhooks activos = enabled / total. Mensajes hoy pendiente de endpoint backend."
   },
   "instances": {
     "title": "Instancias",
