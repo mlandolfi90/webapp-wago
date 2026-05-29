@@ -1010,3 +1010,67 @@ Integración: N/A (carril único)
 Iteraciones: 1/3 (1 fix de tsconfig project-references)
 Escalación: none
 Cierre: 2026-05-29 commit b3be3f1
+
+## RUN webui-react-bootstrap-02-verify
+STATUS: CLOSED
+Branch: claude/build-webui-AcJFe
+Tier: completo (extiende corrida 01 con verificación E2E real:
+  Postgres + Wago en Docker + Playwright headless; 2 defectos
+  encontrados y corregidos)
+Alcance: verificación end-to-end con browser headless del bootstrap
+  React contra backend Go real. Suite Playwright de 20 checks
+  cubre: redirect a /login sin auth, `<title>`, marca WebAPP-Wago,
+  notice "Powered by Evolution Manager" en login y footer del Shell
+  con link correcto, botón submit deshabilitado sin key, login con
+  key inválida muestra error en es-ES, login con key correcta
+  navega a /dashboard, sidebar con Dashboard+Instancias, header
+  con Swagger+Salir+ThemeToggle, footer del Shell con notice,
+  KPIs renderizan, theme toggle cambia data-theme y persiste en
+  localStorage, logout limpia apikey y vuelve a /login, 0
+  errores de consola genuinos (1 esperado del 401 del test
+  intencionalmente fallido).
+Defectos encontrados y corregidos (2):
+  1) pkg/routes/routes.go — el handler /manager/*any del backend
+     servía index.html con MIME text/html para los assets de Vite
+     (/manager/assets/*.js), causando que Chromium rechazara los
+     ES modules por strict MIME checking. Fix: handler que stat-
+     ea el archivo en disco antes de caer al SPA fallback (Gin
+     no permite Static("/manager/assets") junto con catch-all
+     /manager/*any por conflict de patterns).
+  2) manager-src/src/layouts/Shell.tsx — el grid template hacía
+     que <main> y <header> ocuparan la MISMA celda en desktop
+     (col-start-2 row-start-1) lo que provocaba que main
+     interceptara los clicks del ThemeToggle. Fix: grid-rows-
+     [auto_1fr_auto] uniforme en ambos breakpoints, sidebar con
+     md:row-span-3, header/main/footer en rows 1/2/3 sin solape.
+Carriles: único — verify+fix-pipeline (route handler + Shell grid;
+  ambos editados por el mismo ingeniero secuencialmente).
+Planificador: Postgres 16-alpine local + Wago contenedor
+  apuntando a PG_IP con GLOBAL_API_KEY=test-key-12345; Playwright
+  chromium headless con suite de 20 asserts contra
+  http://localhost:4000/manager/.
+Arquitecto: APPROVE — ambos fixes son point-fixes (handler de
+  estáticos + grid Tailwind); no rompen contratos; no nacen ADRs
+  nuevos porque son fixes de corrida y no decisiones
+  arquitectónicas. ADR 0053/0054 + nota 0010 siguen vigentes
+  como fuente de verdad del diseño.
+Ingeniero: pkg/routes/routes.go (+ import os, path/filepath;
+  managerHandler con os.Stat+filepath.Clean; preserva /assets
+  compat vanilla); manager-src/src/layouts/Shell.tsx (refactor
+  del grid: grid-cols-1 md:grid-cols-[260px_1fr] + grid-rows-
+  [auto_1fr_auto] + aside md:row-span-3; header/main/footer en
+  rows 1/2/3 col-start-2 en md).
+Verificador: PASS 20/20 — Playwright headless contra Wago real
+  con Postgres real reporta todos los checks verdes (login en
+  ambos paths happy+sad, navegación, theme toggle persistente,
+  logout, ausencia de errores de consola); 3 screenshots de
+  evidencia (01-login.png + 02-dashboard-dark.png + 03-dashboard
+  -light.png) generados en /tmp/wago-verify/.
+Integración: PASS — la imagen Docker resultante (webapp-wago:
+  latest, 298 MB) corre contra Postgres 16-alpine, sirve el SPA
+  React, valida apikeys contra GLOBAL_API_KEY y atribuye
+  visiblemente al proyecto original Evolution Manager v2.
+Iteraciones: 2/3 (iter 1 = corrida 01; iter 2 = 2 fixes de esta
+  corrida).
+Escalación: none
+Cierre: 2026-05-29 (commit SHA al final del push)

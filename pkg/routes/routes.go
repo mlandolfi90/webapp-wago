@@ -2,6 +2,8 @@ package routes
 
 import (
 	"net/http"
+	"os"
+	"path/filepath"
 
 	"github.com/gin-gonic/gin"
 	swaggerFiles "github.com/swaggo/files"
@@ -66,13 +68,25 @@ func (r *Routes) AssignRoutes(eng *gin.Engine) {
 	})
 
 	// Rotas para o gerenciador React (sem autenticação)
+	// Compat vanilla (ADR 0019 deprecado): el bundle vanilla pedía /assets/.
 	eng.Static("/assets", "./manager/dist/assets")
 
-	// Ajuste nas rotas do manager para suportar client-side routing do React
-	eng.GET("/manager/*any", func(c *gin.Context) {
+	// SPA React (ADR 0053): Vite emite assets con base /manager/. Gin no
+	// permite un Static("/manager/assets") junto con un catch-all
+	// "/manager/*any" (conflict de patterns), así que el catch-all sirve
+	// el archivo si existe en disco, else cae al index.html (SPA fallback).
+	managerHandler := func(c *gin.Context) {
+		rel := c.Param("any")
+		if rel != "" && rel != "/" {
+			full := filepath.Join("manager/dist", filepath.Clean("/"+rel))
+			if info, err := os.Stat(full); err == nil && !info.IsDir() {
+				c.File(full)
+				return
+			}
+		}
 		c.File("manager/dist/index.html")
-	})
-
+	}
+	eng.GET("/manager/*any", managerHandler)
 	eng.GET("/manager", func(c *gin.Context) {
 		c.File("manager/dist/index.html")
 	})

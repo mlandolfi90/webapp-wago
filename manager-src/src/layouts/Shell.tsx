@@ -23,8 +23,8 @@ export function Shell() {
   ]
 
   return (
-    <div className="grid min-h-screen grid-rows-[auto_1fr_auto] bg-background text-foreground md:grid-cols-[260px_1fr] md:grid-rows-[1fr_auto]">
-      <aside className="row-start-2 hidden border-r border-border bg-card/40 px-4 py-6 md:col-start-1 md:row-start-1 md:flex md:flex-col">
+    <div className="grid min-h-screen grid-cols-1 grid-rows-[auto_1fr_auto] bg-background text-foreground md:grid-cols-[260px_1fr]">
+      <aside className="hidden border-r border-border bg-card/40 px-4 py-6 md:col-start-1 md:row-span-3 md:flex md:flex-col">
         <BrandHeader />
         <nav className="mt-6 flex flex-col gap-1">
           {navItems.map((item) => (
@@ -45,12 +45,10 @@ export function Shell() {
             </NavLink>
           ))}
         </nav>
-        <div className="mt-auto pt-4 text-xs text-muted-foreground">
-          v0.1.0
-        </div>
+        <div className="mt-auto pt-4 text-xs text-muted-foreground">v0.1.0</div>
       </aside>
 
-      <header className="row-start-1 flex items-center justify-between border-b border-border bg-card/40 px-4 py-3 md:col-start-2 md:row-start-1">
+      <header className="row-start-1 flex items-center justify-between border-b border-border bg-card/40 px-4 py-3 md:col-start-2">
         <div className="flex items-center gap-3 md:hidden">
           <BrandHeader compact />
         </div>
@@ -70,13 +68,13 @@ export function Shell() {
         </div>
       </header>
 
-      <main className="row-start-2 overflow-y-auto px-4 py-6 md:col-start-2 md:row-start-1 md:row-end-2">
+      <main className="row-start-2 overflow-y-auto px-4 py-6 md:col-start-2">
         <div className="mx-auto max-w-6xl">
           <Outlet />
         </div>
       </main>
 
-      <footer className="row-start-3 border-t border-border bg-card/40 px-4 py-3 text-center text-xs text-muted-foreground md:col-span-2 md:col-start-1">
+      <footer className="row-start-3 border-t border-border bg-card/40 px-4 py-3 text-center text-xs text-muted-foreground md:col-start-2">
         <span>WebAPP-Wago © 2026 · </span>
         <a
           className="underline decoration-dotted hover:text-brand"
