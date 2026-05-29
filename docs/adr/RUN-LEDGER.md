@@ -1314,3 +1314,41 @@ Integración: PASS — imagen Docker rebuildeada (backend cambió). El
 Iteraciones: 1/3 (sin fixes; tests pasaron al primer intento).
 Escalación: none
 Cierre: 2026-05-29 (SHA al push)
+
+## RUN webui-code-splitting-01
+STATUS: CLOSED
+Branch: claude/build-webui-AcJFe
+Tier: completo (refactor de routing + tooling — observable en bundle output)
+Alcance: dividir el bundle React (510 KB main warning) en chunks
+  separados via lazy routes (cada página un chunk) + manualChunks
+  para libs gordas estables (react-router, tanstack-query,
+  radix-ui, i18next). Reduce el JS necesario en el primer paint
+  desde 510 KB → 78 KB main + chunks separados que cargan on-demand.
+Carriles: único — frontend (router + vite.config).
+Planificador: lazy de las 5 páginas (Login, Dashboard, Instances,
+  InstanceConfig, NotFound) con Suspense fallback (spinner brand).
+  manualChunks por id que matchea node_modules de las 4 libs
+  identificadas como estables y >40 KB cada una.
+Arquitecto: APPROVE — sin cambios funcionales ni de contrato.
+  Mejora performance del first paint y mejora la cacheabilidad de
+  libs entre deploys (el chunk vendor-router no cambia salvo bump
+  de versión). Sin ADR nueva — es optimización de tooling, no
+  decisión arquitectónica.
+Ingeniero: manager-src/src/router.tsx (refactor a React.lazy + Suspense
+  con PageFallback spinner accesible aria-live=polite + helper
+  lazyPage(Component)); manager-src/vite.config.ts (build.rollupOptions
+  .output.manualChunks por id-test).
+Verificador: PASS — vite build muestra 17 chunks separados:
+  index principal cae a 78.03 KB (gz 24.51 KB) desde 514.13 KB
+  (gz 160.48 KB) = -85%; vendor-router 198 KB lazy; vendor-radix
+  82 KB lazy; vendor-i18n 58 KB lazy; vendor-query 50 KB lazy;
+  páginas en chunks de 0.65-32 KB cada una. Playwright suite
+  Dashboard 11/11 PASS (lazy + Suspense en carga inicial OK).
+  Playwright suite Instances 25/25 PASS (lazy de InstanceConfig +
+  WebhookList sin regresión).
+Integración: PASS — imagen Docker rebuildeada con el nuevo bundle.
+  Backend no cambió.
+Iteraciones: 1/3 (sin fixes; lazy + Suspense compiló al primer
+  intento sin errors TS strict).
+Escalación: none
+Cierre: 2026-05-29 (SHA al push)

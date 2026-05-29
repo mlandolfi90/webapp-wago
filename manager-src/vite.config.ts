@@ -27,5 +27,29 @@ export default defineConfig({
     outDir: 'dist',
     emptyOutDir: true,
     sourcemap: false,
+    // Code splitting: cada librería gorda a su propio chunk para que el
+    // browser pueda cachearla independientemente de los chunks de las
+    // páginas (que cambian con cada deploy). React Router, TanStack Query
+    // y Radix primitives son los 3 candidatos por tamaño/estabilidad.
+    rollupOptions: {
+      output: {
+        manualChunks(id: string) {
+          if (id.includes('node_modules/react-router') ||
+              id.includes('node_modules/@remix-run')) {
+            return 'vendor-router'
+          }
+          if (id.includes('node_modules/@tanstack')) {
+            return 'vendor-query'
+          }
+          if (id.includes('node_modules/@radix-ui')) {
+            return 'vendor-radix'
+          }
+          if (id.includes('node_modules/i18next') ||
+              id.includes('node_modules/react-i18next')) {
+            return 'vendor-i18n'
+          }
+        },
+      },
+    },
   },
 })
