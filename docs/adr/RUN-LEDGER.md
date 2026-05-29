@@ -1146,3 +1146,87 @@ Iteraciones: 1/3 (2 fixes intra-corrida durante el verificador,
   cada uno < 5 LOC, no contaron como re-planificación).
 Escalación: none
 Cierre: 2026-05-29 commit a76710a
+
+## RUN webui-transports-settings-connect-01
+STATUS: CLOSED
+Branch: claude/build-webui-AcJFe
+Tier: completo (3 carriles secuenciales: backend + frontend paneles +
+  responsive QA; toca contrato del modelo Webhook + 5 paneles nuevos
+  + 4 cliente API + ADR nueva)
+Alcance: cierra las 3 features pendientes en una sola corrida.
+  Carril A: extender modelo Webhook con 3 transports per-webhook
+  (RabbitMQ/WebSocket/NATS) booleanos + Dispatch que respeta los flags
+  + 4 tests + ADR 0055. Carril B: 5 paneles nuevos en
+  components/instance-config/ (Settings, Proxy, Conexión con QR poll,
+  Sender de prueba, Zona de peligro con confirm fuerte) + 4 cliente
+  API nuevos + WebhookFormDialog actualizado con 3 toggles de
+  transports + refactor InstanceConfig a sidebar interno desktop +
+  dropdown mobile. Carril C: suite Playwright extendida (24 checks
+  desktop + mobile) contra Wago real + Postgres real.
+Carriles: 3 secuenciales (A → B → C). Tocan archivos compartidos
+  (lib/types.ts, WebhookFormDialog.tsx, InstanceConfig.tsx) — no
+  paralelos.
+Planificador: contratos congelados pre-codear: backend extiende
+  Webhook con 3 bool defaults false; Dispatch respeta producers nil
+  (config global apagada); cliente API per-webhook usa token de
+  instancia (mismo patrón que webhooks.ts). Mobile-first: dialogs
+  max-h-90vh + width calc(100vw-2rem), sidebar interno colapsa a
+  Select dropdown <768px.
+Arquitecto: APPROVE — ADR 0055 deposita el cambio arquitectónico
+  (REGLA ORO #1). Factorización por dominio: cada panel en su
+  archivo bajo components/instance-config/ (REGLA ORO #2). Cliente
+  API uno por dominio (settings/proxy/connection/sendMessage).
+  Setter SetTransports en vez de constructor extendido para no
+  romper callers existentes ni tests del backend.
+Ingeniero: 3 commits secuenciales.
+  Carril A (commit 8482745): pkg/webhook/model/webhook_model.go +3
+    fields; pkg/webhook/service/webhook_service.go (WebhookInput +3
+    *bool, struct +3 producers, SetTransports en interface, toModel
+    copia los 3, Dispatch publica nil-safe); cmd/webapp-wago/main.go
+    (SetTransports tras NewWebhookService); webhook_service_test.go
+    (+4 tests: HTTPOnlyByDefault/AllTransports/SelectiveTransports/
+    NilSafe); docs/adr/0055-webhook-transports-per-webhook.md.
+  Carril B (commit cc51adc): manager-src/src/{lib/types.ts +6 tipos
+    +3 fields Webhook, lib/api/{settings,proxy,connection,sendMessage}
+    .ts (4 nuevos), components/instance-config/{Settings,Proxy,
+    Connection,SendTest,DangerZone}Panel.tsx (5 nuevos), components/
+    webhook/WebhookFormDialog.tsx (+3 toggles), components/ui/dialog
+    .tsx (max-h-90vh + overflow-y-auto + width responsive), pages/
+    InstanceConfig.tsx (refactor a sidebar interno + dropdown mobile
+    con 7 secciones), lib/i18n/locales/{es,pt}.json (+~80 strings).
+  Carril C (commit pendiente): RUN-LEDGER + nothing-else (la suite
+    Playwright vive en /tmp).
+Defectos encontrados y corregidos durante verificación (0 del
+  panel — todos del test script):
+  - Test 4: selector `nav button[role="tab"]` ambiguo (Shell global
+    también tiene <nav>). Fix: `button[role="tab"][aria-selected]`.
+  - Test 7: timing del toast sonner; subido a 3000ms y check con
+    `[data-sonner-toast]` genérico.
+  - Test 8: Badge es <div> no <span>. Fix: `text=` plano.
+  - Test 13: "Zona de peligro" aparece en sidebar+dropdown+panel
+    título. Fix: selector específico al botón.
+  - Test 16: 400 esperado al guardar proxy.example.com (no
+    alcanzable). Fix: filtra 400 además de 401/500.
+Verificador: PASS 24/24 — Playwright headless contra Wago real con
+  Postgres real, viewports desktop (1280x720) y mobile (390x844).
+  Cubre: sidebar interno 7 secciones, Settings PUT con toggle +
+  msgRejectCall, Proxy save con feedback, Conexión status badge,
+  Sender form, Webhook form con 3 transports nuevos, GET /webhook
+  devuelve `natsEnable:true` (validación end-to-end del ADR 0055),
+  DangerZone confirm fuerte (disabled vacío → disabled mal nombre →
+  enabled con nombre exacto), mobile sidebar oculto + dropdown +
+  sin scroll horizontal + dialog max-h-90vh + scroll interno.
+  Backend: `go test ./pkg/webhook/... -count=1` PASS con 4 tests
+  nuevos en verde. 7 screenshots de evidencia (4 desktop + 3
+  mobile).
+Integración: PASS — Imagen Docker rebuildeada (298 MB) con
+  backend extendido + bundle React extendido (509 KB JS, 22.85 KB
+  CSS). MIMEs correctos. Backend acepta y persiste los 3 nuevos
+  campos via GORM AutoMigrate. ADR 0055 verificada end-to-end
+  (frontend manda `natsEnable:true`, backend persiste, GET
+  devuelve el campo en el response).
+Iteraciones: 1/3 (5 fixes intra-corrida solo del test script —
+  ninguno del panel ni del backend; no cuentan como
+  re-planificación).
+Escalación: none
+Cierre: 2026-05-29 (SHAs A=8482745, B=cc51adc, C al push final)
