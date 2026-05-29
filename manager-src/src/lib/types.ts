@@ -42,6 +42,10 @@ export type Webhook = {
   chatNames: string[] | null
   senderNames: string[] | null
   ignoreFromMe: boolean
+  // ADR 0055
+  rabbitmqEnable: boolean
+  websocketEnable: boolean
+  natsEnable: boolean
   createdAt: string
   updatedAt: string
 }
@@ -56,6 +60,51 @@ export type WebhookInput = {
   chatNames?: string[]
   senderNames?: string[]
   ignoreFromMe?: boolean
+  rabbitmqEnable?: boolean
+  websocketEnable?: boolean
+  natsEnable?: boolean
+}
+
+export type AdvancedSettings = {
+  alwaysOnline: boolean
+  rejectCall: boolean
+  msgRejectCall: string
+  readMessages: boolean
+  ignoreGroups: boolean
+  ignoreStatus: boolean
+  ignoreFromMe: boolean
+}
+
+export type ProxyConfig = {
+  protocol: 'http' | 'https' | 'socks5'
+  host: string
+  port: number
+  username?: string
+  password?: string
+}
+
+export type ConnectionStatus = {
+  Connected: boolean
+  LoggedIn: boolean
+  myJid: string
+  Name: string
+}
+
+export type ConnectResponse = {
+  jid: string
+  webhookUrl: string
+  eventString: string
+}
+
+export type QrResponse = {
+  Qrcode: string
+  Code: string
+}
+
+export type SendTextInput = {
+  number: string
+  text: string
+  delay?: number
 }
 
 export type InstanceCreateInput = {

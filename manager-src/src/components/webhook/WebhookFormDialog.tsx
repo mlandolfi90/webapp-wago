@@ -70,6 +70,10 @@ export function WebhookFormDialog({
   const [ignoreFromMe, setIgnoreFromMe] = useState(true)
   const [eventsText, setEventsText] = useState(KNOWN_EVENTS.join('\n'))
   const [filter, setFilter] = useState<FilterFieldsValue>(emptyFilter)
+  // ADR 0055: transports per-webhook.
+  const [rabbitmqEnable, setRabbitmqEnable] = useState(false)
+  const [websocketEnable, setWebsocketEnable] = useState(false)
+  const [natsEnable, setNatsEnable] = useState(false)
 
   useEffect(() => {
     if (!open) return
@@ -85,12 +89,18 @@ export function WebhookFormDialog({
         chatNames: listToText(initial.chatNames),
         senderNames: listToText(initial.senderNames),
       })
+      setRabbitmqEnable(initial.rabbitmqEnable ?? false)
+      setWebsocketEnable(initial.websocketEnable ?? false)
+      setNatsEnable(initial.natsEnable ?? false)
     } else {
       setUrl('')
       setEnabled(true)
       setIgnoreFromMe(true)
       setEventsText(KNOWN_EVENTS.join('\n'))
       setFilter(emptyFilter)
+      setRabbitmqEnable(false)
+      setWebsocketEnable(false)
+      setNatsEnable(false)
     }
   }, [open, initial])
 
@@ -104,6 +114,9 @@ export function WebhookFormDialog({
     senders: textToList(filter.senders),
     chatNames: textToList(filter.chatNames),
     senderNames: textToList(filter.senderNames),
+    rabbitmqEnable,
+    websocketEnable,
+    natsEnable,
   })
 
   const mutation = useMutation({
@@ -184,6 +197,35 @@ export function WebhookFormDialog({
           <div>
             <h4 className="mb-3 text-sm font-medium">{t('webhook.filterSection')}</h4>
             <WebhookFilterFields value={filter} onChange={setFilter} />
+          </div>
+
+          <Separator />
+
+          <div>
+            <h4 className="mb-3 text-sm font-medium">{t('webhook.transportsSection')}</h4>
+            <p className="mb-3 text-xs text-muted-foreground">
+              {t('webhook.transportsHint')}
+            </p>
+            <div className="flex flex-wrap gap-x-6 gap-y-3">
+              <ToggleRow
+                id="rabbitmqEnable"
+                checked={rabbitmqEnable}
+                onCheckedChange={setRabbitmqEnable}
+                label="RabbitMQ"
+              />
+              <ToggleRow
+                id="websocketEnable"
+                checked={websocketEnable}
+                onCheckedChange={setWebsocketEnable}
+                label="WebSocket"
+              />
+              <ToggleRow
+                id="natsEnable"
+                checked={natsEnable}
+                onCheckedChange={setNatsEnable}
+                label="NATS"
+              />
+            </div>
           </div>
 
           <DialogFooter>
