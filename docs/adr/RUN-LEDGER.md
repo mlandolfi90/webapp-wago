@@ -1274,3 +1274,43 @@ Integración: PASS — imagen Docker rebuildeada con el nuevo
 Iteraciones: 1/3 (1 fix del test para sortear el bug GORM).
 Escalación: none
 Cierre: 2026-05-29 (SHA al push final)
+
+## RUN webhook-gorm-default-bool-fix-01
+STATUS: CLOSED
+Branch: claude/build-webui-AcJFe
+Tier: completo (bug fix de contrato observable en backend; descubierto
+  por la corrida anterior `webui-dashboard-real-metrics-01` cuando
+  Playwright vio "3/3" donde debía ser "2/3")
+Alcance: quitar el tag GORM `default:true` de los dos campos bool del
+  modelo Webhook (Enabled, IgnoreFromMe). El default ya vive en
+  webhook_service.toModel(); el tag era redundante y conflictivo
+  porque GORM aplica el default al zero-value bool de Go (false),
+  pisando un POST explícito con enabled:false / ignoreFromMe:false.
+Carriles: único — backend (model + tests).
+Planificador: ningún cambio en el contrato API. El service ya
+  manejaba el default correctamente vía `*bool` en WebhookInput. Sólo
+  se elimina la doble-fuente-de-verdad del default (model tag +
+  service code). Registros existentes no migran (todos ya tienen un
+  valor persistido).
+Arquitecto: APPROVE — bug fix puro. Sin ADR nueva (no cambia el
+  contrato observable de la API ni el modelo desde Go; cambia el
+  comportamiento de POST/PUT que ahora respeta el valor explícito).
+  Sin scope creep — bug fix encontrado por test propio.
+Ingeniero: pkg/webhook/model/webhook_model.go (quita
+  `gorm:"default:true"` de Enabled e IgnoreFromMe + comentarios
+  explicando dónde vive ahora el default); pkg/webhook/service/
+  webhook_service_test.go (+3 tests: TestToModelEnabledFalseRespects
+  Explicit, TestToModelEnabledOmittedDefaultsTrue,
+  TestToModelIgnoreFromMeFalseRespectsExplicit).
+Verificador: PASS — `go test ./pkg/webhook/... -count=1` PASS
+  incluyendo los 3 nuevos tests y todos los anteriores. Verificación
+  E2E manual con curl: POST /webhook con {"enabled":false} ahora
+  devuelve "enabled":false en el body Y un GET subsiguiente también
+  retorna false (antes ambos devolvían true). Verificación E2E
+  Playwright: corrida 11/11 PASS del Dashboard re-ejecutada sin el
+  workaround del PUT-explícito; el POST persiste correctamente.
+Integración: PASS — imagen Docker rebuildeada (backend cambió). El
+  frontend no se tocó.
+Iteraciones: 1/3 (sin fixes; tests pasaron al primer intento).
+Escalación: none
+Cierre: 2026-05-29 (SHA al push)

@@ -616,3 +616,35 @@ func TestDispatchTransportNilSafe(t *testing.T) {
 		t.Fatalf("HTTP debió dispararse pese a producers nil, hubo %d", len(http.calls))
 	}
 }
+
+// Regresión del bug GORM `default:true` que descubrió la corrida
+// `webui-dashboard-real-metrics-01` (Playwright vio "3/3" cuando
+// esperaba "2/3"). El bug vivía en el tag del model — un POST con
+// enabled:false terminaba como true porque GORM aplica el default al
+// zero-value bool. El service ya manejaba el default en toModel(); el
+// tag GORM era redundante y conflictivo.
+func TestToModelEnabledFalseRespectsExplicit(t *testing.T) {
+	enabledFalse := false
+	in := &WebhookInput{URL: "https://x/", Enabled: &enabledFalse}
+	w := toModel("inst-1", in)
+	if w.Enabled != false {
+		t.Fatalf("expected Enabled=false, got %v", w.Enabled)
+	}
+}
+
+func TestToModelEnabledOmittedDefaultsTrue(t *testing.T) {
+	in := &WebhookInput{URL: "https://x/"} // Enabled ausente
+	w := toModel("inst-1", in)
+	if w.Enabled != true {
+		t.Fatalf("expected Enabled=true (default), got %v", w.Enabled)
+	}
+}
+
+func TestToModelIgnoreFromMeFalseRespectsExplicit(t *testing.T) {
+	ifFalse := false
+	in := &WebhookInput{URL: "https://x/", IgnoreFromMe: &ifFalse}
+	w := toModel("inst-1", in)
+	if w.IgnoreFromMe != false {
+		t.Fatalf("expected IgnoreFromMe=false, got %v", w.IgnoreFromMe)
+	}
+}

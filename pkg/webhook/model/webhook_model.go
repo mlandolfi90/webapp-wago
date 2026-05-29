@@ -24,7 +24,10 @@ type Webhook struct {
 	ID         string `json:"id" gorm:"type:uuid;primaryKey"`
 	InstanceID string `json:"instanceId" gorm:"type:uuid;index;not null"`
 	URL        string `json:"url" gorm:"not null"`
-	Enabled    bool   `json:"enabled" gorm:"default:true"`
+	// No `default:true` — GORM aplica el default cuando ve el zero-value
+	// del campo Go (false), lo que pisaba un POST explícito con
+	// enabled:false. El default vive en webhook_service.toModel().
+	Enabled bool `json:"enabled"`
 
 	// Filtro inline. Allowlist semantics: vacío = no filtra esa dimensión.
 	// Dimensiones JID: ChatIDs/Senders (matchean contra el JID del
@@ -40,10 +43,10 @@ type Webhook struct {
 	SenderNames []string `json:"senderNames" gorm:"serializer:json"`
 
 	// WAGO-PATCH(ADR-0049): equivalente per-webhook del flag legacy.
-	// Default true: ignora Info.IsFromMe == true para romper loops
-	// (webhook → consumer → /send/text → ...). Quien necesite auditar
-	// salientes lo destilda en el form.
-	IgnoreFromMe bool `json:"ignoreFromMe" gorm:"default:true"`
+	// Default true vive en webhook_service.toModel() — el tag GORM
+	// `default:true` se quitó porque pisaba un POST explícito con
+	// ignoreFromMe:false (mismo bug que Enabled).
+	IgnoreFromMe bool `json:"ignoreFromMe"`
 
 	// WAGO-PATCH(ADR-0055): transports adicionales per-webhook. Por
 	// default solo se dispara el POST HTTP a URL; si alguno de estos 3
