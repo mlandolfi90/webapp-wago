@@ -875,3 +875,31 @@ Integración: N/A (carril único — manager/dist)
 Iteraciones: 1/3
 Escalación: none
 Cierre: 2026-05-28
+
+## RUN webui-restyle-webapp-003
+STATUS: CLOSED
+Branch: claude/build-webui-AcJFe
+Tier: completo (paridad pixel-near del login con el bundle pre-rebuild)
+Alcance: regresión técnica del bundle pre-rebuild (commit cba0d60,
+  React minificado) en un worktree + servidor SPA aware + screenshots
+  reales del look que el usuario amaba. Replicado el login en vanilla:
+  branding "WebAPP-Wago" grande centrado, card con sombra, 2 inputs
+  (URL API + API Key), tip gris explicando GLOBAL_API_KEY, botón verde
+  block, footer Términos/Privacidad, gradiente verde sutil de fondo
+  (radial-gradient desde 110%). En es-ES como pidió el usuario.
+Planificador: regresión del bundle viejo en /tmp/oldwago via git
+  worktree b2c87ab~1 + python SPA fallback en :8766; capturas
+  comparativas; identificación de gaps en mi loginView vs el viejo
+Arquitecto: APPROVE — cambio CSS+1 JS sin tocar backend; preserva ADRs
+  0018/0019/0050/0051; tokens theme-aware ya disponibles
+Ingeniero: features/auth/loginView.js (rewrite con 2 inputs + tip +
+  footer + brand grande), app.css (bloque .login-* nuevo con gradiente
+  verde radial + tip card + foot links; medias para mobile)
+Verificador: PASS — node --check verde; render headless dark+light
+  desktop+mobile (4 capturas); match visual confirmado contra el
+  bundle viejo en /tmp/o-login.png; sidebar/topbar/footer del shell
+  intactos (login NO usa shell)
+Integración: N/A (carril único — manager/dist)
+Iteraciones: 1/3
+Escalación: none
+Cierre: 2026-05-28
