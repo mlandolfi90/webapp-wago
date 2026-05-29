@@ -45,6 +45,16 @@ type Webhook struct {
 	// salientes lo destilda en el form.
 	IgnoreFromMe bool `json:"ignoreFromMe" gorm:"default:true"`
 
+	// WAGO-PATCH(ADR-0055): transports adicionales per-webhook. Por
+	// default solo se dispara el POST HTTP a URL; si alguno de estos 3
+	// está en true, el mismo evento (post-filtro) además se publica al
+	// transport global configurado (RabbitMQ exchange, NATS subject, o
+	// WebSocket broadcaster). Queue/subject custom per-webhook NO se
+	// soporta — se usa la cola global de la instancia (out-of-scope ADR).
+	RabbitmqEnable  bool `json:"rabbitmqEnable"  gorm:"default:false"`
+	WebsocketEnable bool `json:"websocketEnable" gorm:"default:false"`
+	NatsEnable      bool `json:"natsEnable"      gorm:"default:false"`
+
 	CreatedAt time.Time `json:"createdAt" gorm:"autoCreateTime"`
 	UpdatedAt time.Time `json:"updatedAt" gorm:"autoUpdateTime"`
 }

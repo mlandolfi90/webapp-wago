@@ -168,6 +168,9 @@ func setupRouter(db *gorm.DB, authDB *sql.DB, sqliteDB *sql.DB, config *config.C
 	webhookRepository := webhook_repository.NewWebhookRepository(db)
 	nameResolver := webhook_resolver.NewWagoResolver(clientPointer)
 	webhookService := webhook_service.NewWebhookService(webhookRepository, webhookProducer, loggerWrapper, nameResolver)
+	// WAGO-PATCH(ADR-0055): wire transports per-webhook. Cualquiera puede
+	// ser nil — Dispatch chequea antes de publicar.
+	webhookService.SetTransports(rabbitmqProducer, websocketProducer, natsProducer)
 
 	whatsmeowService := whatsmeow_service.NewWhatsmeowService(
 		instanceRepository,

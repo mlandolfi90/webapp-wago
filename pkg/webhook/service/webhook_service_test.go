@@ -523,3 +523,96 @@ func TestValidateRejectsBadInput(t *testing.T) {
 		})
 	}
 }
+
+// WAGO-PATCH(ADR-0055): transports per-webhook. Verifica que el flag
+// per-webhook controla la publicación a cada producer global
+// (rabbitmq/websocket/nats) además del HTTP base.
+
+func TestDispatchHTTPOnlyByDefault(t *testing.T) {
+	http := &fakeProducer{}
+	rmq := &fakeProducer{}
+	ws := &fakeProducer{}
+	nats := &fakeProducer{}
+	s := &webhookService{producer: http, cache: map[string][]webhook_model.Webhook{}}
+	s.SetTransports(rmq, ws, nats)
+	s.cache["I"] = []webhook_model.Webhook{
+		// Defaults: todos transports off — solo POST HTTP.
+		{ID: "1", InstanceID: "I", URL: "https://x/", Enabled: true, ChatType: "any"},
+	}
+
+	s.Dispatch("I", "MESSAGE", "g@g.us", "u@s", false, []byte(`{}`))
+
+	if len(http.calls) != 1 {
+		t.Fatalf("HTTP esperaba 1 dispatch, tuvo %d", len(http.calls))
+	}
+	if len(rmq.calls) != 0 || len(ws.calls) != 0 || len(nats.calls) != 0 {
+		t.Fatalf("ningún transport debió dispararse: rmq=%d ws=%d nats=%d",
+			len(rmq.calls), len(ws.calls), len(nats.calls))
+	}
+}
+
+func TestDispatchAllTransports(t *testing.T) {
+	http := &fakeProducer{}
+	rmq := &fakeProducer{}
+	ws := &fakeProducer{}
+	nats := &fakeProducer{}
+	s := &webhookService{producer: http, cache: map[string][]webhook_model.Webhook{}}
+	s.SetTransports(rmq, ws, nats)
+	s.cache["I"] = []webhook_model.Webhook{
+		{ID: "1", InstanceID: "I", URL: "https://x/", Enabled: true, ChatType: "any",
+			RabbitmqEnable: true, WebsocketEnable: true, NatsEnable: true},
+	}
+
+	s.Dispatch("I", "MESSAGE", "g@g.us", "u@s", false, []byte(`{}`))
+
+	if len(http.calls) != 1 || len(rmq.calls) != 1 || len(ws.calls) != 1 || len(nats.calls) != 1 {
+		t.Fatalf("esperaba 1 dispatch a cada transport: http=%d rmq=%d ws=%d nats=%d",
+			len(http.calls), len(rmq.calls), len(ws.calls), len(nats.calls))
+	}
+}
+
+func TestDispatchSelectiveTransports(t *testing.T) {
+	http := &fakeProducer{}
+	rmq := &fakeProducer{}
+	ws := &fakeProducer{}
+	nats := &fakeProducer{}
+	s := &webhookService{producer: http, cache: map[string][]webhook_model.Webhook{}}
+	s.SetTransports(rmq, ws, nats)
+	s.cache["I"] = []webhook_model.Webhook{
+		// URL + NATS, sin RabbitMQ ni WebSocket.
+		{ID: "1", InstanceID: "I", URL: "https://x/", Enabled: true, ChatType: "any",
+			NatsEnable: true},
+	}
+
+	s.Dispatch("I", "MESSAGE", "g@g.us", "u@s", false, []byte(`{}`))
+
+	if len(http.calls) != 1 || len(nats.calls) != 1 {
+		t.Fatalf("HTTP+NATS esperaban 1 cada uno, hubo http=%d nats=%d",
+			len(http.calls), len(nats.calls))
+	}
+	if len(rmq.calls) != 0 || len(ws.calls) != 0 {
+		t.Fatalf("RabbitMQ/WS no debían dispararse: rmq=%d ws=%d", len(rmq.calls), len(ws.calls))
+	}
+}
+
+func TestDispatchTransportNilSafe(t *testing.T) {
+	// Producer global no inyectado (config global apagada) → aunque
+	// el webhook tenga el flag, no debe panic ni intentar publicar.
+	http := &fakeProducer{}
+	s := &webhookService{producer: http, cache: map[string][]webhook_model.Webhook{}}
+	// SetTransports NO se llama → todos nil.
+	s.cache["I"] = []webhook_model.Webhook{
+		{ID: "1", InstanceID: "I", URL: "https://x/", Enabled: true, ChatType: "any",
+			RabbitmqEnable: true, WebsocketEnable: true, NatsEnable: true},
+	}
+
+	defer func() {
+		if r := recover(); r != nil {
+			t.Fatalf("panic con producers nil: %v", r)
+		}
+	}()
+	s.Dispatch("I", "MESSAGE", "g@g.us", "u@s", false, []byte(`{}`))
+	if len(http.calls) != 1 {
+		t.Fatalf("HTTP debió dispararse pese a producers nil, hubo %d", len(http.calls))
+	}
+}

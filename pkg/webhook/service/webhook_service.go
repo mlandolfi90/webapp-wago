@@ -57,6 +57,11 @@ type WebhookService interface {
 	// de la instancia. Se invoca desde el listener de eventos
 	// whatsmeow ante GroupInfo/JoinedGroup/Contact/Connected.
 	InvalidateNames(instanceID string)
+
+	// WAGO-PATCH(ADR-0055): inyecta los producers opcionales para los
+	// transports per-webhook. Cualquier arg puede ser nil si la config
+	// global no levantó ese transport. Llamar después de NewWebhookService.
+	SetTransports(rabbitmq, websocket, nats producer_interfaces.Producer)
 }
 
 // WebhookInput es el body que aceptan Create/Update — separado del
@@ -73,6 +78,12 @@ type WebhookInput struct {
 	// WAGO-PATCH(ADR-0049): puntero para que Update distinga ausente
 	// (no toca) de false (auditar salientes explícitamente).
 	IgnoreFromMe *bool `json:"ignoreFromMe,omitempty"`
+	// WAGO-PATCH(ADR-0055): transports adicionales per-webhook. Punteros
+	// para distinguir ausente (no toca) de false (apaga). Default false
+	// cuando ausente — el HTTP POST a URL sigue siendo el dispatch base.
+	RabbitmqEnable  *bool `json:"rabbitmqEnable,omitempty"`
+	WebsocketEnable *bool `json:"websocketEnable,omitempty"`
+	NatsEnable      *bool `json:"natsEnable,omitempty"`
 }
 
 // instanceNames cachea los nombres resueltos de una instancia. Las
@@ -90,6 +101,14 @@ type webhookService struct {
 	producer producer_interfaces.Producer
 	logger   *logger_wrapper.LoggerManager
 	resolver NameResolver
+
+	// WAGO-PATCH(ADR-0055): producers opcionales para transports
+	// adicionales per-webhook. Cualquiera puede ser nil (config global
+	// apagada o no inyectado en tests) — Dispatch chequea antes de
+	// publicar.
+	rabbitmqProducer  producer_interfaces.Producer
+	websocketProducer producer_interfaces.Producer
+	natsProducer      producer_interfaces.Producer
 
 	mu    sync.RWMutex
 	cache map[string][]webhook_model.Webhook
@@ -112,6 +131,19 @@ func NewWebhookService(
 		cache:     map[string][]webhook_model.Webhook{},
 		nameCache: map[string]*instanceNames{},
 	}
+}
+
+// WAGO-PATCH(ADR-0055): SetTransports inyecta los producers opcionales
+// para transports per-webhook. Se llama desde main.go después de
+// construir cada producer global (puede ser nil si la config está
+// apagada). Setter en vez de extender el constructor para no romper
+// llamadores existentes (tests + main upstream).
+func (s *webhookService) SetTransports(
+	rabbitmq, websocket, nats producer_interfaces.Producer,
+) {
+	s.rabbitmqProducer = rabbitmq
+	s.websocketProducer = websocket
+	s.natsProducer = nats
 }
 
 // validate normaliza y valida un input. Llamada en Create/Update.
@@ -155,17 +187,35 @@ func toModel(instanceID string, in *WebhookInput) *webhook_model.Webhook {
 	if in.IgnoreFromMe != nil {
 		ignoreFromMe = *in.IgnoreFromMe
 	}
+	// WAGO-PATCH(ADR-0055): default false cuando ausente — solo URL es
+	// transport siempre activo. Quien quiera RabbitMQ/WS/NATS lo activa
+	// explícito en el form.
+	rabbitmqEnable := false
+	if in.RabbitmqEnable != nil {
+		rabbitmqEnable = *in.RabbitmqEnable
+	}
+	websocketEnable := false
+	if in.WebsocketEnable != nil {
+		websocketEnable = *in.WebsocketEnable
+	}
+	natsEnable := false
+	if in.NatsEnable != nil {
+		natsEnable = *in.NatsEnable
+	}
 	return &webhook_model.Webhook{
-		InstanceID:   instanceID,
-		URL:          strings.TrimSpace(in.URL),
-		Enabled:      enabled,
-		Events:       in.Events,
-		ChatType:     chatType,
-		ChatIDs:      in.ChatIDs,
-		Senders:      in.Senders,
-		ChatNames:    in.ChatNames,
-		SenderNames:  in.SenderNames,
-		IgnoreFromMe: ignoreFromMe,
+		InstanceID:      instanceID,
+		URL:             strings.TrimSpace(in.URL),
+		Enabled:         enabled,
+		Events:          in.Events,
+		ChatType:        chatType,
+		ChatIDs:         in.ChatIDs,
+		Senders:         in.Senders,
+		ChatNames:       in.ChatNames,
+		SenderNames:     in.SenderNames,
+		IgnoreFromMe:    ignoreFromMe,
+		RabbitmqEnable:  rabbitmqEnable,
+		WebsocketEnable: websocketEnable,
+		NatsEnable:      natsEnable,
 	}
 }
 
@@ -397,7 +447,23 @@ func (s *webhookService) Dispatch(instanceID, eventType, chatJID, senderJID stri
 			continue
 		}
 		queueName := strings.ToLower(fmt.Sprintf("%s.%s", instanceID, eventType))
+		// HTTP POST a w.URL: dispatch base, siempre activo.
 		_ = s.producer.Produce(queueName, jsonData, w.URL, instanceID)
+
+		// WAGO-PATCH(ADR-0055): transports adicionales per-webhook. Cada
+		// uno se publica solo si el flag del webhook está en true Y el
+		// producer global fue inyectado (config global del transport
+		// levantada). Los errores se ignoran (consistente con el HTTP
+		// producer arriba) — fire-and-forget.
+		if w.RabbitmqEnable && s.rabbitmqProducer != nil {
+			_ = s.rabbitmqProducer.Produce(queueName, jsonData, w.URL, instanceID)
+		}
+		if w.WebsocketEnable && s.websocketProducer != nil {
+			_ = s.websocketProducer.Produce(queueName, jsonData, w.URL, instanceID)
+		}
+		if w.NatsEnable && s.natsProducer != nil {
+			_ = s.natsProducer.Produce(queueName, jsonData, w.URL, instanceID)
+		}
 	}
 }
 
