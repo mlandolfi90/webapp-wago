@@ -1,4 +1,21 @@
 # syntax=docker/dockerfile:1
+
+# ─── Stage 1: frontend React (ADR 0053/0054) ──────────────────────────
+# Vite compila el SPA del panel. El cache mount de /root/.npm evita
+# rebajar deps en cada build; el deps-first COPY maximiza el hit rate.
+FROM node:22-alpine AS frontend-builder
+WORKDIR /build-fe
+
+COPY manager-src/package.json manager-src/package-lock.json* ./
+RUN --mount=type=cache,target=/root/.npm \
+    if [ -f package-lock.json ]; then npm ci; else npm install; fi
+
+COPY manager-src/ ./
+RUN npm run build
+
+# ─── Stage 2: backend Go ──────────────────────────────────────────────
+# Los cache mounts /go/pkg/mod y /root/.cache/go-build son intencionales
+# (ADR 0018) — evitan rebajar deps y recompilar CGO en cada build.
 FROM golang:1.25.0-alpine AS build
 
 RUN apk update && apk add --no-cache git build-base libjpeg-turbo-dev libwebp-dev
@@ -33,6 +50,7 @@ RUN --mount=type=cache,target=/go/pkg/mod \
     --mount=type=cache,target=/root/.cache/go-build \
     CGO_ENABLED=0 go build -o wago-mcp ./cmd/mcp
 
+# ─── Stage 3: imagen final ────────────────────────────────────────────
 FROM alpine:3.19.1 AS final
 
 RUN apk update && apk add --no-cache tzdata ffmpeg libjpeg-turbo libwebp
@@ -41,7 +59,9 @@ WORKDIR /app
 
 COPY --from=build /build/server .
 COPY --from=build /build/wago-mcp .
-COPY --from=build /build/manager/dist ./manager/dist
+# El SPA viene del stage Node, no del filesystem del repo (ADR 0053):
+# manager/dist queda como fallback histórico hasta `make manager-build` local.
+COPY --from=frontend-builder /build-fe/dist ./manager/dist
 COPY --from=build /build/VERSION ./VERSION
 
 ENV TZ=America/Sao_Paulo

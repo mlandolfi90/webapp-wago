@@ -13,3 +13,7 @@ coverage.*
 .idea/
 .vscode/
 .DS_Store
+# Frontend React (manager-src/): fuentes versionadas, build artifacts no.
+manager-src/node_modules/
+manager-src/dist/
+manager-src/.vite/

@@ -1,0 +1,36 @@
+{
+  "brand": "WebAPP-Wago",
+  "poweredBy": "Powered by Evolution Manager",
+  "nav": {
+    "dashboard": "Dashboard",
+    "instances": "Instâncias",
+    "swagger": "Swagger",
+    "logout": "Sair"
+  },
+  "login": {
+    "title": "Acessar o painel",
+    "subtitle": "Use sua GLOBAL_API_KEY para entrar.",
+    "apikeyLabel": "API Key",
+    "apikeyPlaceholder": "Cole sua GLOBAL_API_KEY",
+    "submit": "Entrar",
+    "submitting": "Validando…",
+    "tip": "A chave é salva apenas neste navegador (localStorage).",
+    "errorInvalid": "API key inválida. Verifique a GLOBAL_API_KEY no backend.",
+    "errorNetwork": "Não foi possível contatar o backend. Tente novamente."
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "subtitle": "Resumo da atividade do WhatsApp.",
+    "kpi": {
+      "instances": "Instâncias",
+      "connected": "Conectadas",
+      "messagesToday": "Mensagens hoje",
+      "webhooksActive": "Webhooks ativos"
+    },
+    "placeholderNote": "Placeholder — métricas reais em uma rodada futura."
+  },
+  "theme": {
+    "toggleToLight": "Tema claro",
+    "toggleToDark": "Tema escuro"
+  }
+}

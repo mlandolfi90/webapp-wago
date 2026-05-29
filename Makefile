@@ -1,4 +1,4 @@
-.PHONY: help dev run build test clean swagger deps submodules buildx-setup docker-build docker-run docker-compose-up install setup migrate-up migrate-down logs
+.PHONY: help dev run build test clean swagger deps submodules buildx-setup docker-build docker-run docker-compose-up install setup migrate-up migrate-down logs manager-deps manager-build manager-dev
 
 # Configurações
 APP_NAME=webapp-wago
@@ -202,6 +202,24 @@ docker-compose-down: ## Para todos os serviços do docker-compose
 
 docker-compose-logs: ## Exibe logs do docker-compose
 	docker-compose logs -f
+
+##@ Manager (Frontend React)
+
+manager-deps: ## Instala dependências del panel React (manager-src/)
+	@echo "$(GREEN)📦 Instalando deps del manager (Vite + Radix)...$(NC)"
+	@cd manager-src && (if [ -f package-lock.json ]; then npm ci; else npm install; fi)
+	@echo "$(GREEN)✅ Deps del manager instaladas$(NC)"
+
+manager-build: ## Compila el panel React y reemplaza manager/dist con el output
+	@echo "$(GREEN)🔨 Building manager (Vite)...$(NC)"
+	@cd manager-src && npm run build
+	@rm -rf manager/dist
+	@cp -r manager-src/dist manager/dist
+	@echo "$(GREEN)✅ Panel compilado en manager/dist$(NC)"
+
+manager-dev: ## Levanta vite dev server con proxy al backend Go (:4000)
+	@echo "$(GREEN)🔥 Vite dev → http://localhost:5173/manager/ (proxy a :4000)$(NC)"
+	@cd manager-src && npm run dev
 
 ##@ Linting e Formatação
 

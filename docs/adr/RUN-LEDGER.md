@@ -940,3 +940,73 @@ Integración: N/A (carril único — manager/dist)
 Iteraciones: 1/3
 Escalación: none
 Cierre: 2026-05-28
+
+## RUN webui-react-bootstrap-01
+STATUS: CLOSED
+Branch: claude/build-webui-AcJFe
+Tier: completo (multi-archivo + arquitectura + contratos build + revierte ADR 0019 + 2 ADRs nuevos)
+Alcance: bootstrap del nuevo panel React+Vite+Radix en `manager-src/`
+  (setup completo + Shell + Login + Dashboard placeholder + theming
+  dark/light + i18n es-ES/pt-BR) + Dockerfile multi-stage con stage
+  Node antes del stage Go preservando los cache mounts Go (ADR 0018)
+  + Makefile targets `manager-deps`/`manager-build`/`manager-dev` +
+  ADR 0053 (reversal de 0019 con crédito a Evolution Manager v2) +
+  ADR 0054 (stack frontend + estructura de carpetas) + nota
+  técnica 0010. `manager/dist` vanilla actual queda intacto en este
+  commit; el primer `make manager-build` o `docker build` lo
+  reemplaza. Atribución Apache 2.0 cumplida con footer "Powered by
+  Evolution Manager" + link al repo + `manager-src/NOTICE.md`.
+Carriles: único — bootstrap-frontend (sin colisiones; manager/dist
+  no se toca; backend Go intacto; submódulo whatsmeow-lib intacto).
+Planificador: contratos congelados antes de codear: API client con
+  envelope `{message,data}` + header `apikey` (compatible con backend
+  existente, sin breaking); ruteo `basename: "/manager"` (matchea el
+  prefijo donde el binario Go sirve estáticos); CSS vars HSL mismo
+  esquema que vanilla actual (theming consistente sin re-diseño);
+  Dockerfile preserva cache mounts Go y sólo agrega cache mount npm.
+Arquitecto: APPROVE — superficies disjuntas; `manager/dist` no se
+  toca en este commit (transición progresiva); cache mounts Go
+  intactos (ADR 0018 ✓); REGLA ORO #1 satisfecha (ADRs 0053+0054 +
+  nota 0010); REGLA ORO #2 satisfecha (todo factorizado por carpeta;
+  un componente por archivo; api/ + components/ui/ + layouts/ +
+  pages/ + lib/i18n/ + lib/theme/).
+Ingeniero: 32 archivos nuevos + 3 editados.
+  Nuevos en `manager-src/`: package.json, package-lock.json
+  (generado por npm ci), vite.config.ts, tsconfig.json,
+  tailwind.config.js, postcss.config.js,
+  components.json, index.html, .gitignore, NOTICE.md, public/
+  favicon.svg, src/main.tsx, src/App.tsx, src/router.tsx,
+  src/index.css, src/lib/utils.ts, src/lib/api/client.ts,
+  src/lib/api/auth.ts, src/lib/i18n/index.ts, src/lib/i18n/locales/
+  es.json, src/lib/i18n/locales/pt.json, src/lib/theme/
+  theme-provider.tsx, src/components/ui/{button,card,input,label,
+  theme-toggle}.tsx, src/layouts/{Shell,AuthGate}.tsx,
+  src/pages/{Login,Dashboard,NotFound}.tsx.
+  Nuevos en docs/: adr/0053-revertir-vanilla-react-vite.md, adr/
+  0054-stack-frontend-react-vite-radix.md, notes/0010-manager-react-
+  stack.md.
+  Editados: Dockerfile (stage `frontend-builder` con cache npm +
+  stage final copia el SPA del stage Node), Makefile (3 targets
+  nuevos en sección Manager), .gitignore (ignora node_modules/dist
+  de manager-src).
+Verificador: PASS — `npm ci` reproducible (lockfile commiteado, 159
+  paquetes); `tsc --noEmit` strict sobre todo `src/` limpio (1 iter
+  de fix: bajamos a `tsc --noEmit && vite build` para evitar el
+  conflicto de project references emit-vs-noEmit); `npm run build`
+  produce dist/index.html (812 B) + assets/index-*.js (363 KB) +
+  assets/index-*.css (13.65 KB); bundle contiene "Powered by
+  Evolution Manager" + "WebAPP-Wago" + header "apikey" + basename
+  "/manager" verificados por grep; `go build ./cmd/webapp-wago`
+  PASS (63 MB, no roto por el cambio de Dockerfile); Dockerfile
+  estructuralmente válido: 3 stages (frontend-builder/build/final),
+  cache mounts Go preservados (3 instancias intactas por ADR 0018),
+  cache mount npm agregado, stage final copia SPA desde
+  `frontend-builder`; submódulo whatsmeow-lib intacto. NO
+  VERIFICADO: `docker build` end-to-end porque el daemon no está
+  levantado en el entorno remoto — cadena demostrada componente por
+  componente (Vite build PASS + Go build PASS + Dockerfile estructura
+  PASS).
+Integración: N/A (carril único)
+Iteraciones: 1/3 (1 fix de tsconfig project-references)
+Escalación: none
+Cierre: 2026-05-29 (commit SHA al final del push)
