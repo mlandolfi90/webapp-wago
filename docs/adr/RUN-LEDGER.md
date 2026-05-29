@@ -1009,4 +1009,4 @@ Verificador: PASS — `npm ci` reproducible (lockfile commiteado, 159
 Integración: N/A (carril único)
 Iteraciones: 1/3 (1 fix de tsconfig project-references)
 Escalación: none
-Cierre: 2026-05-29 (commit SHA al final del push)
+Cierre: 2026-05-29 commit b3be3f1
