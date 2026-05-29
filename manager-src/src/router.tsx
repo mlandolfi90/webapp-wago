@@ -3,6 +3,8 @@ import { AuthGate } from '@/layouts/AuthGate'
 import { Shell } from '@/layouts/Shell'
 import { Login } from '@/pages/Login'
 import { Dashboard } from '@/pages/Dashboard'
+import { Instances } from '@/pages/Instances'
+import { InstanceConfig } from '@/pages/InstanceConfig'
 import { NotFound } from '@/pages/NotFound'
 
 // El backend Go sirve este SPA bajo /manager/* — `basename` evita rebotes
@@ -18,7 +20,8 @@ const router = createBrowserRouter(
           children: [
             { path: '/', element: <Navigate to="/dashboard" replace /> },
             { path: '/dashboard', element: <Dashboard /> },
-            { path: '/instances', element: <Dashboard /> },
+            { path: '/instances', element: <Instances /> },
+            { path: '/instances/:instanceId', element: <InstanceConfig /> },
           ],
         },
       ],

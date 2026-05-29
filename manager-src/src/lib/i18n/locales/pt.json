@@ -7,6 +7,15 @@
     "swagger": "Swagger",
     "logout": "Sair"
   },
+  "common": {
+    "loading": "Carregando…",
+    "saving": "Salvando…",
+    "cancel": "Cancelar",
+    "save": "Salvar",
+    "create": "Criar",
+    "refresh": "Atualizar",
+    "back": "Voltar"
+  },
   "login": {
     "title": "Acessar o painel",
     "subtitle": "Use sua GLOBAL_API_KEY para entrar.",
@@ -28,6 +37,90 @@
       "webhooksActive": "Webhooks ativos"
     },
     "placeholderNote": "Placeholder — métricas reais em uma rodada futura."
+  },
+  "instances": {
+    "title": "Instâncias",
+    "subtitle": "Sessões de WhatsApp conectadas a este backend.",
+    "newAction": "Nova instância",
+    "empty": "Sem instâncias ainda. Crie a primeira.",
+    "connected": "Conectada",
+    "disconnected": "Desconectada",
+    "noJid": "Sem JID",
+    "openConfig": "Configurar",
+    "deleteAction": "Excluir",
+    "deleteConfirm": "Excluir a instância '{{name}}'? Esta ação não pode ser desfeita.",
+    "deleteOk": "Instância excluída.",
+    "deleteErr": "Não foi possível excluir a instância.",
+    "createTitle": "Nova instância",
+    "createSubtitle": "Atribua um nome identificável. O token é gerado automaticamente.",
+    "nameLabel": "Nome",
+    "namePlaceholder": "ex. vendas-br",
+    "createOk": "Instância criada.",
+    "createErr": "Não foi possível criar a instância."
+  },
+  "instanceConfig": {
+    "notFound": "Instância não encontrada.",
+    "tabs": {
+      "info": "Informações",
+      "webhooks": "Webhooks"
+    },
+    "infoTitle": "Informações da instância",
+    "fields": {
+      "id": "ID",
+      "token": "Token",
+      "jid": "JID",
+      "createdAt": "Criada",
+      "events": "Eventos",
+      "osName": "OS Name"
+    }
+  },
+  "webhook": {
+    "sectionTitle": "Webhooks",
+    "sectionSubtitle": "N webhooks por instância, cada um com seu filtro embutido.",
+    "tokenHint": "As chamadas a /webhook usam o token da instância (não a GLOBAL_API_KEY).",
+    "addAction": "Adicionar",
+    "editAction": "Editar",
+    "deleteAction": "Excluir",
+    "empty": "Sem webhooks. Adicione o primeiro.",
+    "statusOn": "Ativo",
+    "statusOff": "Inativo",
+    "eventsCount": "eventos",
+    "noFilters": "sem filtros",
+    "chatIdsShort": "chats",
+    "chatNamesShort": "nomes chat",
+    "sendersShort": "remetentes",
+    "senderNamesShort": "nomes remetente",
+    "filterSection": "Filtro (para quem dispara este webhook)",
+    "createTitle": "Novo webhook",
+    "editTitle": "Editar webhook",
+    "subtitle": "URL + Eventos + Filtros. O backend dispara só se TODO o filtro casar.",
+    "createOk": "Webhook criado.",
+    "updateOk": "Webhook atualizado.",
+    "saveErr": "Não foi possível salvar o webhook.",
+    "deleteOk": "Webhook excluído.",
+    "deleteErr": "Não foi possível excluir o webhook.",
+    "fields": {
+      "url": "URL",
+      "enabled": "Habilitado",
+      "ignoreFromMe": "Ignorar minhas próprias mensagens",
+      "events": "Eventos",
+      "eventsHint": "Um por linha. Vazio = todos os conhecidos.",
+      "chatType": "Tipo de chat",
+      "chatIds": "Chat JIDs (allowlist)",
+      "chatIdsPlaceholder": "5511900000000@s.whatsapp.net\nXXXX-XXXX@g.us\nHarness*@g.us",
+      "chatNames": "Nomes de chat (glob)",
+      "chatNamesPlaceholder": "Harness*\n*Vendas*",
+      "senders": "Sender JIDs (allowlist)",
+      "sendersPlaceholder": "5511900000000@s.whatsapp.net",
+      "senderNames": "Nomes de remetente (glob)",
+      "senderNamesPlaceholder": "João*\n*Operador*",
+      "glob": "Um por linha. Suporta wildcards (*)."
+    },
+    "chatType": {
+      "any": "Todos",
+      "group": "Grupos",
+      "private": "Privados"
+    }
   },
   "theme": {
     "toggleToLight": "Tema claro",

@@ -1074,3 +1074,75 @@ Iteraciones: 2/3 (iter 1 = corrida 01; iter 2 = 2 fixes de esta
   corrida).
 Escalación: none
 Cierre: 2026-05-29 commit 5fa93ce
+
+## RUN webui-instances-webhooks-01
+STATUS: CLOSED
+Branch: claude/build-webui-AcJFe
+Tier: completo (nuevas páginas + nuevos primitives Radix + nuevos
+  endpoints API client + extensión del flujo de usuario)
+Alcance: páginas Instances (lista con cards + crear + borrar) +
+  InstanceConfig (detalle con tabs Info/Webhooks) + WebhookList
+  (CRUD con filtro inline ADR 0045+ ADR 0046 ADR 0047 ADR 0048
+  ADR 0049). Consume el modelo ACTUAL del backend; los transports
+  per-webhook (RabbitMQ/WS/NATS embebidos en cada Webhook row)
+  NO entran — requieren extender backend Webhook model (corrida
+  futura). Suite Playwright extendida a 25 checks contra backend
+  Go + Postgres reales.
+Carriles: único — webui-pages-domain (frontend; cero backend
+  changes).
+Planificador: contratos congelados antes de codear: instances API
+  via GLOBAL_API_KEY (admin); webhooks API via token de instancia
+  per-call (instanceFrom(ctx) en handler → middleware Auth (no
+  AuthAdmin)). lib/api/client.ts ya soporta apikey override per
+  call. Eventos válidos: solo MAYÚSCULAS (MESSAGE, SEND_MESSAGE,
+  READ_RECEIPT, PRESENCE, CONNECTION, CALL, GROUP, CONTACT,
+  QRCODE) por pkg/internal/event_types.
+Arquitecto: APPROVE — estructura factorizada por dominio
+  (components/webhook/ agrupa lo del dominio); primitives nuevos
+  (dialog/switch/select/tabs/textarea/badge/separator) son
+  primitives Radix oficiales con patrón shadcn coherente con los
+  existentes; no se introducen ADRs nuevos (ADR 0054 sigue siendo
+  la fuente de verdad del stack); REGLA ORO #2 satisfecha (un
+  componente por archivo, dominios separados, sin cajón de
+  sastre); REGLA ORO #1 N/A (sin cambio arquitectónico — sigue
+  el patrón ya documentado en ADR 0054).
+Ingeniero: 7 primitives nuevos (button/card/input/label/theme-
+  toggle existían, sumo dialog/switch/textarea/select/tabs/badge/
+  separator) + 5 componentes de dominio (InstanceCard,
+  InstanceCreateDialog, WebhookList, WebhookFormDialog,
+  WebhookFilterFields) + 2 cliente API nuevos (instances.ts,
+  webhooks.ts) + types.ts compartido + 2 páginas
+  (Instances.tsx, InstanceConfig.tsx) + router actualizado +
+  i18n es/pt extendidos. Total 16 archivos nuevos + 3 editados
+  (router.tsx, es.json, pt.json) + package.json deps (+5 paquetes
+  Radix).
+Defectos encontrados y corregidos durante verificación (2):
+  1) InstanceCreateDialog.tsx — backend exige `token` no vacío
+     en /instance/create; el dialog no lo mandaba. Fix:
+     crypto.randomUUID() como token automático.
+  2) WebhookFormDialog.tsx — defaults de KNOWN_EVENTS estaban
+     en lowercase (message, connection, etc.) pero el backend
+     valida con pkg/internal/event_types que exige MAYÚSCULAS.
+     Backend rechazaba con "event type inválido". Fix: lista
+     actualizada con los 9 eventos MAYÚSCULA del whitelist real.
+Verificador: PASS 25/25 — Playwright headless contra wago real
+  con Postgres real. Flujo completo: login → sidebar Instancias →
+  empty state → crear instancia → card en lista con badge
+  Desconectada → click Configurar → detalle con tabs Info/
+  Webhooks → tab Info muestra Token/ID/JID/CreatedAt → switch
+  a Webhooks → empty state con hint sobre token de instancia →
+  abrir form → completar URL + filtro nombres chat "Harness*" →
+  crear → webhook en lista con badge Activo → editar (precarga
+  URL) → cambiar URL → guardar → webhook actualizado → borrar
+  webhook (lista vacía) → botón Volver → /instances → borrar
+  instancia (con confirm) → empty state. 5 screenshots de
+  evidencia (04-instances-empty + 05-with-card + 06-config-info
+  + 07-webhook-form + 08-webhooks-list).
+Integración: PASS — imagen Docker idéntica al pipeline de la
+  corrida 01 (Dockerfile sin cambios); el bundle creció a 492.86
+  KB JS + 22.24 KB CSS (vs 363 + 13 antes) por los nuevos
+  primitives Radix y páginas; backend NO modificado.
+Iteraciones: 1/3 (2 fixes intra-corrida durante el verificador,
+  cada uno < 5 LOC, no contaron como re-planificación).
+Escalación: none
+Cierre: 2026-05-29 (commit SHA al final del push)
