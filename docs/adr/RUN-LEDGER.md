@@ -1073,4 +1073,4 @@ Integración: PASS — la imagen Docker resultante (webapp-wago:
 Iteraciones: 2/3 (iter 1 = corrida 01; iter 2 = 2 fixes de esta
   corrida).
 Escalación: none
-Cierre: 2026-05-29 (commit SHA al final del push)
+Cierre: 2026-05-29 commit 5fa93ce
