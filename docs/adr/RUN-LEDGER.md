@@ -1145,4 +1145,4 @@ Integración: PASS — imagen Docker idéntica al pipeline de la
 Iteraciones: 1/3 (2 fixes intra-corrida durante el verificador,
   cada uno < 5 LOC, no contaron como re-planificación).
 Escalación: none
-Cierre: 2026-05-29 (commit SHA al final del push)
+Cierre: 2026-05-29 commit a76710a
