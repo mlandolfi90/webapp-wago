@@ -1,19 +1,18 @@
+// Card de instancia replicando el bundle WebAPP-Wago pre-rebuild (ADR
+// 0052): header con nombre + badge, subtítulo con perfil, tabla
+// Status/Proprietário, fila de 4 acciones con iconos lucide
+// (Desconectar / Mensaje / Test / Configuraciones) — el resto de las
+// operaciones (Grupos, Contactos, Mensajes, Comunidades, Etiquetas,
+// Newsletters, Utilidades) viven dentro de la página de Configuraciones.
 import { h } from "../../ui/dom.js";
 import { toast, toastError } from "../../ui/feedback.js";
-import { getStatus, disconnectInstance, deleteInstance } from "../../core/api.js";
-import { openConnectModal } from "./connectModal.js";
-import { openQrModal } from "./qrModal.js";
+import { disconnectInstance, deleteInstance } from "../../core/api.js";
+import { goInstanceConfig } from "../../core/router.js";
 import { openSendModal } from "./send/sendModal.js";
-import { openGroupsModal } from "./groups/groupsModal.js";
-import { openUsersModal } from "./users/usersModal.js";
-import { openMessagesModal } from "./messages/messagesModal.js";
-import { openCommunityModal } from "./community/communityModal.js";
-import { openLabelsModal } from "./labels/labelsModal.js";
-import { openNewslettersModal } from "./newsletters/newslettersModal.js";
-import { openUtilsModal } from "./utils/utilsModal.js";
-import { openAdvancedModal } from "./advancedModal.js";
-import { openProxyModal } from "./proxyModal.js";
-import { openWebhooksModal } from "./webhooksModal.js";
+import { openConnectModal } from "./connectModal.js";
+import {
+  icoPowerOff, icoMessageSquare, icoFlask, icoSettings, icoTrash,
+} from "../../ui/icons.js";
 
 function statusBadge(inst) {
   return inst.connected
@@ -21,22 +20,34 @@ function statusBadge(inst) {
     : h("span", { class: "badge badge-off" }, ["Desconectado"]);
 }
 
-function maskToken(token) {
-  if (!token) return "-";
-  return token.length > 8 ? `${token.slice(0, 4)}…${token.slice(-4)}` : token;
+function infoRow(label, value) {
+  return h("div", { class: "info-row" }, [
+    h("span", { class: "info-label" }, [label]),
+    h("span", { class: "info-value" }, [value || "-"]),
+  ]);
 }
 
-function refreshStatus(inst) {
-  getStatus(inst.token)
-    .then((res) => {
-      const d = res.data || {};
-      toast(
-        "Estado: " + (d.Connected ? "conectado" : "desconectado") +
-        (d.LoggedIn ? " · sesión iniciada" : "") +
-        (d.Name ? " · " + d.Name : "")
-      );
-    })
-    .catch(toastError);
+function maskJid(jid) {
+  if (!jid) return "-";
+  return jid.split("@")[0];
+}
+
+function actionBtn(ico, title, onclick, variant) {
+  const cls = "btn-card-action" + (variant ? " " + variant : "");
+  return h(
+    "button",
+    { class: cls, title, "aria-label": title, onclick },
+    [h("span", { class: "btn-card-action-ico", html: ico() })]
+  );
+}
+
+function actionBtnWithText(ico, label, onclick, variant) {
+  const cls = "btn-card-action btn-card-action-text" + (variant ? " " + variant : "");
+  return h(
+    "button",
+    { class: cls, onclick },
+    [h("span", { class: "btn-card-action-ico", html: ico() }), h("span", {}, [label])]
+  );
 }
 
 function doDisconnect(inst, reload) {
@@ -53,43 +64,37 @@ function doDelete(inst, reload) {
     .catch(toastError);
 }
 
-function actionGroup(label, buttons) {
-  return h("div", { class: "action-group" }, [
-    h("div", { class: "action-group-label" }, [label]),
-    h("div", { class: "card-actions" }, buttons)
-  ]);
-}
-
 export function instanceCard(inst, reload) {
-  return h("div", { class: "card" }, [
-    h("div", { class: "row", style: "justify-content:space-between;align-items:flex-start" }, [
-      h("h3", {}, [inst.name || "(sin nombre)"]),
-      statusBadge(inst)
+  const isConnected = !!inst.connected;
+  const profile = inst.profileName || inst.name || "";
+  const status = isConnected ? "open" : "closed";
+
+  return h("div", { class: "card-instance" }, [
+    h("div", { class: "card-instance-head" }, [
+      h("div", { class: "identity" }, [
+        h("div", { class: "identity-name" }, [inst.name || "(sin nombre)"]),
+        profile && profile !== inst.name
+          ? h("div", { class: "identity-sub" }, [profile])
+          : null,
+      ]),
+      statusBadge(inst),
     ]),
-    h("div", { class: "meta" }, [h("b", {}, ["ID: "]), inst.id || "-"]),
-    h("div", { class: "meta" }, [h("b", {}, ["Token: "]), maskToken(inst.token)]),
-    inst.jid ? h("div", { class: "meta" }, [h("b", {}, ["JID: "]), inst.jid]) : null,
-    actionGroup("Sesión", [
-      h("button", { class: "btn btn-sm btn-primary", onclick: () => openConnectModal(inst) }, ["Conectar"]),
-      h("button", { class: "btn btn-sm", onclick: () => openQrModal(inst) }, ["QR"]),
-      h("button", { class: "btn btn-sm", onclick: () => refreshStatus(inst) }, ["Estado"]),
-      h("button", { class: "btn btn-sm", onclick: () => openAdvancedModal(inst) }, ["Avanzado"]),
-      h("button", { class: "btn btn-sm", onclick: () => openProxyModal(inst) }, ["Proxy"]),
-      h("button", { class: "btn btn-sm", onclick: () => openWebhooksModal(inst) }, ["Webhooks"])
+    h("div", { class: "card-instance-info" }, [
+      infoRow("Status", status),
+      infoRow("Propietario", maskJid(inst.jid)),
     ]),
-    actionGroup("Operar", [
-      h("button", { class: "btn btn-sm", onclick: () => openSendModal(inst) }, ["Enviar"]),
-      h("button", { class: "btn btn-sm", onclick: () => openGroupsModal(inst) }, ["Grupos"]),
-      h("button", { class: "btn btn-sm", onclick: () => openUsersModal(inst) }, ["Contactos"]),
-      h("button", { class: "btn btn-sm", onclick: () => openMessagesModal(inst) }, ["Mensajes"]),
-      h("button", { class: "btn btn-sm", onclick: () => openCommunityModal(inst) }, ["Comunidades"]),
-      h("button", { class: "btn btn-sm", onclick: () => openLabelsModal(inst) }, ["Etiquetas"]),
-      h("button", { class: "btn btn-sm", onclick: () => openNewslettersModal(inst) }, ["Newsletters"]),
-      h("button", { class: "btn btn-sm", onclick: () => openUtilsModal(inst) }, ["Utilidades"])
+    h("div", { class: "card-instance-actions" }, [
+      isConnected
+        ? actionBtnWithText(icoPowerOff, "Desconectar", () => doDisconnect(inst, reload), "warn")
+        : actionBtnWithText(icoPowerOff, "Conectar", () => openConnectModal(inst), "primary"),
+      actionBtn(icoMessageSquare, "Enviar mensaje de prueba",
+        () => openSendModal(inst), "accent-blue"),
+      actionBtn(icoFlask, "Probar botones, listas y carrusel",
+        () => openSendModal(inst), "accent-violet"),
+      actionBtn(icoSettings, "Configuraciones",
+        () => goInstanceConfig(inst), "muted"),
+      actionBtn(icoTrash, "Borrar instancia",
+        () => doDelete(inst, reload), "accent-danger"),
     ]),
-    actionGroup("Zona peligro", [
-      h("button", { class: "btn btn-sm btn-ghost", onclick: () => doDisconnect(inst, reload) }, ["Desconectar"]),
-      h("button", { class: "btn btn-sm btn-danger", onclick: () => doDelete(inst, reload) }, ["Borrar"])
-    ])
   ]);
 }

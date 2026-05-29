@@ -52,28 +52,41 @@ function sidebar(activeKey, onNav) {
 function topAction(ico, label, attrs) {
   return h("a", Object.assign({ class: "btn btn-sm btn-ghost top-link" }, attrs), [
     h("span", { class: "top-ico", html: ico() }),
-    h("span", {}, [label]),
+    h("span", { class: "top-label" }, [label]),
   ]);
 }
 
 function themeToggle() {
   const render = () => (getTheme() === "light" ? icoSun() : icoMoon());
+  const labelText = () => (getTheme() === "light" ? "Modo claro" : "Modo oscuro");
   const icon = h("span", { class: "top-ico", html: render() });
-  return h(
+  const btn = h(
     "button",
     {
       class: "btn btn-sm btn-ghost top-link top-icon-only",
-      title: "Cambiar tema claro/oscuro",
+      title: labelText(),
       "aria-label": "Cambiar tema",
-      onclick: () => { toggleTheme(); icon.innerHTML = render(); },
+      onclick: () => {
+        toggleTheme();
+        icon.innerHTML = render();
+        btn.setAttribute("title", labelText());
+      },
     },
     [icon]
   );
+  return btn;
+}
+
+function topbarBrandMobile() {
+  return h("div", { class: "topbar-brand-mobile" }, [
+    h("img", { src: "/assets/favicon.svg", alt: "WebAPP-Wago" }),
+    h("span", {}, ["WebAPP-Wago"]),
+  ]);
 }
 
 function topbar() {
   return h("div", { class: "topbar" }, [
-    h("div", {}, []),
+    topbarBrandMobile(),
     h("div", { class: "topbar-actions" }, [
       topAction(icoApiTester, "API Tester", {
         href: "/swagger/index.html", target: "_blank", rel: "noopener",
@@ -85,7 +98,7 @@ function topbar() {
       h(
         "button",
         { class: "btn btn-sm top-link", onclick: logout },
-        [h("span", { class: "top-ico", html: icoLogout() }), h("span", {}, ["Salir"])]
+        [h("span", { class: "top-ico", html: icoLogout() }), h("span", { class: "top-label" }, ["Salir"])]
       ),
     ]),
   ]);

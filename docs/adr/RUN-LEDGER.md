@@ -903,3 +903,40 @@ Integración: N/A (carril único — manager/dist)
 Iteraciones: 1/3
 Escalación: none
 Cierre: 2026-05-28
+
+## RUN webui-restyle-webapp-004
+STATUS: CLOSED
+Branch: claude/build-webui-AcJFe
+Tier: completo (card minimal + página detalle inline + paridad mobile)
+Alcance: réplica exacta del look del bundle WebAPP-Wago pre-rebuild
+  pedida por el usuario. Card de instancia con tabla Status/Propietario
+  inline + 5 botones lucide (power-off / message-square / flask-conical
+  / settings / trash). Engranaje → página Configuraciones inline con
+  4 secciones (Información / Webhook / Avanzada / Zona de Peligro).
+  Página Instancias con subtítulo, buscador, botón "Nueva instancia +".
+  Mobile: sidebar oculto + brand en topbar + iconos sin texto.
+Planificador: regresión técnica del bundle pre-rebuild (worktree
+  b2c87ab~1 + server SPA-aware en :8766 + parche minimal al JS para
+  bypassar licencia + isAuthenticated). Iconos detectados via
+  enumerate de botones + svg.className. Confirmado flow gear → detalle
+  inline mediante click programático.
+Arquitecto: APPROVE — preserva ADRs 0018/0019/0050/0051; nuevo ADR
+  0052 (regla de oro #1) por cambio observable de UX. Lógica de
+  webhook multi (ADRs 0045+) y advanced-settings intactas. CSS
+  factorizado por componente (regla de oro #2).
+Ingeniero: ui/icons.js (+12 iconos lucide), instanceCard.js (refactor
+  completo a card minimal con 5 botones), configView.js (NUEVO 198 LOC,
+  página detalle con 4 secciones), dashboardView.js (subtítulo +
+  search + + ico), router.js (+goInstanceConfig), shell.js (brand-
+  mobile + title dinámico del toggle), app.css (+~250 LOC en bloque
+  card-instance / search / page-head / config-section / toggle-switch /
+  danger-row / mobile shell; bug-fix .identity-name #fff → var(--h-color))
+Verificador: PASS — node --check verde en los 6 JS; render headless
+  desktop light/dark + mobile + página config, 0 errores consola.
+  Comparativa side-by-side con bundle: match en branding, layout,
+  iconos, jerarquía visual. 1 iteración + 1 fix (.identity-name color
+  hardcoded). Cleanup: git worktree remove /tmp/oldwago.
+Integración: N/A (carril único — manager/dist)
+Iteraciones: 1/3
+Escalación: none
+Cierre: 2026-05-28
