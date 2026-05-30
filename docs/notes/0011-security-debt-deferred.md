@@ -9,7 +9,57 @@ HIGH de SSRF (puntos 1 y 5 originales) **fueron corregidos** vía
 **ADR 0059**. Los puntos 3 y 4 (race y thundering-herd) siguen como
 deuda. El punto 5 original (CORS) sigue como deuda menor.
 
-## Threat model — por qué se postergan
+## Modelo de despliegue declarado
+
+**Hoy: single-tenant.** Un único operador (el dueño del backend o un
+cliente único) controla la `GLOBAL_API_KEY` y todos los tokens de
+instancia. El "atacante" del threat model sería el mismo operador →
+escenario poco realista en self-hosted típico.
+
+**Futuro: multi-tenant.** Confirmado por el user 2026-05-30. Cuando se
+acepten varios clientes/operadores compartiendo el mismo backend (cada
+uno con su token de instancia, sin conocerse entre sí), los pendientes
+de este documento dejan de ser "deuda aceptada" y se vuelven blockers.
+
+## Checklist pre-pivote a multi-tenant
+
+Antes de habilitar 2+ operadores distintos compartiendo el backend,
+abordar **TODOS** los siguientes (orden recomendado por criticidad):
+
+- [ ] **Punto 3** (race `clientPointer`) — refactor a
+      `pkg/whatsmeow/clientregistry.Registry`. Sin esto, race
+      panickea el server bajo carga concurrente con dos tenants
+      enviando simultáneo. **BLOCKER multi-tenant.**
+      Plan ejecutable abajo. ~2-3h.
+- [ ] **Punto 5** (CORS `*` + `Allow-Credentials:true`) — restringir
+      `Access-Control-Allow-Origin` a allowlist por env var
+      `CORS_ALLOWED_ORIGINS`. Browsers cumplidores ignoran la combo,
+      pero clientes embebidos no — un tenant podría leer responses
+      del otro vía SDK móvil. **BLOCKER multi-tenant.** ~30 min.
+- [ ] **SendAlbum partial-failure** (issue #11b del audit final) —
+      definir contrato: ¿devolver 207 Multi-Status con detalle por
+      item? ¿reintentar? Decisión de producto. Sin esto, un tenant
+      puede mandar 20 items, item 3 falla, los otros 19 quedan
+      mandados sin recovery — soporte se desborda. **MEDIO multi-
+      tenant.** ~1h decisión + 1-2h código.
+- [ ] **Tests gaps** (issue #20b) — `webhook/repository`
+      ownership tests (un tenant NO debe ver/modificar webhooks
+      de otro), `whatsmeow.CallWebhook` con `isFromMe` cross-
+      tenant. **MEDIO multi-tenant.** ~3h.
+- [ ] **Auditoría de auth scope** — revisar que TODOS los
+      endpoints `instance-scoped` usen `instanceFrom(ctx)` y NO
+      acepten path params `:instanceId` que puedan ser
+      manipulados por un tenant para acceder a otro. **BLOCKER
+      multi-tenant.** ~2h.
+- [ ] **Quota / rate-limiting** por token — sin esto, un tenant
+      puede ejecutar mil `/send/album` y agotar memoria/RAM/
+      conexiones del backend, afectando a los otros. **BLOCKER
+      multi-tenant.** Decisión de diseño + ~4h código.
+- [ ] **Logs sin leak cruzado** — verificar que los logger del
+      `whatsmeow_service` y `webhook_service` no escriban tokens
+      de instancias ajenas al log del otro tenant. ~1h auditoría.
+
+## Threat model — por qué los pendientes están aceptados HOY
 
 webapp-wago se despliega típicamente **self-hosted** por un único
 operador que controla:
