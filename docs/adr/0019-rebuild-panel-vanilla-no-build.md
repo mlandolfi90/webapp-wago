@@ -1,7 +1,8 @@
 # 0019 - Rebuild del panel (manager) en vanilla JS sin build
 
-- Estado: aceptado
+- Estado: **REEMPLAZADO por ADR 0053** (rebase a React+Vite+Radix sobre evolution-manager-v2)
 - Fecha: 2026-05-16
+- Reemplazada: 2026-05-30 (corrida `webui-rebase-on-evolution-01`, commit `a24c81a`)
 - Corrida Crisol: webui-rebuild-001 (tier completo)
 
 ## Contexto y problema

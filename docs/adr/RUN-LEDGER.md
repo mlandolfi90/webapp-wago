@@ -1273,7 +1273,7 @@ Integración: PASS — imagen Docker rebuildeada con el nuevo
   Dashboard.tsx; el backend no cambió.
 Iteraciones: 1/3 (1 fix del test para sortear el bug GORM).
 Escalación: none
-Cierre: 2026-05-29 (SHA al push final)
+Cierre: 2026-05-29 commit 85d3a0c
 
 ## RUN webhook-gorm-default-bool-fix-01
 STATUS: CLOSED
@@ -1313,7 +1313,7 @@ Integración: PASS — imagen Docker rebuildeada (backend cambió). El
   frontend no se tocó.
 Iteraciones: 1/3 (sin fixes; tests pasaron al primer intento).
 Escalación: none
-Cierre: 2026-05-29 (SHA al push)
+Cierre: 2026-05-29 commit 4e76549
 
 ## RUN webui-code-splitting-01
 STATUS: CLOSED
@@ -1351,7 +1351,7 @@ Integración: PASS — imagen Docker rebuildeada con el nuevo bundle.
 Iteraciones: 1/3 (sin fixes; lazy + Suspense compiló al primer
   intento sin errors TS strict).
 Escalación: none
-Cierre: 2026-05-29 (SHA al push)
+Cierre: 2026-05-29 commit 675df48
 
 ## RUN ci-align-react-stack-01
 STATUS: CLOSED
@@ -1386,7 +1386,7 @@ Integración: PASS — Dockerfile no toca; sigue construyendo el SPA
   dentro del stage `frontend-builder`.
 Iteraciones: 1/3 (sin fixes).
 Escalación: none
-Cierre: 2026-05-29 (SHA al push)
+Cierre: 2026-05-29 commit be72883
 
 ## RUN mcp-smoke-test-01
 STATUS: CLOSED
@@ -1474,7 +1474,7 @@ Iteraciones: 1/3 (2 fixes en el test Playwright — selector
   ambiguo del combobox + navegación al webhooks tab tras reload —
   ninguno fue cambio de código).
 Escalación: none
-Cierre: 2026-05-29 (SHA al push)
+Cierre: 2026-05-29 commit 2aca2b8
 
 ## RUN webui-rebase-on-evolution-01 (FASE A)
 STATUS: CLOSED (Fase A — base portada y login funcionando)
@@ -1549,7 +1549,7 @@ Iteraciones: 1/3 (1 fix de verifyGoServer porque /server/ok es público
   en el backend Go, no valida apikey).
 Escalación: none — al user le aclaré explícitamente que esto cierra
   el error documental de las corridas anteriores.
-Cierre: 2026-05-30 (SHA al push)
+Cierre: 2026-05-30 commit a24c81a
 
 ## RUN webui-rebase-on-evolution-02-features (FASE B)
 STATUS: CLOSED
@@ -1612,7 +1612,7 @@ Pendiente — Dashboard real con métricas + token masking. Quedaron
   150 LOC nuevas. Próxima corrida.
 Iteraciones: 1/3 (1 fix de selector en test, no en código).
 Escalación: none.
-Cierre: 2026-05-30 (SHA al push)
+Cierre: 2026-05-30 commit 65bf9c8
 
 ## RUN webui-rebase-on-evolution-03-kpis-token (FASE C — final)
 STATUS: CLOSED
@@ -1655,7 +1655,7 @@ Integración: PASS — imagen Docker rebuildeada. Backend Go sin
   cambios.
 Iteraciones: 1/3 (sin fixes).
 Escalación: none.
-Cierre: 2026-05-30 (SHA al push)
+Cierre: 2026-05-30 commit 1fc554b
 
 ## RUN webui-pair-by-phone-01
 STATUS: CLOSED
@@ -1699,7 +1699,7 @@ Iteraciones: 1/3 (1 fix de UI por bug del backend descubierto en
   /instance/status que devolvía Connected:true falso).
 Escalación: el bug del /instance/status documentar como deuda
   técnica del backend.
-Cierre: 2026-05-30 (SHA al push)
+Cierre: 2026-05-30 commit 90a13c3
 
 ## RUN backend-status-pair-bugs-fix-01
 STATUS: CLOSED
@@ -1740,4 +1740,4 @@ Iteraciones: 1/3 (sin fixes; tests actualizados al nuevo contrato).
 Escalación: none. La deuda derivada del clientPointer map sin
   lock queda documentada en docs/notes/0011-security-debt-deferred.md
   punto 3.
-Cierre: 2026-05-30 (SHA al push)
+Cierre: 2026-05-30 commit 433e9d6

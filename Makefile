@@ -213,8 +213,10 @@ manager-deps: ## Instala dependências del panel React (manager-src/)
 manager-build: ## Compila el panel React y reemplaza manager/dist con el output
 	@echo "$(GREEN)🔨 Building manager (Vite)...$(NC)"
 	@cd manager-src && npm run build
-	@rm -rf manager/dist
-	@cp -r manager-src/dist manager/dist
+	@# Preserva manager/dist/README.md versionado (explica que el dir
+	@# se genera por build). Solo borra el contenido transient.
+	@rm -rf manager/dist/index.html manager/dist/assets manager/dist/favicon.svg
+	@cp -r manager-src/dist/. manager/dist/
 	@echo "$(GREEN)✅ Panel compilado en manager/dist$(NC)"
 
 manager-dev: ## Levanta vite dev server con proxy al backend Go (:4000)
