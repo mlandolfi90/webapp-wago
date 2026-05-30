@@ -1387,3 +1387,40 @@ Integración: PASS — Dockerfile no toca; sigue construyendo el SPA
 Iteraciones: 1/3 (sin fixes).
 Escalación: none
 Cierre: 2026-05-29 (SHA al push)
+
+## RUN mcp-smoke-test-01
+STATUS: CLOSED
+Branch: claude/build-webui-AcJFe
+Tier: fast-path (smoke test, sin código nuevo)
+Alcance: verificar que el binario `wago-mcp` (cmd/mcp) construido en
+  el stage Go del Dockerfile sigue arrancando y respondiendo
+  correctamente contra el backend Go tras los cambios de las
+  corridas 1-3 del Crisol (ADR 0055 + Dashboard real + GORM fix +
+  code splitting + CI align).
+Carriles: único — verificación read-only del MCP.
+Verificación E2E:
+  1. Docker run del MCP con --entrypoint /app/wago-mcp + env
+     WAGO_BASE_URL=http://<wago-ip>:4000 + MCP_TRANSPORT=http +
+     MCP_HTTP_ADDR=:8089.
+  2. GET /healthz → 200.
+  3. POST /mcp con `initialize` → result.serverInfo =
+     {name:"wago-whatsapp", version:"1.0.0"}.
+  4. POST /mcp con `tools/list` → 72 tools registrados (los 5
+     primeros: wago_instance_create, _list, _delete, wago_proxy_set,
+     _delete).
+  5. POST /mcp con `tools/call wago_instance_list` (admin) →
+     isError=false, devuelve {data: [], message: success}.
+  6. POST /mcp con `tools/call wago_instance_create` admin args
+     {name, token} → isError=false, devuelve la instancia creada.
+  7. POST /mcp con `tools/call wago_instance_list` tras create →
+     devuelve la instancia en data[].
+  8. POST /mcp con `tools/call wago_webhook_create` scoped con
+     `instance_token` directo → isError=true con mensaje
+     "no hay instancia activa: usá la tool use_instance primero".
+     **Comportamiento esperado**: las tools scoped del MCP exigen
+     un `use_instance` previo que setea la instancia activa en el
+     contexto del cliente. NO es bug, es el patrón del MCP
+     (ver ADR 0032/0033).
+Veredicto: PASS — sin bugs descubiertos. El MCP sobrevivió a los
+  cambios de las corridas 1-3 (que no tocan internal/mcp/).
+Cierre: 2026-05-29 (sin commit de código)
