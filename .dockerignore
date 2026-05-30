@@ -35,8 +35,18 @@ Makefile
 *_test.go
 *.test
 
-# Manager/dist é necessário - serve arquivos estáticos do frontend React
-# Não excluir - precisa estar na imagem final para ser acessado via /manager
+# Frontend artifacts: el panel React se compila DENTRO del Dockerfile
+# (stage frontend-builder con node:22-alpine + vite build). Excluir el
+# node_modules y dist locales del build context evita arrastrar ~200MB
+# por nada y previene cache bust al rebuildear.
+manager-src/node_modules
+manager-src/dist
+manager-src/.vite
+# manager/dist/index.html y assets/ son generados por el stage Node y
+# copiados desde frontend-builder en el stage final. Excluir su versión
+# local del context (queda solo manager/dist/README.md versionado).
+manager/dist/index.html
+manager/dist/assets
 
 # Keep these important files/folders for build:
 # - whatsmeow/ (nossa versão local modificada)

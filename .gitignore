@@ -2,8 +2,22 @@
 logs/*
 build/
 *.prof
+*.out
 coverage.*
+# binarios sueltos de build local (NO ignorar manager/dist ni docs/swagger*:
+# son fuente/artefactos versionados a propósito — ver docs/README.md)
+/server
+/wago-mcp
+*.test
 .air.toml
 .idea/
 .vscode/
 .DS_Store
+# Frontend React (manager-src/): fuentes versionadas, build artifacts no.
+manager-src/node_modules/
+manager-src/dist/
+manager-src/.vite/
+# manager/dist/ se genera por `make manager-build` o el Docker build —
+# el README versionado dentro explica cómo regenerarlo.
+manager/dist/index.html
+manager/dist/assets/

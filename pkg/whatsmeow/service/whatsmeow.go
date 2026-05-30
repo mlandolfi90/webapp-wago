@@ -47,6 +47,7 @@ import (
 	poll_service "github.com/webapp-wago/webapp-wago/pkg/poll/service"
 	storage_interfaces "github.com/webapp-wago/webapp-wago/pkg/storage/interfaces"
 	"github.com/webapp-wago/webapp-wago/pkg/utils"
+	webhook_service "github.com/webapp-wago/webapp-wago/pkg/webhook/service"
 )
 
 type WhatsmeowService interface {
@@ -56,6 +57,7 @@ type WhatsmeowService interface {
 	ReconnectClient(instanceId string) error
 	ClearInstanceCache(instanceId string, token string) error
 	CallWebhook(instance *instance_model.Instance, queueName string, jsonData []byte)
+	InvalidateWebhookNames(instanceID string)
 	SendToGlobalQueues(event string, jsonData []byte, userId string)
 	ForceUpdateJid(instanceId string, number string) error
 	UpdateInstanceSettings(instanceId string) error
@@ -89,6 +91,7 @@ type whatsmeowService struct {
 	processedMessages  *cache.Cache
 	natsProducer       producer_interfaces.Producer
 	loggerWrapper      *logger_wrapper.LoggerManager
+	webhookService     webhook_service.WebhookService
 }
 
 type MyClient struct {
@@ -890,18 +893,6 @@ func (mycli *MyClient) myEventHandler(rawEvt interface{}) {
 			dataMap["status"] = "open"
 			dataMap["jid"] = mycli.WAClient.Store.ID.String()
 			dataMap["pushName"] = mycli.WAClient.Store.PushName
-
-			// jid, ok := utils.ParseJID(mycli.WAClient.Store.ID.ToNonAD().User)
-			// if ok {
-			// 	profilePicUrl, err := mycli.clientPointer[mycli.userID].GetProfilePictureInfo(jid, &whatsmeow.GetProfilePictureParams{
-			// 		Preview: false,
-			// 	})
-			// 	if err != nil {
-			// 		w.loggerWrapper.GetLogger(instanceId).LogError("[%s] Failed to get profile picture info: %v", mycli.userID, err)
-			// 	} else {
-			// 		dataMap["profilePicUrl"] = profilePicUrl.URL
-			// 	}
-			// }
 
 			postMap["data"] = dataMap
 
@@ -1988,6 +1979,31 @@ func (w *whatsmeowService) CallWebhook(instance *instance_model.Instance, queueN
 		return
 	}
 
+	// Dispatch a webhooks múltiples (tabla instance_webhooks), filtro
+	// inline. Orthogonal al legacy (instance.Webhook) — ambos coexisten.
+	// WAGO-PATCH(ADR-0049): isFromMe se extrae acá y se propaga a ambos
+	// carriles. El multi-webhook recibe siempre; cada webhook filtra
+	// con su propio Webhook.IgnoreFromMe.
+	var chatJID, senderJID string
+	var isFromMe bool
+	if w.webhookService != nil {
+		chatJID, senderJID, isFromMe = w.webhookService.ExtractEventMeta(data)
+		w.webhookService.Dispatch(instance.Id, eventType, chatJID, senderJID, isFromMe, jsonData)
+	}
+
+	_ = w.maybeInvalidateNames(instance.Id, eventType)
+
+	// WAGO-PATCH(ADR-0049): skip legacy webhook + colas globales para
+	// mensajes propios (Info.IsFromMe == true) cuando IgnoreFromMe
+	// está activo. Rompe loops cuando un consumer del webhook responde
+	// a un evento vía /send/text. Re-aplicar al mergear upstream.
+	if isFromMe && instance.IgnoreFromMe {
+		w.loggerWrapper.GetLogger(instance.Id).LogInfo(
+			"[%s] WAGO-PATCH(ADR-0049): skipping legacy dispatch for self-originated msg eventType=%s chat=%s",
+			instance.Id, eventType, chatJID)
+		return
+	}
+
 	eventArray := strings.Split(instance.Events, ",")
 
 	var subscriptions []string
@@ -2140,6 +2156,31 @@ func contains(subscriptions []string, event string) bool {
 		}
 	}
 	return false
+}
+
+// maybeInvalidateNames descarta el cache de nombres del webhookService
+// cuando un evento puede haber cambiado nombres de grupos/contactos.
+// Se ejecuta al final de CallWebhook para que el próximo Dispatch que
+// pida nombres los re-resuelva. Lazy invalidación = simple + barata.
+func (w *whatsmeowService) maybeInvalidateNames(instanceID, eventType string) bool {
+	if w.webhookService == nil {
+		return false
+	}
+	switch eventType {
+	case "Contact", "PushName", "GroupInfo", "JoinedGroup", "Connected":
+		w.webhookService.InvalidateNames(instanceID)
+		return true
+	}
+	return false
+}
+
+// InvalidateWebhookNames cumple la interface WhatsmeowService; deja al
+// listener interno (y a callers eventuales) invalidar el cache de
+// nombres del webhookService sin acoplarse al campo privado.
+func (w *whatsmeowService) InvalidateWebhookNames(instanceID string) {
+	if w.webhookService != nil {
+		w.webhookService.InvalidateNames(instanceID)
+	}
 }
 
 func (w *whatsmeowService) sendToQueueOrWebhook(instance *instance_model.Instance, queueName string, jsonData []byte) {
@@ -2662,6 +2703,7 @@ func NewWhatsmeowService(
 	mediaStorage storage_interfaces.MediaStorage,
 	natsProducer producer_interfaces.Producer,
 	loggerWrapper *logger_wrapper.LoggerManager,
+	webhookService webhook_service.WebhookService,
 ) WhatsmeowService {
 	// Inicializar PollService de forma segura
 	pollSvc := poll_service.NewPollService(authDB, loggerWrapper)
@@ -2686,6 +2728,7 @@ func NewWhatsmeowService(
 		processedMessages:  cache.New(30*time.Minute, 1*time.Hour),
 		natsProducer:       natsProducer,
 		loggerWrapper:      loggerWrapper,
+		webhookService:     webhookService,
 	}
 }
 

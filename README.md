@@ -28,17 +28,21 @@ This project is a derivative work based on [Evolution Go](https://github.com/Evo
 ### Docker
 
 ```bash
-git clone https://github.com/mlandolfi90/webapp-wago.git
+git clone --recurse-submodules https://github.com/mlandolfi90/webapp-wago.git
 cd webapp-wago
 cp .env.example .env
 make docker-build
 make docker-run
 ```
 
+> The `whatsmeow-lib` dependency is a git submodule. The `--recurse-submodules`
+> flag is required, otherwise the build fails. If you already cloned without it,
+> run `git submodule update --init --recursive`.
+
 ### Local development
 
 ```bash
-git clone https://github.com/mlandolfi90/webapp-wago.git
+git clone --recurse-submodules https://github.com/mlandolfi90/webapp-wago.git
 cd webapp-wago
 
 make setup
@@ -85,6 +89,11 @@ LOGTYPE=console
 
 ## API Documentation
 
+- **[docs/MANUAL.md](./docs/MANUAL.md)** — manual completo y actualizado de
+  toda la API (auth, ciclo de vida, catálogo de endpoints, eventos, ejemplos).
+- **[docs/MCP-WHATSAPP.md](./docs/MCP-WHATSAPP.md)** — guía para exponer este
+  proyecto como un servidor MCP de WhatsApp.
+
 Once the server is running, Swagger UI is available at:
 
 ```
@@ -93,14 +102,22 @@ http://localhost:8080/swagger/index.html
 
 ### Key endpoints
 
+La referencia **completa y al día** de la API (auth, ciclo de vida,
+catálogo de endpoints, eventos, ejemplos) está en
+**[docs/MANUAL.md](./docs/MANUAL.md)**, o el Swagger en vivo
+(`/swagger/index.html`). Atajos más usados:
+
 | Method | Endpoint | Description |
 |--------|----------|-------------|
-| `POST` | `/instance/create` | Create a WhatsApp instance |
-| `GET`  | `/instance/{name}/qrcode` | Get QR code for pairing |
-| `POST` | `/message/sendText` | Send text message |
-| `POST` | `/message/sendMedia` | Send media message |
-| `GET`  | `/instance/{name}/status` | Get instance status |
-| `DELETE` | `/instance/{name}` | Delete instance |
+| `POST` | `/instance/create` | Crear instancia (admin) |
+| `GET`  | `/instance/qr` | QR para vincular |
+| `GET`  | `/instance/status` | Estado de la instancia |
+| `POST` | `/send/text` | Enviar texto |
+| `POST` | `/send/media` | Enviar media |
+| `POST` | `/send/album` | Enviar álbum |
+| `DELETE` | `/instance/delete/{instanceId}` | Borrar instancia (admin) |
+
+> Tabla de atajos, no exhaustiva. Fuente de verdad: `docs/MANUAL.md`.
 
 ## Project Structure
 

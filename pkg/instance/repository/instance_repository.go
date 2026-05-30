@@ -174,7 +174,8 @@ func (i *instanceRepository) GetAdvancedSettings(instanceId string) (*instance_m
 	}
 
 	var instance instance_model.Instance
-	err := i.db.Select("always_online, reject_call, msg_reject_call, read_messages, ignore_groups, ignore_status").
+	// WAGO-PATCH(ADR-0049): incluye ignore_from_me en el Select y el map.
+	err := i.db.Select("always_online, reject_call, msg_reject_call, read_messages, ignore_groups, ignore_status, ignore_from_me").
 		Where("id = ?", instanceId).First(&instance).Error
 	if err != nil {
 		return nil, err
@@ -187,6 +188,7 @@ func (i *instanceRepository) GetAdvancedSettings(instanceId string) (*instance_m
 		ReadMessages:  instance.ReadMessages,
 		IgnoreGroups:  instance.IgnoreGroups,
 		IgnoreStatus:  instance.IgnoreStatus,
+		IgnoreFromMe:  instance.IgnoreFromMe,
 	}
 
 	return settings, nil
@@ -205,6 +207,8 @@ func (i *instanceRepository) UpdateAdvancedSettings(instanceId string, settings 
 		"read_messages":   settings.ReadMessages,
 		"ignore_groups":   settings.IgnoreGroups,
 		"ignore_status":   settings.IgnoreStatus,
+		// WAGO-PATCH(ADR-0049): persiste el toggle del checkbox legacy.
+		"ignore_from_me": settings.IgnoreFromMe,
 	}
 
 	err := i.db.Model(&instance_model.Instance{}).Where("id = ?", instanceId).Updates(updates).Error

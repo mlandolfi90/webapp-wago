@@ -1,4 +1,4 @@
-.PHONY: help dev run build test clean swagger deps docker-build docker-run install setup migrate-up migrate-down logs
+.PHONY: help dev run build test clean swagger deps submodules buildx-setup docker-build docker-run docker-compose-up install setup migrate-up migrate-down logs manager-deps manager-build manager-dev
 
 # Configurações
 APP_NAME=webapp-wago
@@ -8,6 +8,12 @@ GO=go
 VERSION=$(shell grep -om1 "v[0-9].*" CHANGELOG.md)
 LDFLAGS=-ldflags "-X main.version=$(VERSION)"
 GOFLAGS=-v
+
+# Builder buildx dedicado com cache persistente.
+# Combinado com os cache mounts do Dockerfile, evita os lapsos
+# longos de rebuild do Go (deps + CGO) entre builds.
+BUILDX_BUILDER=webapp-wago-builder
+export DOCKER_BUILDKIT=1
 
 # Cores para output
 GREEN=\033[0;32m
@@ -48,6 +54,12 @@ build: ## Compila a aplicação
 	@mkdir -p $(BUILD_DIR)
 	$(GO) build $(GOFLAGS) $(LDFLAGS) -o $(BUILD_DIR)/$(APP_NAME) $(MAIN_PATH)
 	@echo "$(GREEN)✅ Build completo: $(BUILD_DIR)/$(APP_NAME)$(NC)"
+
+mcp: ## Compila el servidor MCP (cmd/mcp)
+	@echo "$(GREEN)🔨 Compilando MCP...$(NC)"
+	@mkdir -p $(BUILD_DIR)
+	$(GO) build $(GOFLAGS) -o $(BUILD_DIR)/wago-mcp ./cmd/mcp
+	@echo "$(GREEN)✅ Build MCP completo: $(BUILD_DIR)/wago-mcp$(NC)"
 
 build-linux: ## Compila para Linux
 	@echo "$(GREEN)🔨 Compilando para Linux...$(NC)"
@@ -91,7 +103,13 @@ bench: ## Roda benchmarks
 
 ##@ Dependências
 
-deps: ## Instala dependências
+submodules: ## Inicializa o submódulo whatsmeow-lib (obrigatório)
+	@if [ ! -f whatsmeow-lib/go.mod ]; then \
+		echo "$(YELLOW)📥 Inicializando submódulo whatsmeow-lib...$(NC)"; \
+		git submodule update --init --recursive; \
+	fi
+
+deps: submodules ## Instala dependências
 	@echo "$(GREEN)📦 Instalando dependências...$(NC)"
 	$(GO) mod download
 	$(GO) mod verify
@@ -158,9 +176,16 @@ migrate-down: ## Reverte migrations do banco de dados
 
 ##@ Docker
 
-docker-build: ## Build da imagem Docker
-	@echo "$(GREEN)🐳 Construindo imagem Docker...$(NC)"
-	docker build --build-arg VERSION=$(VERSION) -t $(APP_NAME):latest .
+buildx-setup: ## Cria o builder buildx com cache persistente (idempotente)
+	@if ! docker buildx inspect $(BUILDX_BUILDER) >/dev/null 2>&1; then \
+		echo "$(YELLOW)🔧 Criando builder buildx '$(BUILDX_BUILDER)'...$(NC)"; \
+		docker buildx create --name $(BUILDX_BUILDER) --driver docker-container --bootstrap; \
+	fi
+
+docker-build: submodules buildx-setup ## Build da imagem Docker (com cache persistente)
+	@echo "$(GREEN)🐳 Construindo imagem Docker (buildx + cache)...$(NC)"
+	docker buildx build --builder $(BUILDX_BUILDER) --load \
+		--build-arg VERSION=$(VERSION) -t $(APP_NAME):latest .
 	@echo "$(GREEN)✅ Imagem Docker construída$(NC)"
 
 docker-run: ## Roda container Docker
@@ -177,6 +202,26 @@ docker-compose-down: ## Para todos os serviços do docker-compose
 
 docker-compose-logs: ## Exibe logs do docker-compose
 	docker-compose logs -f
+
+##@ Manager (Frontend React)
+
+manager-deps: ## Instala dependências del panel React (manager-src/)
+	@echo "$(GREEN)📦 Instalando deps del manager (Vite + Radix)...$(NC)"
+	@cd manager-src && (if [ -f package-lock.json ]; then npm ci; else npm install; fi)
+	@echo "$(GREEN)✅ Deps del manager instaladas$(NC)"
+
+manager-build: ## Compila el panel React y reemplaza manager/dist con el output
+	@echo "$(GREEN)🔨 Building manager (Vite)...$(NC)"
+	@cd manager-src && npm run build
+	@# Preserva manager/dist/README.md versionado (explica que el dir
+	@# se genera por build). Solo borra el contenido transient.
+	@rm -rf manager/dist/index.html manager/dist/assets manager/dist/favicon.svg
+	@cp -r manager-src/dist/. manager/dist/
+	@echo "$(GREEN)✅ Panel compilado en manager/dist$(NC)"
+
+manager-dev: ## Levanta vite dev server con proxy al backend Go (:4000)
+	@echo "$(GREEN)🔥 Vite dev → http://localhost:5173/manager/ (proxy a :4000)$(NC)"
+	@cd manager-src && npm run dev
 
 ##@ Linting e Formatação
 

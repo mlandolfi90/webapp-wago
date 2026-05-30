@@ -277,17 +277,6 @@ func (i instances) Connect(data *ConnectStruct, instance *instance_model.Instanc
 		i.loggerWrapper.GetLogger(instance.Id).LogInfo("[%s] Instance already running, settings updated without restarting client", instance.Id)
 	}
 
-	// logger.LogInfo("Waiting 1 seconds")
-	// time.Sleep(1000 * time.Millisecond)
-
-	// if i.clientPointer[instance.Id] != nil {
-	// 	if !i.clientPointer[instance.Id].IsConnected() {
-	// 		return instance, "", "", fmt.Errorf("failed to connect")
-	// 	}
-	// } else {
-	// 	return instance, "", "", fmt.Errorf("failed to connect")
-	// }
-
 	return instance, instance.Jid, eventString, nil
 }
 
@@ -375,13 +364,19 @@ func (i instances) Logout(instance *instance_model.Instance) (*instance_model.In
 	return instance, fmt.Errorf("ignoring logout as it was not connected")
 }
 
+// WAGO-PATCH(ADR-0057): Status reportaba `Connected: client.IsConnected()`
+// (estado TCP del socket) que es true apenas se inicializa el client
+// aunque no haya sesión vinculada. El frontend interpretaba esto como
+// "instancia ya vinculada a WhatsApp" y ocultaba la UI de pareo. Ahora
+// `Connected` refleja `IsLoggedIn()` — consistente con `GetAll()` que
+// usa el mismo predicado para `Instance.Connected`. Si en el futuro un
+// cliente necesita el TCP-level, el campo `LoggedIn` ya está expuesto.
 func (i instances) Status(instance *instance_model.Instance) (*StatusStruct, error) {
 	client, err := i.ensureClientConnected(instance.Id)
 	if err != nil {
 		return nil, err
 	}
 
-	isConnected := client.IsConnected()
 	isLoggedIn := client.IsLoggedIn()
 
 	var myJid *types.JID
@@ -392,7 +387,7 @@ func (i instances) Status(instance *instance_model.Instance) (*StatusStruct, err
 	}
 
 	status := &StatusStruct{
-		Connected: isConnected,
+		Connected: isLoggedIn,
 		LoggedIn:  isLoggedIn,
 		myJid:     myJid,
 		Name:      name,
@@ -470,12 +465,26 @@ func (i instances) GetQr(instance *instance_model.Instance) (*QrcodeStruct, erro
 	return qr, nil
 }
 
+// WAGO-PATCH(ADR-0057): Pair previo era nil-unsafe (panic si el client
+// no existe), tragaba errores de PairPhone, y devolvía string vacío
+// silenciosamente cuando el cliente no estaba listo. El handler entonces
+// respondía 200 + PairingCode:"" confundiendo a los consumidores
+// (frontend creía que había generado un código vacío válido). Ahora:
+// (a) chequea client != nil → 503-equivalente; (b) propaga errores del
+// driver; (c) detecta code vacío y lo reporta como error explícito.
 func (i instances) Pair(data *PairStruct, instance *instance_model.Instance) (*PairReturnStruct, error) {
-	code, err := i.clientPointer[instance.Id].PairPhone(context.Background(), data.Phone, true, whatsmeow.PairClientChrome, "Chrome (Linux)")
-	if err != nil {
-		i.loggerWrapper.GetLogger(instance.Id).LogError("[%s] something went wrong calling pair phone", instance.Id)
+	client := i.clientPointer[instance.Id]
+	if client == nil {
+		return nil, fmt.Errorf("instance %s no está conectada — llamá Connect primero", instance.Id)
 	}
-
+	code, err := client.PairPhone(context.Background(), data.Phone, true, whatsmeow.PairClientChrome, "Chrome (Linux)")
+	if err != nil {
+		i.loggerWrapper.GetLogger(instance.Id).LogError("[%s] PairPhone falló: %v", instance.Id, err)
+		return nil, fmt.Errorf("PairPhone falló: %w", err)
+	}
+	if code == "" {
+		return nil, fmt.Errorf("PairPhone devolvió código vacío — el cliente whatsmeow no está listo, reintentá tras Connect")
+	}
 	return &PairReturnStruct{PairingCode: code}, nil
 }
 

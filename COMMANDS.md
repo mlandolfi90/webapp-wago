@@ -129,8 +129,8 @@ make clean-all
 ### Setup Inicial
 
 ```bash
-# 1. Clone o repositório
-git clone https://github.com/mlandolfi90/webapp-wago.git
+# 1. Clone o repositório (com submódulos — whatsmeow-lib é obrigatório)
+git clone --recurse-submodules https://github.com/mlandolfi90/webapp-wago.git
 cd webapp-wago
 
 # 2. Setup completo do ambiente
@@ -233,7 +233,8 @@ go install github.com/cespare/reflex@latest
 
 Para documentação completa da API e guias detalhados:
 
-- **[Documentação Oficial](./docs/wiki/README.md)** - Guias, tutoriais e referência
+- **[Índice de documentación](./docs/README.md)** - Guías, ADRs y referencia
+- **[Manual de la API](./docs/MANUAL.md)** - Referencia completa de endpoints
 - **[API Swagger](http://localhost:4000/swagger/index.html)** - Documentação interativa (quando servidor estiver rodando)
 
 ## ❓ Problemas Comuns

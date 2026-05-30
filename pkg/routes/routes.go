@@ -2,6 +2,8 @@ package routes
 
 import (
 	"net/http"
+	"os"
+	"path/filepath"
 
 	"github.com/gin-gonic/gin"
 	swaggerFiles "github.com/swaggo/files"
@@ -21,6 +23,7 @@ import (
 	send_handler "github.com/webapp-wago/webapp-wago/pkg/sendMessage/handler"
 	server_handler "github.com/webapp-wago/webapp-wago/pkg/server/handler"
 	user_handler "github.com/webapp-wago/webapp-wago/pkg/user/handler"
+	webhook_handler "github.com/webapp-wago/webapp-wago/pkg/webhook/handler"
 )
 
 type Routes struct {
@@ -38,6 +41,7 @@ type Routes struct {
 	newsletterHandler       newsletter_handler.NewsletterHandler
 	pollHandler             *poll_handler.PollHandler
 	serverHandler           server_handler.ServerHandler
+	webhookHandler          webhook_handler.WebhookHandler
 }
 
 func (r *Routes) AssignRoutes(eng *gin.Engine) {
@@ -64,13 +68,25 @@ func (r *Routes) AssignRoutes(eng *gin.Engine) {
 	})
 
 	// Rotas para o gerenciador React (sem autenticação)
+	// Compat vanilla (ADR 0019 deprecado): el bundle vanilla pedía /assets/.
 	eng.Static("/assets", "./manager/dist/assets")
 
-	// Ajuste nas rotas do manager para suportar client-side routing do React
-	eng.GET("/manager/*any", func(c *gin.Context) {
+	// SPA React (ADR 0053): Vite emite assets con base /manager/. Gin no
+	// permite un Static("/manager/assets") junto con un catch-all
+	// "/manager/*any" (conflict de patterns), así que el catch-all sirve
+	// el archivo si existe en disco, else cae al index.html (SPA fallback).
+	managerHandler := func(c *gin.Context) {
+		rel := c.Param("any")
+		if rel != "" && rel != "/" {
+			full := filepath.Join("manager/dist", filepath.Clean("/"+rel))
+			if info, err := os.Stat(full); err == nil && !info.IsDir() {
+				c.File(full)
+				return
+			}
+		}
 		c.File("manager/dist/index.html")
-	})
-
+	}
+	eng.GET("/manager/*any", managerHandler)
 	eng.GET("/manager", func(c *gin.Context) {
 		c.File("manager/dist/index.html")
 	})
@@ -115,6 +131,7 @@ func (r *Routes) AssignRoutes(eng *gin.Engine) {
 			routes.POST("/text", r.jidValidationMiddleware.ValidateNumberFieldWithFormatJid(), r.sendHandler.SendText)
 			routes.POST("/link", r.jidValidationMiddleware.ValidateNumberFieldWithFormatJid(), r.sendHandler.SendLink)
 			routes.POST("/media", r.jidValidationMiddleware.ValidateNumberFieldWithFormatJid(), r.sendHandler.SendMedia)
+			routes.POST("/album", r.jidValidationMiddleware.ValidateNumberFieldWithFormatJid(), r.sendHandler.SendAlbum)
 			routes.POST("/poll", r.jidValidationMiddleware.ValidateNumberFieldWithFormatJid(), r.sendHandler.SendPoll)
 			routes.POST("/sticker", r.jidValidationMiddleware.ValidateNumberFieldWithFormatJid(), r.sendHandler.SendSticker)
 			routes.POST("/location", r.jidValidationMiddleware.ValidateNumberFieldWithFormatJid(), r.sendHandler.SendLocation)
@@ -142,6 +159,16 @@ func (r *Routes) AssignRoutes(eng *gin.Engine) {
 			routes.POST("/profilePicture", r.userHandler.SetProfilePicture)
 			routes.POST("/profileName", r.userHandler.SetProfileName)
 			routes.POST("/profileStatus", r.userHandler.SetProfileStatus)
+		}
+	}
+	routes = eng.Group("/webhook")
+	{
+		routes.Use(r.authMiddleware.Auth)
+		{
+			routes.GET("", r.webhookHandler.List)
+			routes.POST("", r.webhookHandler.Create)
+			routes.PUT("/:id", r.webhookHandler.Update)
+			routes.DELETE("/:id", r.webhookHandler.Delete)
 		}
 	}
 	routes = eng.Group("/message")
@@ -259,6 +286,7 @@ func NewRouter(
 	newsletterHandler newsletter_handler.NewsletterHandler,
 	pollHandler *poll_handler.PollHandler,
 	serverHandler server_handler.ServerHandler,
+	webhookHandler webhook_handler.WebhookHandler,
 ) *Routes {
 	return &Routes{
 		authMiddleware:          authMiddleware,
@@ -275,5 +303,6 @@ func NewRouter(
 		newsletterHandler:       newsletterHandler,
 		pollHandler:             pollHandler,
 		serverHandler:           serverHandler,
+		webhookHandler:          webhookHandler,
 	}
 }

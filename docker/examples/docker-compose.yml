@@ -2,6 +2,9 @@ version: '3.8'
 
 services:
   webapp-wago:
+    build:
+      context: ../..
+      dockerfile: Dockerfile
     image: webapp-wago:latest
     container_name: webapp-wago
     restart: unless-stopped

@@ -1,3 +1,4 @@
 [submodule "whatsmeow-lib"]
 	path = whatsmeow-lib
-	url = https://github.com/EvolutionAPI/whatsmeow.git
+	url = https://github.com/mlandolfi90/whatsmeow.git
+	branch = wago-patches

@@ -16,6 +16,7 @@ type SendHandler interface {
 	SendText(ctx *gin.Context)
 	SendLink(ctx *gin.Context)
 	SendMedia(ctx *gin.Context)
+	SendAlbum(ctx *gin.Context)
 	SendPoll(ctx *gin.Context)
 	SendSticker(ctx *gin.Context)
 	SendLocation(ctx *gin.Context)
@@ -69,6 +70,52 @@ func (s *sendHandler) SendText(ctx *gin.Context) {
 	}
 
 	message, err := s.sendMessageService.SendText(data, instance)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{"message": "success", "data": message})
+}
+
+// Send an album (multiple media as a real album)
+// @Summary Send an album message
+// @Description Send N images/videos grouped as a WhatsApp album
+// @Tags Send Message
+// @Accept json
+// @Produce json
+// @Param message body send_service.AlbumStruct true "Album data"
+// @Success 200 {object} gin.H "success"
+// @Failure 400 {object} gin.H "Error on validation"
+// @Failure 500 {object} gin.H "Internal server error"
+// @Router /send/album [post]
+func (s *sendHandler) SendAlbum(ctx *gin.Context) {
+	getInstance := ctx.MustGet("instance")
+
+	instance, ok := getInstance.(*instance_model.Instance)
+	if !ok {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "instance not found"})
+		return
+	}
+
+	var data *send_service.AlbumStruct
+	err := ctx.ShouldBindBodyWithJSON(&data)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	if data.Number == "" {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "phone number is required"})
+		return
+	}
+
+	if len(data.Items) < 2 {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "an album needs at least 2 items"})
+		return
+	}
+
+	message, err := s.sendMessageService.SendAlbum(data, instance)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return

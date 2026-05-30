@@ -238,20 +238,6 @@ func CreateSocks5Proxy(socks5Host, socks5Port, user, password string) (proxy.Dia
 	}
 
 	return dialer, nil
-
-	// return func(req *http.Request) (*url.URL, error) {
-	// 	host := req.URL.Host
-	// 	if !strings.Contains(host, ":") {
-	// 		host = fmt.Sprintf("%s:443", host) // Adiciona porta padrão 443 se não especificada
-	// 	}
-	// 	conn, err := dialer.Dial("tcp", host)
-	// 	if err != nil {
-	// 		return nil, err
-	// 	}
-	// 	defer conn.Close()
-
-	// 	return nil, nil
-	// }, nil
 }
 
 // NormalizeProxyProtocol returns the proxy protocol normalized to one of
