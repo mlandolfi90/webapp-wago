@@ -7,9 +7,12 @@ import { InstanceLayout } from "@/layout/InstanceLayout";
 import { MainLayout } from "@/layout/MainLayout";
 
 import Dashboard from "@/pages/Dashboard";
+import { Connection } from "@/pages/instance/Connection";
+import { DangerZone } from "@/pages/instance/DangerZone";
 import { DashboardInstance } from "@/pages/instance/DashboardInstance";
 import { Proxy } from "@/pages/instance/Proxy";
 import { Rabbitmq } from "@/pages/instance/Rabbitmq";
+import { SendTest } from "@/pages/instance/SendTest";
 import { Settings } from "@/pages/instance/Settings";
 import { Webhook } from "@/pages/instance/Webhook";
 import { Websocket } from "@/pages/instance/Websocket";
@@ -101,6 +104,37 @@ const router = createBrowserRouter([
       <ProtectedRoute feature="proxy">
         <InstanceLayout>
           <Proxy />
+        </InstanceLayout>
+      </ProtectedRoute>
+    ),
+  },
+  // Features wago (no estaban en el original):
+  {
+    path: "/manager/instance/:instanceId/connection",
+    element: (
+      <ProtectedRoute>
+        <InstanceLayout>
+          <Connection />
+        </InstanceLayout>
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: "/manager/instance/:instanceId/send-test",
+    element: (
+      <ProtectedRoute>
+        <InstanceLayout>
+          <SendTest />
+        </InstanceLayout>
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: "/manager/instance/:instanceId/danger",
+    element: (
+      <ProtectedRoute>
+        <InstanceLayout>
+          <DangerZone />
         </InstanceLayout>
       </ProtectedRoute>
     ),

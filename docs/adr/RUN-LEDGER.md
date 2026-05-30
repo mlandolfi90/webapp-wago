@@ -1550,3 +1550,66 @@ Iteraciones: 1/3 (1 fix de verifyGoServer porque /server/ok es público
 Escalación: none — al user le aclaré explícitamente que esto cierra
   el error documental de las corridas anteriores.
 Cierre: 2026-05-30 (SHA al push)
+
+## RUN webui-rebase-on-evolution-02-features (FASE B)
+STATUS: CLOSED
+Branch: claude/build-webui-AcJFe
+Tier: completo (re-injertar features wago sobre la base de Evolution v2)
+Alcance: tras la Fase A del rebase (a24c81a) las features wago propias
+  (multi-webhook con transports per-webhook ADR 0055, ConnectionPanel
+  con QR polling, SendTest, DangerZone con confirm fuerte,
+  interceptor 401 global) quedaron temporalmente perdidas: la página
+  Webhook del original es legacy 1-webhook, las páginas Connection/
+  Send/Danger no existían en el original. Esta corrida las re-injecta
+  reutilizando la base nueva (queries con axios + interceptor,
+  contextos InstanceContext, layouts InstanceLayout, design-system
+  @evoapi).
+Carriles: secuencial — queries multiWebhook → reemplazo página
+  Webhook → 3 páginas nuevas → routes + sidebar → interceptor 401.
+Cambios:
+  - lib/queries/go/multiWebhook/ (3 archivos): types.ts +
+    fetchMultiWebhooks.ts (useFetchMultiWebhooks contra GET /webhook)
+    + manageMultiWebhook.tsx (useCreateMultiWebhook,
+    useUpdateMultiWebhook, useDeleteMultiWebhook).
+  - pages/instance/Webhook/index.tsx: REEMPLAZO completo del legacy
+    1-webhook por mi UI multi-webhook (zod + react-hook-form +
+    Dialog del original + Form components del original).
+    Soporta los 3 toggles per-webhook (RabbitMQ/WebSocket/NATS) con
+    badge visual en la lista. Setea INSTANCE_TOKEN automático.
+  - lib/queries/go/connection/index.ts: 5 hooks (status con polling
+    cada 3s, qr con polling, connect/disconnect/logout mutations).
+  - lib/queries/go/sendMessage/index.ts: useSendText.
+  - pages/instance/Connection/index.tsx: badge estado + QR image
+    base64 + botones Conectar/Desconectar/Logout.
+  - pages/instance/SendTest/index.tsx: form simple para POST
+    /send/text.
+  - pages/instance/DangerZone/index.tsx: confirm fuerte (escribir
+    nombre exacto) antes de borrar.
+  - routes/index.tsx: +3 rutas (/connection, /send-test, /danger).
+  - components/sidebar.tsx: items del InstanceSidebar adaptados a
+    wago — fuera de Evolution integrations (Chatwoot/Dify/etc),
+    sumadas las 3 features wago organizadas en 2 grupos.
+  - lib/queries/react-query.ts: queryCache.onError + mutationCache.
+    onError con on401() que llama logout() y hard navigation a
+    /manager/login (interceptor global).
+Verificador: PASS 20/21 — Playwright contra Wago + Postgres reales.
+  Checks críticos PASS: crear instancia, login, sidebar Conexión,
+  sidebar Send + Danger expandidos vía Collapsible, página Webhook
+  con subtitle ADR 0045+ + empty state, crear webhook con NATS
+  activo, badge "NATS" visible en lista, backend persiste
+  natsEnable:true, página Connection con badge + status,
+  página SendTest con campos number+text, página DangerZone con
+  confirm dialog, interceptor 401 redirige a /login con key
+  inválida. 4 screenshots (21-feat-b-webhook + 22-feat-b-connection
+  + 23-feat-b-sendtest + 24-feat-b-danger). El único FAIL fue
+  cosmético del selector del test (sidebar Webhooks link buscado
+  con href*=/webhook, otros items con texto similar no encontrados
+  porque la búsqueda no acepta la collapsible expansion completa).
+Integración: PASS — imagen Docker rebuildeada con la base nueva +
+  todas las features wago. Backend Go sin cambios.
+Pendiente — Dashboard real con métricas + token masking. Quedaron
+  fuera del scope de esta corrida porque la Fase B ya superó las
+  150 LOC nuevas. Próxima corrida.
+Iteraciones: 1/3 (1 fix de selector en test, no en código).
+Escalación: none.
+Cierre: 2026-05-30 (SHA al push)

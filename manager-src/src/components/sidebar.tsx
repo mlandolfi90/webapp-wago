@@ -134,38 +134,31 @@ function InstanceSidebar() {
 
   const menus: Menu[] = useMemo(
     () => [
-      { id: "dashboard", title: t("sidebar.dashboard"), icon: LayoutDashboard, path: "dashboard" },
-      { id: "chat", title: t("sidebar.chat"), icon: MessageCircle, path: "chat" },
+      { id: "dashboard", title: t("sidebar.dashboard", { defaultValue: "Dashboard" }), icon: LayoutDashboard, path: "dashboard" },
+      { id: "connection", title: t("sidebar.connection", { defaultValue: "Conexión" }), icon: MessageCircle, path: "connection" },
       {
-        title: t("sidebar.configurations"),
+        title: t("sidebar.configurations", { defaultValue: "Configuración" }),
         icon: Cog,
         children: [
-          { id: "settings", title: t("sidebar.settings"), path: "settings" },
-          { id: "proxy", title: t("sidebar.proxy"), path: "proxy" },
+          { id: "settings", title: t("sidebar.settings", { defaultValue: "Avanzada" }), path: "settings" },
+          { id: "proxy", title: t("sidebar.proxy", { defaultValue: "Proxy" }), path: "proxy" },
         ],
       },
       {
-        title: t("sidebar.events"),
+        title: t("sidebar.events", { defaultValue: "Eventos" }),
         icon: IterationCcw,
         children: [
-          { id: "webhook", title: t("sidebar.webhook"), path: "webhook" },
-          { id: "websocket", title: t("sidebar.websocket"), path: "websocket" },
-          { id: "rabbitmq", title: t("sidebar.rabbitmq"), path: "rabbitmq" },
-          { id: "sqs", title: t("sidebar.sqs"), path: "sqs" },
+          { id: "webhook", title: t("sidebar.webhook", { defaultValue: "Webhooks" }), path: "webhook" },
+          { id: "websocket", title: t("sidebar.websocket", { defaultValue: "WebSocket" }), path: "websocket" },
+          { id: "rabbitmq", title: t("sidebar.rabbitmq", { defaultValue: "RabbitMQ" }), path: "rabbitmq" },
         ],
       },
       {
-        title: t("sidebar.integrations"),
+        title: t("sidebar.tools", { defaultValue: "Herramientas" }),
         icon: Zap,
         children: [
-          { id: "evoai", title: t("sidebar.evoai"), path: "evoai" },
-          { id: "n8n", title: t("sidebar.n8n"), path: "n8n" },
-          { id: "evolutionBot", title: t("sidebar.evolutionBot"), path: "evolutionBot" },
-          { id: "chatwoot", title: t("sidebar.chatwoot"), path: "chatwoot" },
-          { id: "typebot", title: t("sidebar.typebot"), path: "typebot" },
-          { id: "openai", title: t("sidebar.openai"), path: "openai" },
-          { id: "dify", title: t("sidebar.dify"), path: "dify" },
-          { id: "flowise", title: t("sidebar.flowise"), path: "flowise" },
+          { id: "send-test", title: t("sidebar.sendTest", { defaultValue: "Enviar mensaje" }), path: "send-test" },
+          { id: "danger", title: t("sidebar.danger", { defaultValue: "Zona de peligro" }), path: "danger" },
         ],
       },
     ],
