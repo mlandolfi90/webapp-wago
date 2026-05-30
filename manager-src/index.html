@@ -6,13 +6,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="theme-color" content="#0a0a0a" />
     <title>WebAPP-Wago</title>
-    <script>
-      (function () {
-        var t = localStorage.getItem('wago.theme') === 'light' ? 'light' : 'dark'
-        document.documentElement.setAttribute('data-theme', t)
-        document.documentElement.classList.toggle('dark', t === 'dark')
-      })()
-    </script>
   </head>
   <body>
     <div id="root"></div>

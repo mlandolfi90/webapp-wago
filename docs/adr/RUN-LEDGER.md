@@ -1475,3 +1475,78 @@ Iteraciones: 1/3 (2 fixes en el test Playwright — selector
   ninguno fue cambio de código).
 Escalación: none
 Cierre: 2026-05-29 (SHA al push)
+
+## RUN webui-rebase-on-evolution-01 (FASE A)
+STATUS: CLOSED (Fase A — base portada y login funcionando)
+Branch: claude/build-webui-AcJFe
+Tier: completo (sustitución completa de manager-src/ por código fuente
+  de evolution-manager-v2-main)
+Alcance: REBASE del panel sobre el código fuente real de
+  evolution-manager-v2 (que vivía en /tmp/evmgr/ desde el día 1 pero
+  yo nunca leí — error documentado al user). Reemplazo manager-src/
+  entero por el árbol del original, elimino páginas Evolution-
+  specific que no aplican a wago (Chat, Chatwoot, Dify, Evoai,
+  EvolutionBot, Flowise, N8n, Openai, Typebot, Sqs, EmbedChat,
+  LicenseCallback), adapto rutas y verificador de credenciales para
+  el backend Go.
+Carriles: único — sustitución base + adaptaciones críticas para que
+  arranque.
+Defectos aclarados al user antes de arrancar:
+  En la corrida 1 del Crisol (webui-react-bootstrap-01, commit
+  b3be3f1) yo dije "copia directa CON notice Apache 2.0" pero
+  ejecuté "reescritura limpia con el mismo stack". El notice
+  "Powered by Evolution Manager" en el footer no reflejaba derivación
+  real porque el código era mío original. Esto se propagó a las 7
+  corridas siguientes. Esta corrida (rebase-01) cierra ese error
+  importando el código fuente real del original.
+Cambios:
+  - manager-src/ reemplazado por evolution-manager-v2-main/ con
+    estructura del original (componentes, contexts, layouts, lib/
+    queries con cliente "go" provider, services/websocket, theme/
+    language toggles, MainLayout/InstanceLayout, ProtectedRoute/
+    PublicRoute, design-system de @evoapi/design-system).
+  - Páginas Evolution-only eliminadas (~16 carpetas de pages/instance/
+    + queries/ correspondientes + LicenseCallback).
+  - routes/index.tsx adaptado: removidas las rutas de las
+    integraciones que no aplican a wago; mantenidas
+    DashboardInstance, Webhook, Settings, Proxy, Rabbitmq, Websocket.
+  - Login simplificado: removido el provider selector (siempre "go"
+    ahora) y el flujo de licencia (Evolution-specific). Branding
+    cambiado a "WebAPP-Wago" + notice footer "Powered by Evolution
+    Manager" con link al repo original.
+  - verifyGoServer adaptado: el backend Go expone /server/ok público
+    (no valida apikey); cambiado a /instance/all que sí está bajo
+    AuthAdmin.
+  - vite.config.ts: base "/manager/" + manual chunks (vendor-router/
+    query/radix/i18n) preservando el code splitting de corridas
+    anteriores; proxy dev a backend Go.
+  - index.html: title "WebAPP-Wago" + favicon local.
+Verificador: PASS 9/9 verde (verify-v6-rebase.js):
+  title="WebAPP-Wago", body 3927 bytes, marca visible, notice "Powered
+  by Evolution Manager", redirect a /login sin auth, form con
+  serverUrl + apiKey, key inválida → sigue en login, key correcta →
+  sale del login a /manager/, página principal renderiza contenido
+  (Dashboard del original con Documentation/Postman/Discord links).
+  Screenshots: 19-rebase-login.png + 20-rebase-dashboard.png.
+Integración: PASS — imagen Docker rebuildeada con el nuevo SPA;
+  backend Go sin cambios.
+Pendiente — FASE B (próxima corrida, ya planificada):
+  Re-injertar features wago en la base nueva. Concretamente:
+  - Multi-webhook con transports per-webhook (ADR 0055 + 0049 +
+    0045): la página pages/instance/Webhook/ del original soporta
+    SOLO 1 webhook (legacy /instance/connect con webhookUrl único).
+    Reemplazar con lista + form de N webhooks consumiendo mis
+    endpoints /webhook GET/POST/PUT/DELETE.
+  - ConnectionPanel con QR polling de la corrida 4 (5+ paneles
+    paneles).
+  - SendTestPanel.
+  - DangerZonePanel con confirm fuerte.
+  - Dashboard real con métricas (count instances/connected/webhooks).
+  - Interceptor 401 global → logout automático.
+  - Token masking en panel Info.
+  - i18n strings de wago en es-ES + pt-BR.
+Iteraciones: 1/3 (1 fix de verifyGoServer porque /server/ok es público
+  en el backend Go, no valida apikey).
+Escalación: none — al user le aclaré explícitamente que esto cierra
+  el error documental de las corridas anteriores.
+Cierre: 2026-05-30 (SHA al push)
