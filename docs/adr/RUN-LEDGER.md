@@ -1700,3 +1700,44 @@ Iteraciones: 1/3 (1 fix de UI por bug del backend descubierto en
 Escalación: el bug del /instance/status documentar como deuda
   técnica del backend.
 Cierre: 2026-05-30 (SHA al push)
+
+## RUN backend-status-pair-bugs-fix-01
+STATUS: CLOSED
+Branch: claude/build-webui-AcJFe
+Tier: completo (cambio de contrato observable + ADR + verificación E2E)
+Alcance: 2 bugs del instance service descubiertos durante la corrida
+  webui-pair-by-phone-01 (commit 90a13c3):
+  - Bug 1: Status reporta Connected:true sin sesión real (usaba
+    IsConnected TCP; inconsistente con GetAll que usa IsLoggedIn).
+  - Bug 2: Pair nil-unsafe, traga errores de PairPhone, devuelve
+    code vacío silenciosamente sin error.
+Carriles: único — backend (pkg/instance/service/instance_service.go).
+Planificador: ambos bugs son en el mismo file, mismo nivel
+  semántico (contratos observables del instance service). Justifica
+  una sola corrida del Crisol.
+Arquitecto: APPROVE — ambos fixes son point-fixes, no rediseñan
+  nada. REGLA ORO #1: ADR 0057 (cambio de contrato observable).
+  Marker WAGO-PATCH(ADR-0057) para re-aplicar al mergear upstream.
+Ingeniero: pkg/instance/service/instance_service.go (Status:
+  reemplaza IsConnected() por IsLoggedIn() consistente con
+  GetAll; Pair: chequea client != nil, propaga err de PairPhone,
+  detecta code vacío como error explícito). docs/adr/0057-fix-
+  status-pair-bugs.md (nuevo).
+Verificador: PASS — curl manual + Playwright:
+  Status (sin Connect): Connected=false LoggedIn=false (antes
+    Connected=true).
+  Pair (sin Connect): HTTP 500 + "instance X no está conectada —
+    llamá Connect primero" (antes HTTP 200 + PairingCode:"").
+  Pair (tras Connect): HTTP 200 + PairingCode no vacío (e.g.
+    "DJFM-HFHV").
+  Suite pair-by-phone: 11/11 PASS (test 3 actualizado al nuevo
+    contrato — verifica el 500 con mensaje "llamá Connect").
+  Suite Dashboard KPIs (regresión): 11/11 PASS.
+Integración: PASS — imagen Docker rebuildeada con los 2 fixes.
+  Frontend pair-by-phone NO requirió cambios — el toast ya maneja
+  ambos casos (code OK / error con mensaje del backend).
+Iteraciones: 1/3 (sin fixes; tests actualizados al nuevo contrato).
+Escalación: none. La deuda derivada del clientPointer map sin
+  lock queda documentada en docs/notes/0011-security-debt-deferred.md
+  punto 3.
+Cierre: 2026-05-30 (SHA al push)
