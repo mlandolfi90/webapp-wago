@@ -71,6 +71,10 @@
       "danger": "Zona de peligro"
     },
     "infoTitle": "Información de la instancia",
+    "show": "Mostrar",
+    "hide": "Ocultar",
+    "copy": "Copiar",
+    "copyOk": "Copiado al portapapeles.",
     "fields": {
       "id": "ID",
       "token": "Token",
@@ -205,7 +209,7 @@
     "chatType": {
       "any": "Todos",
       "group": "Grupos",
-      "private": "Privados"
+      "individual": "Individuales"
     }
   },
   "theme": {

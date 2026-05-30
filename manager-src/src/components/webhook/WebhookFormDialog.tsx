@@ -26,7 +26,8 @@ import {
   type FilterFieldsValue,
 } from './WebhookFilterFields'
 
-// Las constantes del backend están en MAYÚSCULAS (pkg/internal/event_types).
+// Las constantes del backend están en MAYÚSCULAS — lista completa en
+// pkg/internal/event_types/event_types.go::AllEventTypes (14 + ALL).
 // Cualquier valor fuera de esta lista hace que el backend rechace con
 // "event type inválido".
 const KNOWN_EVENTS = [
@@ -34,12 +35,18 @@ const KNOWN_EVENTS = [
   'SEND_MESSAGE',
   'READ_RECEIPT',
   'PRESENCE',
-  'CONNECTION',
+  'HISTORY_SYNC',
+  'CHAT_PRESENCE',
   'CALL',
-  'GROUP',
+  'CONNECTION',
+  'LABEL',
   'CONTACT',
+  'GROUP',
+  'NEWSLETTER',
   'QRCODE',
+  'BUTTON_CLICK',
 ]
+const ALL_EVENT = 'ALL'
 
 type Props = {
   open: boolean
@@ -81,7 +88,12 @@ export function WebhookFormDialog({
       setUrl(initial.url)
       setEnabled(initial.enabled)
       setIgnoreFromMe(initial.ignoreFromMe)
-      setEventsText((initial.events ?? KNOWN_EVENTS).join('\n'))
+      // Semántica backend: events vacío o `["ALL"]` = todos los eventos.
+      // Si viene array vacío del backend, mostramos `ALL` explícito en el
+      // textarea para que el usuario sepa que no hay filtro (evita confundir
+      // "vacío" con "todos bloqueados").
+      const evs = initial.events ?? []
+      setEventsText(evs.length === 0 ? ALL_EVENT : evs.join('\n'))
       setFilter({
         chatType: initial.chatType,
         chatIds: listToText(initial.chatIds),

@@ -23,7 +23,10 @@ type Props = { instance: Instance }
 const empty: ProxyConfig = {
   protocol: 'http',
   host: '',
-  port: 8080,
+  // El backend SetProxyStruct.Port es string; mantenemos string acá para
+  // que el body JSON envíe "8080" en vez de 8080 (que romperia el
+  // ShouldBindJSON con "cannot unmarshal number into string field").
+  port: '8080',
   username: '',
   password: '',
 }
@@ -59,7 +62,7 @@ export function ProxyPanel({ instance }: Props) {
   const patch = <K extends keyof ProxyConfig>(k: K, v: ProxyConfig[K]) =>
     setForm({ ...form, [k]: v })
 
-  const canSave = Boolean(form.host && form.port)
+  const canSave = Boolean(form.host && form.port && /^\d+$/.test(form.port))
 
   return (
     <Card>
@@ -101,8 +104,9 @@ export function ProxyPanel({ instance }: Props) {
             <Input
               id="proxyPort"
               type="number"
+              inputMode="numeric"
               value={form.port}
-              onChange={(e) => patch('port', Number(e.target.value))}
+              onChange={(e) => patch('port', e.target.value)}
               placeholder="8080"
             />
           </div>
@@ -159,7 +163,7 @@ function parseProxyString(raw: string): ProxyConfig {
     return {
       protocol: ['http', 'https', 'socks5'].includes(protocol) ? protocol : 'http',
       host: u.hostname,
-      port: Number(u.port || 8080),
+      port: u.port || '8080',
       username: u.username || '',
       password: u.password || '',
     }

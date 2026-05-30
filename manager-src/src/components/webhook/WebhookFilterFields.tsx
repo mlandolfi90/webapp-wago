@@ -45,7 +45,7 @@ export function WebhookFilterFields({ value, onChange }: Props) {
           <SelectContent>
             <SelectItem value="any">{t('webhook.chatType.any')}</SelectItem>
             <SelectItem value="group">{t('webhook.chatType.group')}</SelectItem>
-            <SelectItem value="private">{t('webhook.chatType.private')}</SelectItem>
+            <SelectItem value="individual">{t('webhook.chatType.individual')}</SelectItem>
           </SelectContent>
         </Select>
       </div>

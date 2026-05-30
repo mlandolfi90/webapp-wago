@@ -28,7 +28,9 @@ export type Instance = {
   ignoreFromMe: boolean
 }
 
-export type WebhookChatType = 'any' | 'group' | 'private'
+// Alineado con webhook_model.go (ChatTypeAny/Group/Individual).
+// 'individual' = chats privados (1-a-1, no grupo).
+export type WebhookChatType = 'any' | 'group' | 'individual'
 
 export type Webhook = {
   id: string
@@ -78,7 +80,9 @@ export type AdvancedSettings = {
 export type ProxyConfig = {
   protocol: 'http' | 'https' | 'socks5'
   host: string
-  port: number
+  // El backend `SetProxyStruct.Port` es string con `validate:"required"`.
+  // El form usa <Input type="number"> en la UI pero serializamos string.
+  port: string
   username?: string
   password?: string
 }

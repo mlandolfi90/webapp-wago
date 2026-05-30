@@ -6,12 +6,17 @@ import {
   AlertTriangle,
   ArrowLeft,
   Cable,
+  Check,
+  Copy,
+  Eye,
+  EyeOff,
   Info,
   Send,
   Settings,
   ShieldAlert,
   Webhook as WebhookIcon,
 } from 'lucide-react'
+import { toast } from 'sonner'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import {
@@ -195,7 +200,14 @@ function InfoSection({
       <CardContent>
         <dl className="grid gap-3 sm:grid-cols-2">
           <Row label={t('instanceConfig.fields.id')} value={instance.id} mono />
-          <Row label={t('instanceConfig.fields.token')} value={instance.token} mono />
+          <SecretRow
+            label={t('instanceConfig.fields.token')}
+            value={instance.token}
+            showLabel={t('instanceConfig.show')}
+            hideLabel={t('instanceConfig.hide')}
+            copyLabel={t('instanceConfig.copy')}
+            copyOkLabel={t('instanceConfig.copyOk')}
+          />
           <Row label={t('instanceConfig.fields.jid')} value={instance.jid || '—'} mono />
           <Row
             label={t('instanceConfig.fields.createdAt')}
@@ -206,6 +218,72 @@ function InfoSection({
         </dl>
       </CardContent>
     </Card>
+  )
+}
+
+function SecretRow({
+  label,
+  value,
+  showLabel,
+  hideLabel,
+  copyLabel,
+  copyOkLabel,
+}: {
+  label: string
+  value: string
+  showLabel: string
+  hideLabel: string
+  copyLabel: string
+  copyOkLabel: string
+}) {
+  const [revealed, setRevealed] = useState(false)
+  const [copied, setCopied] = useState(false)
+  // Mask: muestra primeros 4 + últimos 4 del token. Defiende contra
+  // capturas accidentales (screenshots de la UI sin click revelar).
+  const masked =
+    value.length > 12 ? `${value.slice(0, 4)}…${value.slice(-4)}` : '••••••••'
+
+  return (
+    <div className="space-y-1">
+      <dt className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+        {label}
+      </dt>
+      <dd className="flex items-center gap-2">
+        <span
+          data-testid="secret-value"
+          className="break-all font-mono text-sm"
+        >
+          {revealed ? value : masked}
+        </span>
+        <button
+          type="button"
+          onClick={() => setRevealed((v) => !v)}
+          aria-label={revealed ? hideLabel : showLabel}
+          title={revealed ? hideLabel : showLabel}
+          className="shrink-0 rounded p-1 text-muted-foreground hover:bg-accent hover:text-accent-foreground"
+        >
+          {revealed ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+        </button>
+        <button
+          type="button"
+          onClick={async () => {
+            try {
+              await navigator.clipboard.writeText(value)
+              setCopied(true)
+              toast.success(copyOkLabel)
+              setTimeout(() => setCopied(false), 1500)
+            } catch {
+              /* clipboard puede fallar sin permisos; ignoramos */
+            }
+          }}
+          aria-label={copyLabel}
+          title={copyLabel}
+          className="shrink-0 rounded p-1 text-muted-foreground hover:bg-accent hover:text-accent-foreground"
+        >
+          {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+        </button>
+      </dd>
+    </div>
   )
 }
 

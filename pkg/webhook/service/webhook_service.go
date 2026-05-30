@@ -138,12 +138,30 @@ func NewWebhookService(
 // construir cada producer global (puede ser nil si la config está
 // apagada). Setter en vez de extender el constructor para no romper
 // llamadores existentes (tests + main upstream).
+//
+// Tomamos el mismo `mu` que el cache. En la práctica `main.go` llama
+// SetTransports una vez antes de aceptar tráfico, pero protegerlo:
+// (a) sile el race detector si alguna corrida futura llama desde otro
+// goroutine, (b) habilita reload dinámico sin reescribir el setter.
 func (s *webhookService) SetTransports(
 	rabbitmq, websocket, nats producer_interfaces.Producer,
 ) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
 	s.rabbitmqProducer = rabbitmq
 	s.websocketProducer = websocket
 	s.natsProducer = nats
+}
+
+// getTransports devuelve una snapshot de los 3 producers opcionales
+// bajo el RLock. Llamado por Dispatch para evitar leer los fields sin
+// sincronización (race con SetTransports).
+func (s *webhookService) getTransports() (
+	rabbitmq, websocket, nats producer_interfaces.Producer,
+) {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+	return s.rabbitmqProducer, s.websocketProducer, s.natsProducer
 }
 
 // validate normaliza y valida un input. Llamada en Create/Update.
@@ -441,6 +459,9 @@ func (s *webhookService) Dispatch(instanceID, eventType, chatJID, senderJID stri
 		}
 	}
 
+	// Snapshot de los transports bajo el RLock (WAGO-PATCH(ADR-0055)).
+	rabbitmq, websocket, nats := s.getTransports()
+
 	for i := range whs {
 		w := &whs[i]
 		if !MatchesFilter(w, eventType, chatJID, senderJID, chatName, senderName, isFromMe) {
@@ -455,14 +476,14 @@ func (s *webhookService) Dispatch(instanceID, eventType, chatJID, senderJID stri
 		// producer global fue inyectado (config global del transport
 		// levantada). Los errores se ignoran (consistente con el HTTP
 		// producer arriba) — fire-and-forget.
-		if w.RabbitmqEnable && s.rabbitmqProducer != nil {
-			_ = s.rabbitmqProducer.Produce(queueName, jsonData, w.URL, instanceID)
+		if w.RabbitmqEnable && rabbitmq != nil {
+			_ = rabbitmq.Produce(queueName, jsonData, w.URL, instanceID)
 		}
-		if w.WebsocketEnable && s.websocketProducer != nil {
-			_ = s.websocketProducer.Produce(queueName, jsonData, w.URL, instanceID)
+		if w.WebsocketEnable && websocket != nil {
+			_ = websocket.Produce(queueName, jsonData, w.URL, instanceID)
 		}
-		if w.NatsEnable && s.natsProducer != nil {
-			_ = s.natsProducer.Produce(queueName, jsonData, w.URL, instanceID)
+		if w.NatsEnable && nats != nil {
+			_ = nats.Produce(queueName, jsonData, w.URL, instanceID)
 		}
 	}
 }

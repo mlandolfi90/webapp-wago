@@ -1424,3 +1424,54 @@ Verificación E2E:
 Veredicto: PASS — sin bugs descubiertos. El MCP sobrevivió a los
   cambios de las corridas 1-3 (que no tocan internal/mcp/).
 Cierre: 2026-05-29 (sin commit de código)
+
+## RUN code-review-blockers-fix-01
+STATUS: CLOSED
+Branch: claude/build-webui-AcJFe
+Tier: completo (3 BLOCKERS + 2 HIGH + 2 MEDIUM del code-review del PR)
+Alcance: corregir los hallazgos del code-review automatizado sobre el
+  diff de la rama. Mezcla cambios chicos en 7 archivos (4 frontend,
+  1 backend, 2 i18n). Cada hallazgo tiene 1 fix observable + test
+  end-to-end.
+Carriles: secuencial — types/backend contract → UI components →
+  cross-cutting (interceptor 401).
+Hallazgos corregidos:
+  1) BLOCKER chatType:'private' vs backend 'individual' — fix en
+     types.ts + WebhookFilterFields.tsx + es.json + pt.json.
+  2) BLOCKER ProxyConfig.port:number vs backend string — fix en
+     types.ts + ProxyPanel.tsx (Input type=number sigue, pero
+     serializa como string; canSave valida \d+).
+  3) HIGH KNOWN_EVENTS solo 9 de 15 del backend — extendido a 14
+     (sin ALL como item; ALL se usa como display para events:[]).
+  4) HIGH events:[] del backend mostraba textarea vacío — ahora
+     muestra "ALL" explícito para que el usuario entienda la
+     semántica del backend (vacío = todos los eventos).
+  5) MEDIUM sin interceptor global 401/403 — agregado en App.tsx
+     via QueryCache + MutationCache con on401 que clearApiKey() +
+     hard navigation a /manager/login.
+  6) MEDIUM token leak en panel Info — SecretRow component nuevo:
+     mascarado por default (primeros 4 + … + últimos 4), botones
+     Mostrar/Ocultar (Eye/EyeOff) + Copiar al clipboard (Copy/
+     Check feedback 1.5s).
+  7) MEDIUM race en SetTransports — getTransports() helper que
+     toma snapshot bajo s.mu.RLock(); Dispatch lo usa en vez de
+     leer s.rabbitmqProducer/etc directos. `go test -race ./pkg/
+     webhook/...` PASS sin alertas.
+Verificador: PASS 15/15 nuevos (verify-v5-bugfix.js) + 11/11
+  Dashboard sin regresión + 25/25 Instances sin regresión = 51/51.
+  Tests específicos críticos: chatType:'individual' aceptado por
+  backend (200), 'private' rechazado (400 "chatType inválido");
+  proxy port:string aceptado, port:number rechazado con el error
+  exacto que el reviewer anticipó "cannot unmarshal number into Go
+  struct field SetProxyStruct.port"; token UI mascarado por default,
+  click Mostrar revela completo, click Ocultar re-mascara; events:
+  [] del backend → form muestra "ALL"; interceptor 401 con key
+  inválida → redirect a /login + localStorage limpio.
+Integración: PASS — imagen Docker rebuildeada (backend cambió por
+  el SetTransports). Frontend bundle: code splitting de la corrida
+  3 preservado (78 KB index + chunks vendor-*).
+Iteraciones: 1/3 (2 fixes en el test Playwright — selector
+  ambiguo del combobox + navegación al webhooks tab tras reload —
+  ninguno fue cambio de código).
+Escalación: none
+Cierre: 2026-05-29 (SHA al push)
