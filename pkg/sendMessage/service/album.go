@@ -5,7 +5,10 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"net"
 	"net/http"
+	"net/url"
+	"strings"
 	"time"
 
 	instance_model "github.com/webapp-wago/webapp-wago/pkg/instance/model"
@@ -85,15 +88,96 @@ func buildAlbumChild(m uploadedMedia, index int, parent *waCommon.MessageKey, ca
 	}, MessageContextInfo: assoc}
 }
 
-func downloadMedia(url string) ([]byte, string, error) {
-	cl := &http.Client{Timeout: 60 * time.Second}
-	res, err := cl.Get(url)
+// WAGO-PATCH(ADR-0059): SSRF guard. `downloadMedia` antes hacía
+// http.Get(url) sin validar destino → operador autenticado podía
+// pivotar a la red interna o leer cloud metadata
+// (http://169.254.169.254/). Ahora bloqueamos:
+// - schemes distintos de http/https
+// - loopback, link-local, private (RFC1918), IMDS
+// El check se hace tras resolver el DNS (para que un host
+// público que apunta a IP privada también caiga).
+var ssrfBlockedRanges = func() []*net.IPNet {
+	cidrs := []string{
+		"127.0.0.0/8", "10.0.0.0/8", "172.16.0.0/12", "192.168.0.0/16",
+		"169.254.0.0/16", "::1/128", "fc00::/7", "fe80::/10",
+	}
+	nets := make([]*net.IPNet, 0, len(cidrs))
+	for _, c := range cidrs {
+		_, n, err := net.ParseCIDR(c)
+		if err == nil {
+			nets = append(nets, n)
+		}
+	}
+	return nets
+}()
+
+func isBlockedIP(ip net.IP) bool {
+	if ip.IsLoopback() || ip.IsLinkLocalUnicast() || ip.IsLinkLocalMulticast() {
+		return true
+	}
+	for _, n := range ssrfBlockedRanges {
+		if n.Contains(ip) {
+			return true
+		}
+	}
+	return false
+}
+
+func validateMediaURL(raw string) error {
+	u, err := url.Parse(raw)
 	if err != nil {
+		return fmt.Errorf("URL inválida: %w", err)
+	}
+	if u.Scheme != "http" && u.Scheme != "https" {
+		return fmt.Errorf("URL inválida: scheme %q no soportado (solo http/https)", u.Scheme)
+	}
+	host := u.Hostname()
+	if host == "" {
+		return errors.New("URL inválida: host vacío")
+	}
+	// Si es una IP directa, validamos esa.
+	if ip := net.ParseIP(host); ip != nil {
+		if isBlockedIP(ip) {
+			return fmt.Errorf("URL inválida: host %q apunta a rango privado/loopback/IMDS", host)
+		}
+		return nil
+	}
+	// Es un hostname → resolver y chequear TODAS las IPs.
+	ips, err := net.LookupIP(host)
+	if err != nil {
+		return fmt.Errorf("resolución de %q falló: %w", host, err)
+	}
+	for _, ip := range ips {
+		if isBlockedIP(ip) {
+			return fmt.Errorf("URL inválida: %q resuelve a %s (rango bloqueado)", host, ip)
+		}
+	}
+	return nil
+}
+
+func downloadMedia(rawURL string) ([]byte, string, error) {
+	if err := validateMediaURL(rawURL); err != nil {
 		return nil, "", err
+	}
+	cl := &http.Client{
+		Timeout: 60 * time.Second,
+		// Evita redirects que apunten a hosts privados (atacante podría
+		// servir un 302 → http://169.254.169.254).
+		CheckRedirect: func(req *http.Request, via []*http.Request) error {
+			if len(via) >= 5 {
+				return errors.New("demasiados redirects")
+			}
+			return validateMediaURL(req.URL.String())
+		},
+	}
+	res, err := cl.Get(rawURL)
+	if err != nil {
+		// Mensaje genérico para no filtrar topología de red interna.
+		return nil, "", fmt.Errorf("descarga falló (%s...)", strings.SplitN(rawURL, "?", 2)[0])
 	}
 	defer res.Body.Close()
 	if res.StatusCode < 200 || res.StatusCode >= 300 {
-		return nil, "", fmt.Errorf("descarga %s: HTTP %d", url, res.StatusCode)
+		return nil, "", fmt.Errorf("descarga: HTTP %d", res.StatusCode)
 	}
 	b, err := io.ReadAll(io.LimitReader(res.Body, 64<<20))
 	if err != nil {

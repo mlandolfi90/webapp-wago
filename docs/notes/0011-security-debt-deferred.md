@@ -1,9 +1,13 @@
-# 0011 — Deuda de seguridad pendiente (decisión: postergar)
+# 0011 — Deuda de seguridad pendiente (estado: parcialmente corregido)
 
 Nota técnica que centraliza los hallazgos de seguridad detectados durante
 el code-review automatizado del PR `claude/build-webui-AcJFe` (corrida
-`code-review-blockers-fix-01`) que **deliberadamente NO se corrigen** en
-este momento.
+`code-review-blockers-fix-01`).
+
+**Update 2026-05-30** (corrida `tech-debt-payoff-01`): los 2 hallazgos
+HIGH de SSRF (puntos 1 y 5 originales) **fueron corregidos** vía
+**ADR 0059**. Los puntos 3 y 4 (race y thundering-herd) siguen como
+deuda. El punto 5 original (CORS) sigue como deuda menor.
 
 ## Threat model — por qué se postergan
 
@@ -25,7 +29,13 @@ exponga en escenarios multi-tenant o public-facing.
 
 ## Hallazgos
 
-### 1. SSRF en `pkg/sendMessage/service/album.go` — HIGH
+### 1. SSRF en `pkg/sendMessage/service/album.go` — ✅ CORREGIDO (ADR 0059)
+
+**Status**: cerrado el 2026-05-30 vía ADR 0059. `downloadMedia` ahora
+valida scheme + IP del destino + redirects. Sección abajo queda para
+referencia histórica.
+
+### 1.HIST (original) - SSRF en `pkg/sendMessage/service/album.go` — HIGH
 
 **Archivo**: `pkg/sendMessage/service/album.go:88-107` (`downloadMedia`).
 
@@ -69,7 +79,14 @@ func validateMediaURL(rawURL string) error {
 
 Llamar `validateMediaURL` antes del `http.Get`.
 
-### 2. Sin límites en `/send/album` — HIGH
+### 2. Sin límites en `/send/album` — ✅ CORREGIDO (parcialmente)
+
+**Status**: `io.LimitReader(res.Body, 64<<20)` (64 MB por archivo) ya
+estaba en el código de `downloadMedia`. El cap de items por álbum sigue
+pendiente — los handlers de send_album NO chequean `len(items)` antes
+de procesarlos. Item para corrida futura.
+
+### 2.HIST (original) - Sin límites en `/send/album` — HIGH
 
 **Archivo**: `pkg/sendMessage/service/album.go:154-179`.
 
@@ -153,6 +170,12 @@ la misma sesión, en clientes laxos podría leer responses.
 **Cómo arreglarlo**: restringir `Access-Control-Allow-Origin` a una
 lista blanca (env var `CORS_ALLOWED_ORIGINS=https://wago.midominio.com`)
 y solo poner `Allow-Credentials: true` cuando el origin matchee.
+
+### 6. SSRF persistente en `/webhook` URL — ✅ CORREGIDO (ADR 0059)
+
+**Status**: cerrado el 2026-05-30 vía ADR 0059. `webhook_service.validate`
+ahora rechaza URLs apuntando a rangos privados/loopback/IMDS. Override
+con `ALLOW_LOCAL_WEBHOOKS=true` para dev/testing.
 
 ## Cuándo abordar
 

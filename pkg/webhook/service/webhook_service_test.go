@@ -2,6 +2,7 @@ package webhook_service
 
 import (
 	"context"
+	"strings"
 	"sync"
 	"sync/atomic"
 	"testing"
@@ -646,5 +647,50 @@ func TestToModelIgnoreFromMeFalseRespectsExplicit(t *testing.T) {
 	w := toModel("inst-1", in)
 	if w.IgnoreFromMe != false {
 		t.Fatalf("expected IgnoreFromMe=false, got %v", w.IgnoreFromMe)
+	}
+}
+
+// WAGO-PATCH(ADR-0059): SSRF guard sobre webhook URLs.
+// Antes un operador podía configurar webhook a http://localhost/admin →
+// dispatch fire-and-forget pegaba al server interno en cada evento.
+func TestValidateBlocksSsrfWebhookURLs(t *testing.T) {
+	s := &webhookService{}
+	defer t.Setenv("ALLOW_LOCAL_WEBHOOKS", "")
+	t.Setenv("ALLOW_LOCAL_WEBHOOKS", "false")
+
+	blocked := []string{
+		"http://localhost/x",
+		"http://127.0.0.1:8080/admin",
+		"http://10.0.0.5/api",
+		"http://192.168.1.1/h",
+		"http://172.16.0.10/x",
+		"http://169.254.169.254/latest/meta-data/",
+	}
+	for _, raw := range blocked {
+		err := s.validate(&WebhookInput{URL: raw})
+		if err == nil || !strings.Contains(err.Error(), "rango") {
+			t.Errorf("URL %q: esperaba error de rango bloqueado, got %v", raw, err)
+		}
+	}
+}
+
+func TestValidateAllowsPublicWebhookURLs(t *testing.T) {
+	s := &webhookService{}
+	allowed := []string{
+		"https://webhook.site/abc-123",
+		"https://api.public.example.com/wh",
+	}
+	for _, raw := range allowed {
+		if err := s.validate(&WebhookInput{URL: raw}); err != nil {
+			t.Errorf("URL pública %q rechazada: %v", raw, err)
+		}
+	}
+}
+
+func TestValidateAllowsLocalWhenEnvSet(t *testing.T) {
+	s := &webhookService{}
+	t.Setenv("ALLOW_LOCAL_WEBHOOKS", "true")
+	if err := s.validate(&WebhookInput{URL: "http://localhost:9000/dev"}); err != nil {
+		t.Errorf("con ALLOW_LOCAL_WEBHOOKS=true debería pasar, got %v", err)
 	}
 }

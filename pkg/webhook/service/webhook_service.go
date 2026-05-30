@@ -4,7 +4,9 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"net"
 	"net/url"
+	"os"
 	"path"
 	"strings"
 	"sync"
@@ -15,6 +17,59 @@ import (
 	webhook_model "github.com/webapp-wago/webapp-wago/pkg/webhook/model"
 	webhook_repository "github.com/webapp-wago/webapp-wago/pkg/webhook/repository"
 )
+
+// WAGO-PATCH(ADR-0059): bloquear webhook URLs apuntando a hosts internos.
+// Lista replicada de pkg/sendMessage/service/album.go (no se importa para
+// evitar dependencia cruzada). Si en el futuro hay un tercer punto de
+// validación, mover a un paquete `internal/netguard`.
+var webhookBlockedRanges = func() []*net.IPNet {
+	cidrs := []string{
+		"127.0.0.0/8", "10.0.0.0/8", "172.16.0.0/12", "192.168.0.0/16",
+		"169.254.0.0/16", "::1/128", "fc00::/7", "fe80::/10",
+	}
+	nets := make([]*net.IPNet, 0, len(cidrs))
+	for _, c := range cidrs {
+		_, n, err := net.ParseCIDR(c)
+		if err == nil {
+			nets = append(nets, n)
+		}
+	}
+	return nets
+}()
+
+func validateWebhookHost(u *url.URL) error {
+	host := u.Hostname()
+	if host == "" {
+		return errors.New("host vacío")
+	}
+	check := func(ip net.IP) error {
+		if ip.IsLoopback() || ip.IsLinkLocalUnicast() {
+			return fmt.Errorf("host %q apunta a rango bloqueado (loopback/link-local)", host)
+		}
+		for _, n := range webhookBlockedRanges {
+			if n.Contains(ip) {
+				return fmt.Errorf("host %q apunta a rango privado/IMDS", host)
+			}
+		}
+		return nil
+	}
+	if ip := net.ParseIP(host); ip != nil {
+		return check(ip)
+	}
+	// Si el host no resuelve, NO es vector SSRF — el dispatch fire-and-
+	// forget va a fallar en runtime. Solo bloqueamos si el lookup tiene
+	// éxito Y devuelve una IP del rango privado.
+	ips, err := net.LookupIP(host)
+	if err != nil {
+		return nil
+	}
+	for _, ip := range ips {
+		if err := check(ip); err != nil {
+			return err
+		}
+	}
+	return nil
+}
 
 // NameResolver resuelve JID → nombre humano (grupo o contacto). La
 // interface vive acá para evitar ciclo de import: whatsmeowService
@@ -175,6 +230,17 @@ func (s *webhookService) validate(in *WebhookInput) error {
 	u, err := url.Parse(in.URL)
 	if err != nil || (u.Scheme != "http" && u.Scheme != "https") || u.Host == "" {
 		return errors.New("url inválida: debe ser http(s)://host/...")
+	}
+	// WAGO-PATCH(ADR-0059): bloquear webhook URLs apuntando a hosts
+	// internos. Sin esto, un operador podía configurar webhook a
+	// http://localhost/admin → SSRF persistente via fire-and-forget
+	// dispatch en cada evento. Solo bloqueamos rangos privados/IMDS;
+	// para skipear esta validación en setups dev/test agregar
+	// ALLOW_LOCAL_WEBHOOKS=true (env var documentada).
+	if os.Getenv("ALLOW_LOCAL_WEBHOOKS") != "true" {
+		if err := validateWebhookHost(u); err != nil {
+			return fmt.Errorf("url inválida: %w", err)
+		}
 	}
 	if in.ChatType != "" && !webhook_model.ValidChatType(in.ChatType) {
 		return fmt.Errorf("chatType inválido: %q (use any|group|individual)", in.ChatType)
