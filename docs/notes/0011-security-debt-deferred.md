@@ -109,7 +109,44 @@ if len(data.Items) > MaxAlbumItems {
 body, err := io.ReadAll(io.LimitReader(res.Body, MaxMediaSizeBytes))
 ```
 
-### 3. Race condition en `clientPointer` — MEDIUM (pre-existente)
+### 3. Race condition en `clientPointer` — MEDIUM (pre-existente, plan detallado)
+
+**Status 2026-05-30**: corrida `tech-debt-payoff-01` evaluó el refactor y
+mide **55 ocurrencias** en **12 archivos** (pkg/whatsmeow, pkg/webhook/
+resolver, pkg/instance, pkg/sendMessage, pkg/message, pkg/chat,
+pkg/group, pkg/community, pkg/user, pkg/label, pkg/newsletter,
+pkg/call). Demasiado invasivo para mezclar con otros fixes — se
+abordará en corrida dedicada.
+
+**Plan ejecutable** cuando se priorice:
+
+```go
+// pkg/whatsmeow/clientregistry/registry.go (NUEVO)
+package clientregistry
+
+type Registry struct { m sync.Map }
+func (r *Registry) Get(id string) *whatsmeow.Client { ... }
+func (r *Registry) Set(id string, c *whatsmeow.Client) { r.m.Store(id, c) }
+func (r *Registry) Delete(id string) { r.m.Delete(id) }
+func (r *Registry) Range(fn func(id string, c *whatsmeow.Client) bool) { ... }
+```
+
+1. Crear el package y el type.
+2. En `cmd/webapp-wago/main.go`: cambiar
+   `clientPointer := make(map[string]*whatsmeow.Client)` por
+   `clientPointer := &clientregistry.Registry{}`.
+3. Actualizar las **12 firmas de constructores** que aceptan
+   `map[string]*whatsmeow.Client` → `*clientregistry.Registry`.
+4. Reemplazos mecánicos (cada uno verificado, sin sed):
+   - `clientPointer[id]` → `clientPointer.Get(id)`
+   - `clientPointer[id] = c` → `clientPointer.Set(id, c)`
+   - `delete(clientPointer, id)` → `clientPointer.Delete(id)`
+   - `for id, c := range clientPointer` → `clientPointer.Range(func(id string, c *whatsmeow.Client) bool { ... })`
+5. `go vet ./... && go test -race ./...` en cada paso.
+
+Costo estimado: 1 corrida del Crisol Tier Completo (~2-3h).
+
+### 3.HIST (original) - Race condition en `clientPointer` — MEDIUM
 
 **Archivos**: `pkg/webhook/resolver/wago_resolver.go:26,46` +
 `pkg/whatsmeow/service/whatsmeow.go:396,2668`.
