@@ -1,7 +1,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@evoapi/design-system/button";
 import { Pencil, Plus, Trash2 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { toast } from "react-toastify";
@@ -21,7 +21,6 @@ import {
 } from "@/lib/queries/go/multiWebhook/manageMultiWebhook";
 import { useFetchMultiWebhooks } from "@/lib/queries/go/multiWebhook/fetchMultiWebhooks";
 import type { MultiWebhook, MultiWebhookInput } from "@/lib/queries/go/multiWebhook/types";
-import { TOKEN_ID } from "@/lib/queries/token";
 
 // Eventos del backend Go (pkg/internal/event_types/event_types.go).
 // Lista en MAYÚSCULAS para coincidir con la validación del backend.
@@ -82,14 +81,10 @@ function Webhook() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<MultiWebhook | null>(null);
 
-  // ADR 0045+: las llamadas /webhook usan el token de la instancia
-  // (no GLOBAL_API_KEY). Lo seteamos en localStorage cuando el instance
-  // está disponible para que el interceptor de axios (api.ts) lo use.
-  useEffect(() => {
-    if (instance?.token) {
-      localStorage.setItem(TOKEN_ID.INSTANCE_TOKEN, instance.token);
-    }
-  }, [instance?.token]);
+  // ADR 0045+: las llamadas /webhook usan el token de la instancia.
+  // INSTANCE_TOKEN se setea centralizadamente en InstanceProvider
+  // (contexts/InstanceContext.tsx) — todas las páginas que viven dentro
+  // de InstanceLayout heredan el token sincronizado.
 
   const instanceToken = instance?.token ?? null;
   const { data: webhooks = [], isLoading } = useFetchMultiWebhooks({ instanceToken });

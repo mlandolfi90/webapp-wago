@@ -1,6 +1,6 @@
 import { Button } from "@evoapi/design-system/button";
 import { Copy, KeyRound, LogOut, Play, RefreshCw, Square } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-toastify";
@@ -16,18 +16,13 @@ import {
   useLogout,
   usePair,
 } from "@/lib/queries/go/connection";
-import { TOKEN_ID } from "@/lib/queries/token";
 
 function Connection() {
   const { t } = useTranslation();
   const { instance } = useInstance();
   const qc = useQueryClient();
 
-  useEffect(() => {
-    if (instance?.token) {
-      localStorage.setItem(TOKEN_ID.INSTANCE_TOKEN, instance.token);
-    }
-  }, [instance?.token]);
+  // INSTANCE_TOKEN se setea centralizadamente en InstanceProvider.
 
   const instanceToken = instance?.token ?? null;
   const { data: status, refetch } = useConnectionStatus(instanceToken);

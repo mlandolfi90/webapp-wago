@@ -3,6 +3,7 @@ import React, { createContext, useContext, useState, useEffect, ReactNode } from
 import { useParams } from "react-router-dom";
 
 import { useFetchInstance } from "@/lib/queries/instance/fetchInstance";
+import { TOKEN_ID } from "@/lib/queries/token";
 
 import { Instance } from "@/types/evolution.types";
 
@@ -39,6 +40,20 @@ export const InstanceProvider: React.FC<InstanceProviderProps> = ({ children }):
       setInstanceId(null);
     }
   }, [queryParams]);
+
+  // WAGO-PATCH: seteo CENTRALIZADO en localStorage. Antes cada página
+  // (Webhook, Connection, SendTest, DashboardInstance) tenía su propio
+  // useEffect duplicado, lo que creaba una race al cambiar de instancia:
+  // las queries del primer render usaban el token de la instancia
+  // anterior. Ahora vive en un único punto y todas las páginas que
+  // viven dentro de InstanceLayout heredan los IDs sincronizados.
+  useEffect(() => {
+    if (instance) {
+      localStorage.setItem(TOKEN_ID.INSTANCE_ID, instance.id);
+      localStorage.setItem(TOKEN_ID.INSTANCE_NAME, instance.name);
+      localStorage.setItem(TOKEN_ID.INSTANCE_TOKEN, instance.token);
+    }
+  }, [instance]);
 
   return (
     <InstanceContext.Provider

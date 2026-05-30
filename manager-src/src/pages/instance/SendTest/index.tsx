@@ -1,27 +1,20 @@
 import { Button } from "@evoapi/design-system/button";
 import { Send } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "react-toastify";
 
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 
-import { useInstance } from "@/contexts/InstanceContext";
 import { useSendText } from "@/lib/queries/go/sendMessage";
-import { TOKEN_ID } from "@/lib/queries/token";
 
 function SendTest() {
   const { t } = useTranslation();
-  const { instance } = useInstance();
   const [number, setNumber] = useState("");
   const [text, setText] = useState("");
 
-  useEffect(() => {
-    if (instance?.token) {
-      localStorage.setItem(TOKEN_ID.INSTANCE_TOKEN, instance.token);
-    }
-  }, [instance?.token]);
+  // INSTANCE_TOKEN se setea centralizadamente en InstanceProvider.
 
   const sendMut = useSendText();
 

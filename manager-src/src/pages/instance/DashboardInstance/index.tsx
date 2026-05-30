@@ -5,7 +5,7 @@ import { Button } from "@evoapi/design-system/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@evoapi/design-system/card";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTrigger } from "@/components/ui/dialog";
 import { CircleUser, LogOut, MessageCircle, Power, QrCode, RefreshCw, Send, UsersRound } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import QRCode from "react-qr-code";
 
@@ -20,16 +20,19 @@ import { useInstance } from "@/contexts/InstanceContext";
 import { useManageInstance } from "@/lib/queries/instance/manageInstance";
 import { getProvider, getToken, TOKEN_ID } from "@/lib/queries/token";
 
-import { GoQrCodeModal } from "./GoQrCodeModal";
-import { GoSendMessageModal } from "./GoSendMessageModal";
+import { useNavigate } from "react-router-dom";
+
+// WAGO-PATCH: GoQrCodeModal/GoSendMessageModal eran duplicados de las
+// páginas dedicadas /connection y /send-test (audit issue #8). Ahora
+// los botones del DashboardInstance navegan a las páginas con el
+// router en vez de abrir modals locales.
 
 function DashboardInstance() {
   const { t, i18n } = useTranslation();
+  const navigate = useNavigate();
   const numberFormatter = new Intl.NumberFormat(i18n.language);
   const [qrCode, setQRCode] = useState<string | null>(null);
   const [pairingCode, setPairingCode] = useState("");
-  const [goQrOpen, setGoQrOpen] = useState(false);
-  const [goSendOpen, setGoSendOpen] = useState(false);
   const token = getToken(TOKEN_ID.TOKEN);
   const isGo = getProvider() === "go";
   const { theme } = useTheme();
@@ -37,13 +40,8 @@ function DashboardInstance() {
   const { connect, logout, restart } = useManageInstance();
   const { instance, reloadInstance } = useInstance();
 
-  useEffect(() => {
-    if (instance) {
-      localStorage.setItem(TOKEN_ID.INSTANCE_ID, instance.id);
-      localStorage.setItem(TOKEN_ID.INSTANCE_NAME, instance.name);
-      localStorage.setItem(TOKEN_ID.INSTANCE_TOKEN, instance.token);
-    }
-  }, [instance]);
+  // INSTANCE_ID/NAME/TOKEN se setean centralizadamente en
+  // InstanceProvider (contexts/InstanceContext.tsx).
 
   const handleReload = async () => {
     await reloadInstance();
@@ -136,7 +134,7 @@ function DashboardInstance() {
                 {
                   label: t("instance.dashboard.button.sendMessage", { defaultValue: "Enviar mensagem" }),
                   icon: <Send className="h-4 w-4" />,
-                  onClick: () => setGoSendOpen(true),
+                  onClick: () => navigate(`/manager/instance/${instance?.id}/send-test`),
                   variant: "default" as const,
                 },
               ]
@@ -176,13 +174,10 @@ function DashboardInstance() {
                 </AlertTitle>
 
                 {isGo ? (
-                  <>
-                    <Button onClick={() => setGoQrOpen(true)}>
-                      <QrCode className="mr-2 h-4 w-4" />
-                      {t("instance.dashboard.button.qrcode.label")}
-                    </Button>
-                    <GoQrCodeModal open={goQrOpen} onOpenChange={setGoQrOpen} />
-                  </>
+                  <Button onClick={() => navigate(`/manager/instance/${instance.id}/connection`)}>
+                    <QrCode className="mr-2 h-4 w-4" />
+                    {t("instance.dashboard.button.qrcode.label")}
+                  </Button>
                 ) : (
                   <div className="flex flex-wrap gap-2">
                     <Dialog>
@@ -237,7 +232,7 @@ function DashboardInstance() {
           <CardFooter />
         </Card>
 
-        {isGo && <GoSendMessageModal open={goSendOpen} onOpenChange={setGoSendOpen} />}
+        {/* WAGO-PATCH: GoSendMessageModal removido — duplicado de /send-test */}
 
         {/* WAGO-PATCH: backend Go no expone counters por instancia.
             La sección solo renderea si _count viene definido (Evolution
