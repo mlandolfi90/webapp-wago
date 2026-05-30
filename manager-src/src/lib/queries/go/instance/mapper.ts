@@ -24,6 +24,8 @@ export interface GoInstance {
   readMessages: boolean;
   ignoreGroups: boolean;
   ignoreStatus: boolean;
+  // WAGO-PATCH(ADR-0049): el backend lo expone por instancia.
+  ignoreFromMe?: boolean;
 }
 
 export const toInstance = (go: GoInstance): Instance => ({
@@ -47,7 +49,9 @@ export const toInstance = (go: GoInstance): Instance => ({
     alwaysOnline: go.alwaysOnline,
     readMessages: go.readMessages,
     readStatus: !go.ignoreStatus,
-    syncFullHistory: false,
+    // WAGO-PATCH(ADR-0049): default true cuando el campo no viene del
+    // backend (instancias previas a la migración).
+    ignoreFromMe: go.ignoreFromMe ?? true,
   },
   // WAGO-PATCH: el backend Go NO expone counters (contacts/chats/messages
   // por instancia). Antes hardcodeábamos `_count:{0,0,0}` y los cards de

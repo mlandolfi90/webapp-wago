@@ -41,16 +41,15 @@ type Menu = MenuLeaf | MenuGroup;
 
 function SidebarShell({ children, footer }: { children: React.ReactNode; footer?: React.ReactNode }) {
   const currentYear = new Date().getFullYear();
-  const { theme } = useTheme();
-  const logoSrc =
-    theme === "dark"
-      ? "https://evolution-api.com/files/evo/evolution-logo-white.svg"
-      : "https://evolution-api.com/files/evo/evolution-logo.svg";
+  // Branding wago: removidos logos CDN de evolution-api.com. Mostramos
+  // marca textual con brand dot — coherente con el Login.
+  useTheme();
 
   return (
     <aside className="hidden md:flex bg-sidebar text-sidebar-foreground flex-col w-56 border-r border-sidebar-border">
-      <div className="h-16 flex items-center px-4 border-b border-sidebar-border">
-        <img src={logoSrc} alt="Evolution API" className="h-7" />
+      <div className="h-16 flex items-center gap-2 px-4 border-b border-sidebar-border">
+        <span className="inline-block h-3 w-3 rounded-full bg-primary" />
+        <span className="font-semibold tracking-tight">WebAPP-Wago</span>
       </div>
 
       <nav className="flex-1 overflow-y-auto px-2 py-4 space-y-1">
@@ -64,8 +63,18 @@ function SidebarShell({ children, footer }: { children: React.ReactNode; footer?
       )}
 
       <div className="p-4 border-t border-sidebar-border">
-        <div className="text-sm font-medium text-primary">Evolution Manager</div>
-        <div className="mt-1 text-xs text-muted-foreground">© {currentYear} All rights reserved</div>
+        <div className="text-sm font-medium text-primary">WebAPP-Wago</div>
+        <div className="mt-1 text-xs text-muted-foreground">
+          © {currentYear} ·{" "}
+          <a
+            href="https://github.com/EvolutionAPI/evolution-manager-v2"
+            target="_blank"
+            rel="noreferrer"
+            className="underline decoration-dotted hover:text-primary"
+          >
+            Powered by Evolution Manager
+          </a>
+        </div>
       </div>
     </aside>
   );
@@ -110,8 +119,12 @@ function ExternalLinks() {
   return (
     <>
       <NavItem to="https://docs.evolutionfoundation.com.br/" icon={FileQuestion} label={t("sidebar.documentation")} isExternal />
-      <NavItem to="https://evolution-api.com/postman" icon={CircleHelp} label={t("sidebar.postman")} isExternal />
-      <NavItem to="https://evolution-api.com/discord" icon={MessageCircle} label={t("sidebar.discord")} isExternal />
+      <NavItem
+        to="https://github.com/mlandolfi90/webapp-wago"
+        icon={CircleHelp}
+        label={t("sidebar.repo", { defaultValue: "GitHub" })}
+        isExternal
+      />
     </>
   );
 }

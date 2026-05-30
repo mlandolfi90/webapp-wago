@@ -13,6 +13,8 @@ interface GoAdvancedSettings {
   readMessages: boolean;
   ignoreGroups: boolean;
   ignoreStatus: boolean;
+  // WAGO-PATCH(ADR-0049): existe en backend pkg/instance/model.
+  ignoreFromMe: boolean;
 }
 
 interface GoAdvancedSettingsResponse {
@@ -27,7 +29,9 @@ export const toSettings = (go: GoAdvancedSettings): Settings => ({
   alwaysOnline: go.alwaysOnline,
   readMessages: go.readMessages,
   readStatus: !go.ignoreStatus,
-  syncFullHistory: false,
+  // WAGO-PATCH(ADR-0049): default true protege contra loops cuando el
+  // backend retorna instancias previas a la migración del campo.
+  ignoreFromMe: go.ignoreFromMe ?? true,
 });
 
 export const toGoAdvancedSettings = (s: Settings): GoAdvancedSettings => ({
@@ -37,6 +41,7 @@ export const toGoAdvancedSettings = (s: Settings): GoAdvancedSettings => ({
   readMessages: s.readMessages,
   ignoreGroups: s.groupsIgnore,
   ignoreStatus: !s.readStatus,
+  ignoreFromMe: s.ignoreFromMe ?? true,
 });
 
 interface IParams {

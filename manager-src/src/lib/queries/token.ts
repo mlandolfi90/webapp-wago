@@ -1,7 +1,11 @@
 /* eslint-disable no-unused-vars */
 export type Provider = "api" | "go";
 
-export const DEFAULT_PROVIDER: Provider = "api";
+// wago corre exclusivamente contra el backend Go (provider "go"). El
+// switch "api" del original Evolution Node quedó vivo como branch
+// muerta en queries (fetchInstances, manageInstance, etc.) pero no se
+// dispara desde ningún call site del Login.
+export const DEFAULT_PROVIDER: Provider = "go";
 
 export enum TOKEN_ID {
   API_URL = "apiUrl",

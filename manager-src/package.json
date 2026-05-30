@@ -1,37 +1,36 @@
 {
-  "name": "evolution-manager",
-  "private": false,
+  "name": "webapp-wago-manager",
+  "private": true,
   "version": "2.0.0",
   "type": "module",
-  "description": "Modern web interface for Evolution API management",
+  "description": "Panel React de WebAPP-Wago. Derivado de Evolution Manager v2 (Apache 2.0); ver manager-src/NOTICE.md.",
   "keywords": [
     "whatsapp",
-    "api",
-    "chatbot",
-    "evolution-api",
+    "wago",
+    "webapp-wago",
     "react",
     "typescript",
-    "management",
+    "panel",
     "dashboard"
   ],
-  "homepage": "https://github.com/EvolutionAPI/evolution-manager-v2#readme",
+  "homepage": "https://github.com/mlandolfi90/webapp-wago#readme",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/EvolutionAPI/evolution-manager-v2.git"
+    "url": "git+https://github.com/mlandolfi90/webapp-wago.git"
   },
   "bugs": {
-    "url": "https://github.com/EvolutionAPI/evolution-manager-v2/issues"
+    "url": "https://github.com/mlandolfi90/webapp-wago/issues"
   },
   "license": "Apache-2.0",
   "author": {
-    "name": "Evolution API Team",
-    "email": "contato@evolution-api.com",
-    "url": "https://evolution-api.com"
+    "name": "WebAPP-Wago contributors"
   },
   "contributors": [
     {
       "name": "Evolution API Team",
-      "email": "contato@evolution-api.com"
+      "email": "contato@evolution-api.com",
+      "url": "https://evolution-api.com",
+      "note": "Original Evolution Manager v2 — derivado bajo Apache 2.0"
     }
   ],
   "engines": {

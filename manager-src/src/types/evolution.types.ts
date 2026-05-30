@@ -6,7 +6,12 @@ export type Settings = {
   alwaysOnline: boolean;
   readMessages: boolean;
   readStatus: boolean;
-  syncFullHistory: boolean;
+  // WAGO-PATCH(ADR-0049): IgnoreFromMe — ignora mensajes propios para
+  // romper loops cuando un consumer responde con /send/text.
+  ignoreFromMe: boolean;
+  // NOTE: syncFullHistory queda como opcional por backwards-compat del
+  // shape Evolution Node; wago no lo soporta — el mapper lo descarta.
+  syncFullHistory?: boolean;
   createdAt?: string;
   updatedAt?: string;
   instanceId?: string;

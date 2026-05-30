@@ -24,7 +24,9 @@ const FormSchema = z.object({
   groupsIgnore: z.boolean(),
   alwaysOnline: z.boolean(),
   readMessages: z.boolean(),
-  syncFullHistory: z.boolean(),
+  // WAGO-PATCH(ADR-0049): expone IgnoreFromMe; default true protege
+  // contra loops webhook→consumer→/send/text.
+  ignoreFromMe: z.boolean(),
   readStatus: z.boolean(),
 });
 
@@ -47,7 +49,7 @@ function Settings() {
       groupsIgnore: false,
       alwaysOnline: false,
       readMessages: false,
-      syncFullHistory: false,
+      ignoreFromMe: true,
       readStatus: false,
     },
   });
@@ -60,7 +62,7 @@ function Settings() {
         groupsIgnore: settings.groupsIgnore,
         alwaysOnline: settings.alwaysOnline,
         readMessages: settings.readMessages,
-        syncFullHistory: settings.syncFullHistory,
+        ignoreFromMe: settings.ignoreFromMe ?? true,
         readStatus: settings.readStatus,
       });
     }
@@ -79,7 +81,7 @@ function Settings() {
         groupsIgnore: data.groupsIgnore,
         alwaysOnline: data.alwaysOnline,
         readMessages: data.readMessages,
-        syncFullHistory: data.syncFullHistory,
+        ignoreFromMe: data.ignoreFromMe,
         readStatus: data.readStatus,
       };
       await updateSettings({
@@ -113,9 +115,12 @@ function Settings() {
       description: t("settings.form.readMessages.description"),
     },
     {
-      name: "syncFullHistory",
-      label: t("settings.form.syncFullHistory.label"),
-      description: t("settings.form.syncFullHistory.description"),
+      name: "ignoreFromMe",
+      label: t("settings.form.ignoreFromMe.label", { defaultValue: "Ignorar mis propios mensajes" }),
+      description: t("settings.form.ignoreFromMe.description", {
+        defaultValue:
+          "Recomendado: rompe loops webhook→consumer→/send/text. Si auditás salientes, destildá.",
+      }),
     },
     {
       name: "readStatus",

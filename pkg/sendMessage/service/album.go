@@ -194,9 +194,19 @@ func downloadMedia(rawURL string) ([]byte, string, error) {
 // image/video asociados (MEDIA_ALBUM). Reusa Upload de whatsmeow; NO
 // parchea el submódulo (ADR 0036/0038). La validación contra dispositivo
 // real queda a cargo del humano (ver RUN-LEDGER send-album-001).
+// WAGO-PATCH(ADR-0059): cap de items por álbum. Sin esto, un operador
+// autenticado podía mandar 100 items × 64MB cada uno = 6.4GB en RAM por
+// petición (LimitReader ya estaba en downloadMedia pero sin top-level
+// cap). 20 items es el límite operacional del WhatsApp (el cliente
+// móvil no muestra más).
+const MaxAlbumItems = 20
+
 func (s *sendService) SendAlbum(data *AlbumStruct, instance *instance_model.Instance) (*MessageSendStruct, error) {
 	if len(data.Items) < 2 {
 		return nil, errors.New("un álbum necesita al menos 2 items (para 1 usá /send/media)")
+	}
+	if len(data.Items) > MaxAlbumItems {
+		return nil, fmt.Errorf("máximo %d items por álbum (recibidos %d)", MaxAlbumItems, len(data.Items))
 	}
 	client, err := s.ensureClientConnected(instance.Id)
 	if err != nil {

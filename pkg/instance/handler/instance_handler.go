@@ -2,6 +2,7 @@ package instance_handler
 
 import (
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -323,7 +324,19 @@ func (i *instanceHandler) Pair(ctx *gin.Context) {
 
 	pairingCode, err := i.instanceService.Pair(data, instance)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		// WAGO-PATCH(ADR-0057): condiciones precondicionales ("instance
+		// no está conectada — llamá Connect primero", "client no está
+		// listo") devuelven 409 Conflict en vez de 500 — el caller
+		// puede reintentar tras Connect. Errores genuinos del driver
+		// PairPhone siguen siendo 500.
+		msg := err.Error()
+		if strings.Contains(msg, "no está conectada") ||
+			strings.Contains(msg, "no está listo") ||
+			strings.Contains(msg, "código vacío") {
+			ctx.JSON(http.StatusConflict, gin.H{"error": msg})
+			return
+		}
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": msg})
 		return
 	}
 

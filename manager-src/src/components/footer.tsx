@@ -1,53 +1,30 @@
-import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
-
-import { useVerifyServer } from "@/lib/queries/auth/verifyServer";
-import { getProvider, getToken, TOKEN_ID } from "@/lib/queries/token";
 
 import { Button } from "@evoapi/design-system/button";
 
+// Footer adaptado a wago: removidos los `useVerifyServer` que solo
+// disparaban con provider "api" (Evolution Node) y dejaban
+// `clientName`/`version` siempre vacíos. Removidos los links de
+// soporte propios de Evolution; conservado el "Powered by Evolution
+// Manager" como crédito Apache 2.0 al proyecto original.
 function Footer() {
   const { t } = useTranslation();
 
-  const url = getToken(TOKEN_ID.API_URL);
-  const provider = getProvider();
-  const { data: serverInfo } = useVerifyServer({ url, enabled: provider === "api" });
-
-  const clientName = useMemo(() => serverInfo?.clientName, [serverInfo]);
-  const version = useMemo(() => serverInfo?.version, [serverInfo]);
-
   const links = [
     {
-      name: "Discord",
-      url: "https://evolution-api.com/discord",
+      name: "WebAPP-Wago",
+      url: "https://github.com/mlandolfi90/webapp-wago",
     },
     {
-      name: "Postman",
-      url: "https://evolution-api.com/postman",
-    },
-    {
-      name: "GitHub",
-      url: "https://github.com/EvolutionAPI/evolution-api",
-    },
-    {
-      name: "Docs",
-      url: "https://docs.evolutionfoundation.com.br/",
+      name: t("footer.poweredBy", { defaultValue: "Powered by Evolution Manager" }),
+      url: "https://github.com/EvolutionAPI/evolution-manager-v2",
     },
   ];
 
   return (
     <footer className="flex w-full flex-col items-center justify-between p-6 text-xs text-secondary-foreground sm:flex-row">
       <div className="flex items-center space-x-3 divide-x">
-        {clientName && clientName !== "" && (
-          <span>
-            {t("footer.clientName")}: <strong>{clientName}</strong>
-          </span>
-        )}
-        {version && version !== "" && (
-          <span className="pl-3">
-            {t("footer.version")}: <strong>{version}</strong>
-          </span>
-        )}
+        <span>WebAPP-Wago © {new Date().getFullYear()}</span>
       </div>
       <div className="flex gap-2">
         {links.map((link) => (
