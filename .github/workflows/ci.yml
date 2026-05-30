@@ -38,7 +38,7 @@ jobs:
         run: go test ./...
 
   webui:
-    name: WebUI (node --check)
+    name: WebUI (TypeScript strict + Vite build)
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -48,16 +48,24 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22
+          cache: npm
+          cache-dependency-path: manager-src/package-lock.json
 
-      - name: node --check de los módulos
+      - name: Install deps
+        working-directory: manager-src
+        run: npm ci
+
+      - name: Type check + build
+        working-directory: manager-src
+        run: npm run build
+
+      - name: Sanity check dist
+        working-directory: manager-src
         run: |
-          set -e
-          n=0
-          for f in $(find manager/dist/assets/js -name '*.js'); do
-            node --check "$f"
-            n=$((n+1))
-          done
-          echo "node --check OK ($n módulos)"
+          test -f dist/index.html
+          grep -q '<div id="root">' dist/index.html
+          test -d dist/assets
+          echo "✓ dist/ contiene index.html con #root y assets/"
 
   docker:
     name: Docker build (valida imagen + wago-mcp)

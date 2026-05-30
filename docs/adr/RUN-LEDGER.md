@@ -1352,3 +1352,38 @@ Iteraciones: 1/3 (sin fixes; lazy + Suspense compiló al primer
   intento sin errors TS strict).
 Escalación: none
 Cierre: 2026-05-29 (SHA al push)
+
+## RUN ci-align-react-stack-01
+STATUS: CLOSED
+Branch: claude/build-webui-AcJFe
+Tier: completo (alinea CI con el stack post-ADR 0053)
+Alcance: el job webui del CI hacía `node --check` sobre
+  `manager/dist/assets/js/**/*.js` — el bundle vanilla viejo que
+  ADR 0053 reemplazó. Pasaba por accidente porque el filesystem
+  retenía el vanilla. Fix: cambiar el job a `npm ci + npm run build`
+  en `manager-src/` (el verdadero source del panel React) +
+  sanity-check del output. Eliminar el bundle vanilla versionado +
+  gitignorear `manager/dist/` con README explicativo.
+Carriles: único — CI + housekeeping del repo.
+Planificador: dos cosas relacionadas que se hacen en un commit:
+  (a) actualizar `.github/workflows/ci.yml::webui` para validar el
+  stack actual; (b) borrar el vanilla viejo de manager/dist + gitignore
+  y dejar manager/dist/README.md como instrucción para devs locales.
+Arquitecto: APPROVE — el job webui original era falso-OK; este
+  refleja la realidad post-ADR 0053. `make manager-build` o
+  `docker build` regeneran manager/dist desde manager-src.
+Ingeniero: .github/workflows/ci.yml (job webui pasa de node --check
+  a `npm ci + npm run build + sanity check del dist/index.html con
+  <div id="root">`); manager/dist/README.md (nuevo, explica que el
+  directorio se genera por build); .gitignore (manager/dist/index.html
+  y manager/dist/assets/); rm -r del vanilla viejo (28 archivos).
+Verificador: PASS — `cd manager-src && npm ci && npm run build`
+  ejecutado localmente simula el job. Output: dist/index.html con
+  <div id="root">, dist/assets/ con los chunks lazy del code
+  splitting de la corrida 3. Sanity check con grep / test -f / -d
+  PASS los 3.
+Integración: PASS — Dockerfile no toca; sigue construyendo el SPA
+  dentro del stage `frontend-builder`.
+Iteraciones: 1/3 (sin fixes).
+Escalación: none
+Cierre: 2026-05-29 (SHA al push)

@@ -1,7 +1,0 @@
-export const LS_KEY = "wago.apikey";
-
-export const EVENTS = [
-  "MESSAGE", "SEND_MESSAGE", "READ_RECEIPT", "PRESENCE", "HISTORY_SYNC",
-  "CHAT_PRESENCE", "CALL", "CONNECTION", "LABEL", "CONTACT", "GROUP",
-  "NEWSLETTER", "QRCODE", "BUTTON_CLICK"
-];

@@ -17,3 +17,7 @@ coverage.*
 manager-src/node_modules/
 manager-src/dist/
 manager-src/.vite/
+# manager/dist/ se genera por `make manager-build` o el Docker build —
+# el README versionado dentro explica cómo regenerarlo.
+manager/dist/index.html
+manager/dist/assets/
