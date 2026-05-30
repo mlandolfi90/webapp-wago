@@ -62,3 +62,21 @@ export const useLogout = () =>
       return response.data;
     },
   });
+
+// POST /instance/pair — vincula sin escanear QR. El backend devuelve un
+// código de 8 caracteres que el usuario tipea en su WhatsApp en
+// Dispositivos vinculados → Vincular con número de teléfono.
+type PairResponse = {
+  PairingCode: string;
+};
+
+export const usePair = () =>
+  useMutation<string, Error, string>({
+    mutationFn: async (phone: string) => {
+      const response = await api.post<{ data: PairResponse; message: string }>(
+        "/instance/pair",
+        { phone, subscribe: [] },
+      );
+      return response.data.data.PairingCode;
+    },
+  });

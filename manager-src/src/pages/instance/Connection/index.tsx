@@ -1,9 +1,11 @@
 import { Button } from "@evoapi/design-system/button";
-import { LogOut, Play, RefreshCw, Square } from "lucide-react";
-import { useEffect } from "react";
+import { Copy, KeyRound, LogOut, Play, RefreshCw, Square } from "lucide-react";
+import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-toastify";
+
+import { Input } from "@/components/ui/input";
 
 import { useInstance } from "@/contexts/InstanceContext";
 import {
@@ -12,6 +14,7 @@ import {
   useConnectionStatus,
   useDisconnect,
   useLogout,
+  usePair,
 } from "@/lib/queries/go/connection";
 import { TOKEN_ID } from "@/lib/queries/token";
 
@@ -28,12 +31,51 @@ function Connection() {
 
   const instanceToken = instance?.token ?? null;
   const { data: status, refetch } = useConnectionStatus(instanceToken);
-  const connected = Boolean(status?.Connected);
+  // `Connected` del backend wago devuelve true aún sin sesión real
+  // (refleja TCP, no sesión WhatsApp). `LoggedIn` es el estado real
+  // de la sesión vinculada — lo usamos para mostrar la UI de pareo.
+  const loggedIn = Boolean(status?.LoggedIn);
+  const connected = loggedIn;
   const { data: qr } = useConnectionQr(instanceToken, connected);
 
   const connectMut = useConnect();
   const disconnectMut = useDisconnect();
   const logoutMut = useLogout();
+  const pairMut = usePair();
+  const [phone, setPhone] = useState("");
+  const [pairingCode, setPairingCode] = useState<string | null>(null);
+
+  const onRequestPair = async () => {
+    if (!phone.trim()) return;
+    try {
+      const code = await pairMut.mutateAsync(phone.trim());
+      if (!code) {
+        // El backend responde 200 con PairingCode:"" si el cliente
+        // whatsmeow no está vivo. Hint al usuario.
+        toast.error(
+          t("connection.pairNoCode", {
+            defaultValue: "El backend no devolvió código. Probá Conectar primero y reintentá.",
+          }),
+        );
+        setPairingCode(null);
+        return;
+      }
+      setPairingCode(code);
+      toast.success(t("connection.pairOk", { defaultValue: "Código generado." }));
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Error generando código");
+    }
+  };
+
+  const copyCode = async () => {
+    if (!pairingCode) return;
+    try {
+      await navigator.clipboard.writeText(pairingCode);
+      toast.success(t("connection.codeCopied", { defaultValue: "Código copiado." }));
+    } catch {
+      /* clipboard puede fallar sin permisos */
+    }
+  };
 
   const onConnect = async () => {
     try {
@@ -132,6 +174,65 @@ function Connection() {
           </p>
         )}
       </div>
+
+      {!connected && (
+        <div className="bg-card rounded-lg border p-6" data-testid="pair-by-phone">
+          <div className="mb-3 flex items-center gap-2">
+            <KeyRound className="text-primary h-4 w-4" />
+            <h2 className="text-lg font-semibold">
+              {t("connection.pairByPhoneTitle", { defaultValue: "Vincular por número de teléfono" })}
+            </h2>
+          </div>
+          <p className="text-muted-foreground mb-4 text-sm">
+            {t("connection.pairByPhoneSubtitle", {
+              defaultValue:
+                "Alternativa al QR: ingresá el número en formato WhatsApp y obtené un código de 8 caracteres para tipear en el teléfono.",
+            })}
+          </p>
+          <div className="flex flex-col gap-3 sm:flex-row">
+            <Input
+              id="pairPhone"
+              type="tel"
+              inputMode="numeric"
+              placeholder="5491100000000"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+              autoComplete="off"
+              className="sm:flex-1"
+            />
+            <Button onClick={onRequestPair} disabled={!phone.trim() || pairMut.isPending}>
+              <KeyRound className="mr-2 h-4 w-4" />
+              {pairMut.isPending
+                ? t("connection.pairGenerating", { defaultValue: "Generando…" })
+                : t("connection.pairAction", { defaultValue: "Generar código" })}
+            </Button>
+          </div>
+          {pairingCode && (
+            <div className="mt-4 flex items-center gap-3 rounded-md border border-dashed p-4" data-testid="pairing-code-box">
+              <div className="flex-1">
+                <p className="text-muted-foreground text-xs">
+                  {t("connection.pairCodeLabel", { defaultValue: "Tipeá este código en tu WhatsApp:" })}
+                </p>
+                <p
+                  className="font-mono text-2xl font-bold tracking-widest"
+                  data-testid="pairing-code-value"
+                >
+                  {pairingCode}
+                </p>
+              </div>
+              <Button variant="ghost" size="icon" onClick={copyCode} aria-label={t("connection.copyCode", { defaultValue: "Copiar" })}>
+                <Copy className="h-4 w-4" />
+              </Button>
+            </div>
+          )}
+          <p className="text-muted-foreground mt-3 text-xs">
+            {t("connection.pairByPhoneHint", {
+              defaultValue:
+                "En WhatsApp: Configuración → Dispositivos vinculados → Vincular un dispositivo → Vincular con número de teléfono.",
+            })}
+          </p>
+        </div>
+      )}
 
       <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
         <Button variant="ghost" onClick={onLogout} disabled={!connected || logoutMut.isPending}>

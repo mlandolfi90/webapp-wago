@@ -1656,3 +1656,47 @@ Integración: PASS — imagen Docker rebuildeada. Backend Go sin
 Iteraciones: 1/3 (sin fixes).
 Escalación: none.
 Cierre: 2026-05-30 (SHA al push)
+
+## RUN webui-pair-by-phone-01
+STATUS: CLOSED
+Branch: claude/build-webui-AcJFe
+Tier: completo (UI nueva + adaptación cliente API)
+Alcance: agregar UI de pair-by-phone como alternativa al QR. Backend
+  ya expone POST /instance/pair (devuelve {data:{PairingCode:string},
+  message}). UI agrega sección en pages/instance/Connection con input
+  para número + botón generar código + display del código de 8 chars
+  con copy.
+Carriles: único — frontend.
+Cambios:
+  - lib/queries/go/connection/index.ts: +usePair hook
+    (mutationFn POST /instance/pair con {phone, subscribe:[]}).
+  - pages/instance/Connection/index.tsx: +sección
+    data-testid="pair-by-phone" que muestra cuando !loggedIn.
+    Form con #pairPhone input + botón "Generar código" disabled
+    sin phone. Tras éxito, muestra box data-testid="pairing-code-
+    box" con el código en font-mono tracking-widest + botón Copy.
+    Si el backend devuelve PairingCode:"" (cliente whatsmeow no
+    vivo), toast de hint "Probá Conectar primero y reintentá".
+Defectos descubiertos (2 del backend, fuera de scope):
+  1) /instance/status devuelve Connected:true aún sin sesión real
+     (refleja TCP, no sesión WhatsApp). Workaround en UI:
+     reemplazado check de `Connected` por `LoggedIn` para decidir
+     visibilidad de la UI de pareo. El bug del backend queda
+     documentado para futura corrida (no es scope de esta feature).
+  2) /instance/pair devuelve PairingCode:"" cuando whatsmeow client
+     no está vivo, sin propagar error. UI lo maneja con toast.
+Verificador: PASS 11/11 — Playwright contra Wago + Postgres reales.
+  Checks: crear instancia, backend rechaza phone vacío (400),
+  backend acepta phone válido (200) con field PairingCode, UI
+  sección visible sin conexión, form con phone input + botón,
+  botón disabled sin phone, tras click box con código o toast
+  visible, hint sobre flow WhatsApp visible, mobile (390x844)
+  sección visible + sin scroll horizontal. Screenshots:
+  28-pair-mobile + 29-pair-desktop.
+Integración: PASS — backend Go sin cambios. Imagen Docker
+  rebuildeada con la UI nueva.
+Iteraciones: 1/3 (1 fix de UI por bug del backend descubierto en
+  /instance/status que devolvía Connected:true falso).
+Escalación: el bug del /instance/status documentar como deuda
+  técnica del backend.
+Cierre: 2026-05-30 (SHA al push)
