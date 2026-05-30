@@ -1613,3 +1613,46 @@ Pendiente — Dashboard real con métricas + token masking. Quedaron
 Iteraciones: 1/3 (1 fix de selector en test, no en código).
 Escalación: none.
 Cierre: 2026-05-30 (SHA al push)
+
+## RUN webui-rebase-on-evolution-03-kpis-token (FASE C — final)
+STATUS: CLOSED
+Branch: claude/build-webui-AcJFe
+Tier: completo (cierra rebase con métricas Dashboard + verificación
+  de token masking ya provisto por el original)
+Alcance: completar las dos features wago pendientes de la corrida
+  anterior (rebase-02-features): (a) Dashboard real con métricas
+  reemplaza los KPIs "—" placeholder que tenía mi versión previa
+  agregándolos arriba del listado de instancias del Dashboard del
+  original (sin reemplazar el Dashboard entero); (b) verificación
+  de que el InstanceToken component del original ya tiene masking
+  con eye/EyeOff + Copy y está usado en pages/instance/DashboardInstance
+  línea 169.
+Carriles: único — frontend (DashboardKpis component).
+Cambios:
+  - components/dashboard-kpis.tsx (NUEVO, ~80 LOC): componente
+    standalone con 4 KPIs (Instancias, Conectadas, Mensajes hoy
+    placeholder, Webhooks activos/total). Toma instances prop +
+    hace useQueries paralelo sobre cada token para count de
+    webhooks. data-testid en cada card para Playwright.
+  - pages/Dashboard/index.tsx: import DashboardKpis + insert
+    condicional `{!isLoading && (instances?.length ?? 0) > 0 &&
+    <DashboardKpis instances={instances ?? []} />}` arriba del
+    listado existente. Sin reemplazar la lógica del Dashboard
+    del original (búsqueda, filtros, delete confirm).
+Sin cambios al InstanceToken — el del original ya cumple: pre
+  con `token.replace(/\w/g, "*")` por default, Eye/EyeOff button
+  para revelar, Copy button con copyToClipboard.
+Verificador: PASS 11/11 — Playwright contra Wago + Postgres reales.
+  Setup: 2 instancias + 3 webhooks (2 enabled, 1 disabled vía
+  POST que tras el fix GORM ahora persiste enabled:false). Checks:
+  KPIs section visible, "2" instancias, "0" conectadas, "—"
+  mensajes hoy, "2/3" webhooks activos/total. DashboardInstance:
+  token mascarado por default (****-****-...), Click eye revela
+  el token completo. Mobile (390x844): KPIs visibles + sin scroll
+  horizontal. Screenshots: 25-dashboard-kpis + 26-instance-token-
+  masked + 27-dashboard-mobile.
+Integración: PASS — imagen Docker rebuildeada. Backend Go sin
+  cambios.
+Iteraciones: 1/3 (sin fixes).
+Escalación: none.
+Cierre: 2026-05-30 (SHA al push)

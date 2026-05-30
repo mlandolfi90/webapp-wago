@@ -14,6 +14,7 @@ import { useTranslation } from "react-i18next";
 import { toast } from "react-toastify";
 
 import { BaseHeader } from "@/components/base-header";
+import { DashboardKpis } from "@/components/dashboard-kpis";
 import { InstanceCard } from "@/components/instance-card";
 
 import { useFetchInstances } from "@/lib/queries/instance/fetchInstances";
@@ -134,6 +135,13 @@ function Dashboard() {
           </DropdownMenu>
         </div>
       </BaseHeader>
+
+      {/* WAGO: KPI cards reales (count instances/connected/webhooks). */}
+      {!isLoading && (instances?.length ?? 0) > 0 && (
+        <div className="mb-6">
+          <DashboardKpis instances={instances ?? []} />
+        </div>
+      )}
 
       <div className="flex-1">
         {isLoading ? (
