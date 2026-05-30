@@ -49,5 +49,10 @@ export const toInstance = (go: GoInstance): Instance => ({
     readStatus: !go.ignoreStatus,
     syncFullHistory: false,
   },
-  _count: { Contact: 0, Chat: 0, Message: 0 },
+  // WAGO-PATCH: el backend Go NO expone counters (contacts/chats/messages
+  // por instancia). Antes hardcodeábamos `_count:{0,0,0}` y los cards de
+  // DashboardInstance + InstanceCard mostraban siempre "0" mintiendo al
+  // operador. Ahora dejamos undefined — los componentes que renderean
+  // este campo deben chequear y ocultar el bloque.
+  _count: undefined,
 });

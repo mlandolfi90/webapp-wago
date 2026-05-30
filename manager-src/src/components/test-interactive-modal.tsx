@@ -16,12 +16,16 @@ import { Instance } from "@/types/evolution.types";
 
 type TabKey = "reply" | "cta" | "pix" | "list" | "carousel";
 
+// Rutas wago: /send/button|/send/list|/send/carousel (singular, sin path
+// param). El interceptor de axios mete el INSTANCE_TOKEN del localStorage
+// como header `apikey`. El original Evolution Node usaba /message/sendXxx/
+// {instanceName}; eso es Evolution-only y NO existe en el backend Go.
 const ENDPOINT: Record<TabKey, string> = {
-  reply: "sendButtons",
-  cta: "sendButtons",
-  pix: "sendButtons",
-  list: "sendList",
-  carousel: "sendCarousel",
+  reply: "button",
+  cta: "button",
+  pix: "button",
+  list: "list",
+  carousel: "carousel",
 };
 
 const TEMPLATES: Record<TabKey, Record<string, unknown>> = {
@@ -133,8 +137,8 @@ export function TestInteractiveModal({ instance, open, onOpenChange }: TestInter
   }, [open]);
 
   const endpoint = useMemo(
-    () => `/message/${ENDPOINT[tab]}/${instance.name}`,
-    [tab, instance.name],
+    () => `/send/${ENDPOINT[tab]}`,
+    [tab],
   );
 
   const send = async () => {

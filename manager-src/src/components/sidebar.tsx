@@ -149,8 +149,6 @@ function InstanceSidebar() {
         icon: IterationCcw,
         children: [
           { id: "webhook", title: t("sidebar.webhook", { defaultValue: "Webhooks" }), path: "webhook" },
-          { id: "websocket", title: t("sidebar.websocket", { defaultValue: "WebSocket" }), path: "websocket" },
-          { id: "rabbitmq", title: t("sidebar.rabbitmq", { defaultValue: "RabbitMQ" }), path: "rabbitmq" },
         ],
       },
       {

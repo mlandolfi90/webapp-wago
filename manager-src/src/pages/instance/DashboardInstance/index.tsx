@@ -239,35 +239,41 @@ function DashboardInstance() {
 
         {isGo && <GoSendMessageModal open={goSendOpen} onOpenChange={setGoSendOpen} />}
 
-        <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          <Card className="border-sidebar-border bg-sidebar">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
-                <CircleUser size="18" />
-                {t("instance.dashboard.contacts")}
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="text-3xl font-bold">{numberFormatter.format(stats.contacts)}</CardContent>
-          </Card>
-          <Card className="border-sidebar-border bg-sidebar">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
-                <UsersRound size="18" />
-                {t("instance.dashboard.chats")}
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="text-3xl font-bold">{numberFormatter.format(stats.chats)}</CardContent>
-          </Card>
-          <Card className="border-sidebar-border bg-sidebar">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
-                <MessageCircle size="18" />
-                {t("instance.dashboard.messages")}
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="text-3xl font-bold">{numberFormatter.format(stats.messages)}</CardContent>
-          </Card>
-        </section>
+        {/* WAGO-PATCH: backend Go no expone counters por instancia.
+            La sección solo renderea si _count viene definido (Evolution
+            Node sí lo expone; si en el futuro wago lo agrega, los cards
+            reaparecen sin cambios). */}
+        {instance?._count && (
+          <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            <Card className="border-sidebar-border bg-sidebar">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
+                  <CircleUser size="18" />
+                  {t("instance.dashboard.contacts")}
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="text-3xl font-bold">{numberFormatter.format(stats.contacts)}</CardContent>
+            </Card>
+            <Card className="border-sidebar-border bg-sidebar">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
+                  <UsersRound size="18" />
+                  {t("instance.dashboard.chats")}
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="text-3xl font-bold">{numberFormatter.format(stats.chats)}</CardContent>
+            </Card>
+            <Card className="border-sidebar-border bg-sidebar">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
+                  <MessageCircle size="18" />
+                  {t("instance.dashboard.messages")}
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="text-3xl font-bold">{numberFormatter.format(stats.messages)}</CardContent>
+            </Card>
+          </section>
+        )}
       </div>
     </div>
   );

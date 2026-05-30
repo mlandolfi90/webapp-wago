@@ -76,14 +76,20 @@ export function InstanceCard({ instance, isDeleting, onDelete }: InstanceCardPro
               <span className="ml-2 truncate font-mono">{instance.ownerJid.split("@")[0]}</span>
             </div>
           )}
-          <div className="flex items-center justify-between">
-            <span>{t("instance.dashboard.contacts")}</span>
-            <span className="font-mono">{numberFormatter.format(instance._count?.Contact || 0)}</span>
-          </div>
-          <div className="flex items-center justify-between">
-            <span>{t("instance.dashboard.messages")}</span>
-            <span className="font-mono">{numberFormatter.format(instance._count?.Message || 0)}</span>
-          </div>
+          {/* WAGO-PATCH: backend Go no expone counters; renderea solo
+              si el backend (Evolution Node) los provee. */}
+          {instance._count && (
+            <>
+              <div className="flex items-center justify-between">
+                <span>{t("instance.dashboard.contacts")}</span>
+                <span className="font-mono">{numberFormatter.format(instance._count.Contact || 0)}</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span>{t("instance.dashboard.messages")}</span>
+                <span className="font-mono">{numberFormatter.format(instance._count.Message || 0)}</span>
+              </div>
+            </>
+          )}
         </div>
 
         <div className="flex border-t border-sidebar-border opacity-0 transition-opacity duration-200 group-hover:opacity-100">

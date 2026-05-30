@@ -1,4 +1,5 @@
-import { createBrowserRouter } from "react-router-dom";
+import { lazy, Suspense } from "react";
+import { createBrowserRouter, Navigate } from "react-router-dom";
 
 import ProtectedRoute from "@/components/providers/protected-route";
 import PublicRoute from "@/components/providers/public-route";
@@ -6,35 +7,71 @@ import PublicRoute from "@/components/providers/public-route";
 import { InstanceLayout } from "@/layout/InstanceLayout";
 import { MainLayout } from "@/layout/MainLayout";
 
-import Dashboard from "@/pages/Dashboard";
-import { Connection } from "@/pages/instance/Connection";
-import { DangerZone } from "@/pages/instance/DangerZone";
-import { DashboardInstance } from "@/pages/instance/DashboardInstance";
-import { Proxy } from "@/pages/instance/Proxy";
-import { Rabbitmq } from "@/pages/instance/Rabbitmq";
-import { SendTest } from "@/pages/instance/SendTest";
-import { Settings } from "@/pages/instance/Settings";
-import { Webhook } from "@/pages/instance/Webhook";
-import { Websocket } from "@/pages/instance/Websocket";
-import Login from "@/pages/Login";
-import Home from "@/pages/Home";
+// Lazy-loaded pages: cada página sale a su propio chunk. Restaura el
+// code splitting del commit 675df48 que el rebase a evolution-manager-v2
+// había tirado. El main chunk queda solo con shell + router + libs core.
+const Dashboard = lazy(() => import("@/pages/Dashboard"));
+const Connection = lazy(() =>
+  import("@/pages/instance/Connection").then((m) => ({ default: m.Connection })),
+);
+const DangerZone = lazy(() =>
+  import("@/pages/instance/DangerZone").then((m) => ({ default: m.DangerZone })),
+);
+const DashboardInstance = lazy(() =>
+  import("@/pages/instance/DashboardInstance").then((m) => ({ default: m.DashboardInstance })),
+);
+const Proxy = lazy(() =>
+  import("@/pages/instance/Proxy").then((m) => ({ default: m.Proxy })),
+);
+const SendTest = lazy(() =>
+  import("@/pages/instance/SendTest").then((m) => ({ default: m.SendTest })),
+);
+const Settings = lazy(() =>
+  import("@/pages/instance/Settings").then((m) => ({ default: m.Settings })),
+);
+const Webhook = lazy(() =>
+  import("@/pages/instance/Webhook").then((m) => ({ default: m.Webhook })),
+);
+const Login = lazy(() => import("@/pages/Login"));
 
-// Rutas adaptadas a webapp-wago: removidas las integraciones específicas
-// de Evolution (Chat/Chatwoot/Dify/Evoai/EvolutionBot/Flowise/N8n/Openai/
-// Typebot/Sqs/EmbedChat/LicenseCallback) que no aplican al backend Go de
-// wago. Se mantiene el shell del original (`MainLayout`/`InstanceLayout`)
-// y las páginas que sí corresponden (webhook/settings/proxy/rabbitmq/
-// websocket/dashboard-instance).
+function PageFallback() {
+  return (
+    <div
+      role="status"
+      aria-live="polite"
+      className="flex min-h-[40vh] items-center justify-center"
+    >
+      <div className="border-primary h-8 w-8 animate-spin rounded-full border-4 border-t-transparent" />
+    </div>
+  );
+}
+
+function lazyPage(Component: React.ComponentType) {
+  return (
+    <Suspense fallback={<PageFallback />}>
+      <Component />
+    </Suspense>
+  );
+}
+
+// Rutas adaptadas a webapp-wago:
+// - Removidas integraciones específicas de Evolution (Chat/Chatwoot/Dify/
+//   Evoai/EvolutionBot/Flowise/N8n/Openai/Typebot/Sqs/EmbedChat/
+//   LicenseCallback) que no aplican al backend Go de wago.
+// - Removidas también Websocket y Rabbitmq (endpoints /websocket/find
+//   y /rabbitmq/find no existen en wago — eran páginas colgadas).
+// - Connection/SendTest/DangerZone son features wago propias (no
+//   estaban en el original).
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <Home />,
+    element: <Navigate to="/manager/" replace />,
   },
   {
     path: "/manager/login",
     element: (
       <PublicRoute>
-        <Login />
+        {lazyPage(Login)}
       </PublicRoute>
     ),
   },
@@ -42,9 +79,7 @@ const router = createBrowserRouter([
     path: "/manager/",
     element: (
       <ProtectedRoute>
-        <MainLayout>
-          <Dashboard />
-        </MainLayout>
+        <MainLayout>{lazyPage(Dashboard)}</MainLayout>
       </ProtectedRoute>
     ),
   },
@@ -52,9 +87,7 @@ const router = createBrowserRouter([
     path: "/manager/instance/:instanceId/dashboard",
     element: (
       <ProtectedRoute>
-        <InstanceLayout>
-          <DashboardInstance />
-        </InstanceLayout>
+        <InstanceLayout>{lazyPage(DashboardInstance)}</InstanceLayout>
       </ProtectedRoute>
     ),
   },
@@ -62,9 +95,7 @@ const router = createBrowserRouter([
     path: "/manager/instance/:instanceId/settings",
     element: (
       <ProtectedRoute feature="settings">
-        <InstanceLayout>
-          <Settings />
-        </InstanceLayout>
+        <InstanceLayout>{lazyPage(Settings)}</InstanceLayout>
       </ProtectedRoute>
     ),
   },
@@ -72,29 +103,7 @@ const router = createBrowserRouter([
     path: "/manager/instance/:instanceId/webhook",
     element: (
       <ProtectedRoute feature="webhook">
-        <InstanceLayout>
-          <Webhook />
-        </InstanceLayout>
-      </ProtectedRoute>
-    ),
-  },
-  {
-    path: "/manager/instance/:instanceId/websocket",
-    element: (
-      <ProtectedRoute feature="websocket">
-        <InstanceLayout>
-          <Websocket />
-        </InstanceLayout>
-      </ProtectedRoute>
-    ),
-  },
-  {
-    path: "/manager/instance/:instanceId/rabbitmq",
-    element: (
-      <ProtectedRoute feature="rabbitmq">
-        <InstanceLayout>
-          <Rabbitmq />
-        </InstanceLayout>
+        <InstanceLayout>{lazyPage(Webhook)}</InstanceLayout>
       </ProtectedRoute>
     ),
   },
@@ -102,9 +111,7 @@ const router = createBrowserRouter([
     path: "/manager/instance/:instanceId/proxy",
     element: (
       <ProtectedRoute feature="proxy">
-        <InstanceLayout>
-          <Proxy />
-        </InstanceLayout>
+        <InstanceLayout>{lazyPage(Proxy)}</InstanceLayout>
       </ProtectedRoute>
     ),
   },
@@ -113,9 +120,7 @@ const router = createBrowserRouter([
     path: "/manager/instance/:instanceId/connection",
     element: (
       <ProtectedRoute>
-        <InstanceLayout>
-          <Connection />
-        </InstanceLayout>
+        <InstanceLayout>{lazyPage(Connection)}</InstanceLayout>
       </ProtectedRoute>
     ),
   },
@@ -123,9 +128,7 @@ const router = createBrowserRouter([
     path: "/manager/instance/:instanceId/send-test",
     element: (
       <ProtectedRoute>
-        <InstanceLayout>
-          <SendTest />
-        </InstanceLayout>
+        <InstanceLayout>{lazyPage(SendTest)}</InstanceLayout>
       </ProtectedRoute>
     ),
   },
@@ -133,9 +136,7 @@ const router = createBrowserRouter([
     path: "/manager/instance/:instanceId/danger",
     element: (
       <ProtectedRoute>
-        <InstanceLayout>
-          <DangerZone />
-        </InstanceLayout>
+        <InstanceLayout>{lazyPage(DangerZone)}</InstanceLayout>
       </ProtectedRoute>
     ),
   },
