@@ -1741,3 +1741,121 @@ Escalación: none. La deuda derivada del clientPointer map sin
   lock queda documentada en docs/notes/0011-security-debt-deferred.md
   punto 3.
 Cierre: 2026-05-30 commit 433e9d6
+
+## RUN tech-debt-payoff-01
+STATUS: CLOSED
+Branch: claude/build-webui-AcJFe (post-merge a main: 13ff9ba)
+Tier: completo (6 sub-fases en commits separados — cierre de deuda
+  identificada por audit de 3 agentes)
+Alcance: cerrar los 20 issues del audit `repaso minucioso con varios
+  agentes` (backend impact + frontend coherence + build/docs).
+  Resultado: 17 de 20 cerrados, 3 documentados como deuda aceptada
+  (race clientPointer requiere corrida dedicada, SendAlbum partial-
+  failure requiere decisión de producto, tests menores).
+Sub-fases (commits en orden):
+  - 242aaab: dead code masivo (~1100 LOC) + 3 BLOCKERS visibles
+    (TestInteractive endpoints, _count hardcoded mentiroso, Websocket/
+    Rabbitmq pages 404) + restaurar code splitting con lazy routes.
+  - 6b8d20a: ADR 0019 marcada REEMPLAZADA por 0053, ADR 0058
+    retroactiva por bump Vite 5→7/Tailwind 3→4, 10 SHAs del LEDGER
+    rellenados, Makefile manager-build preserva README, .dockerignore
+    excluye node_modules + dist locales.
+  - 9c70672: ADR 0059 SSRF guards en /send/album::downloadMedia +
+    /webhook URL validation (bloquea loopback/private/IMDS), override
+    ALLOW_LOCAL_WEBHOOKS=true para dev. 3 tests SSRF.
+  - 7d31d50: branding wago en sidebar/footer/package.json (sin CDN
+    evolution-api.com), Pair 409 vs 500 para precondicional, Settings
+    expone IgnoreFromMe + quita syncFullHistory no-op, cap items
+    album (MaxAlbumItems=20).
+  - [fase 4B sin SHA propio]: INSTANCE_TOKEN centralizado en
+    InstanceProvider (eliminado de 4 useEffect duplicados),
+    GoQrCodeModal+GoSendMessageModal removidos (duplicates de
+    /connection y /send-test).
+  - d9df213: tests Go nuevos — webhook_handler (4 tests List/Create/
+    Update/Delete con fakeWebhookService) + instance/service
+    status_pair_test.go (regresión semántica del classifier 409 vs
+    500).
+  - 4528e84: notes/0011 actualizada con modelo de despliegue
+    declarado (single-tenant hoy, multi-tenant futuro) + checklist
+    pre-pivote multi-tenant (7 items con esfuerzo estimado).
+Verificador: PASS — go build + go vet + go test ./... + go test
+  -race ./pkg/webhook/... + npm run build TS strict + manager-src
+  build sin warnings.
+Integración: PASS — los 7 commits coexisten en main, sin
+  regresiones detectadas.
+Iteraciones: 1/3 (refactor mecánico; sin desviaciones).
+Escalación: none.
+Cierre: 2026-05-30 commit 4528e84 (push final del checklist
+  multi-tenant tras el merge a main 13ff9ba).
+
+## RUN mcp-chat-presence-tool-01
+STATUS: CLOSED
+Branch: main
+Tier: completo (nueva tool MCP + 2 tests + nota técnica)
+Alcance: agregar `wago_chat_presence` al catálogo del MCP para que el
+  LLM pueda mostrar "está escribiendo…" antes de enviar la respuesta.
+  Patrón humano (mark_read → composing → send) documentado en la
+  descripción del tool para que el LLM lo siga consistente.
+Carriles: único — internal/mcp.
+Ingeniero: internal/mcp/tools_message.go (+tool wago_chat_presence
+  con descripción que incluye el patrón humano y casos edge),
+  internal/mcp/tools_test.go (TestHumanBehaviorToolsPresent +
+  TestChatPresenceToolSendsPOST), docs/notes/0015-mcp-chat-presence-
+  flow.md (nota técnica con comportamiento real del indicador y
+  patrón defensivo).
+Verificador: PASS — go build, go test ./internal/mcp/... PASS con
+  los 2 tests nuevos + TestBuildToolsCatalog sigue verde con 73
+  tools (era 72).
+Integración: PASS.
+Iteraciones: 1/3.
+Escalación: none.
+Cierre: 2026-05-30 commit 5f8fe7e.
+
+## RUN mcp-human-reply-tool-01
+STATUS: CLOSED
+Branch: main
+Tier: completo (nueva tool wrapper + 2 tests + nota técnica)
+Alcance: agregar `wago_human_reply` — wrapper que orquesta
+  server-side la secuencia mark_read + composing + sleep + send con
+  timing humano forzado e jitter aleatorio. Mitiga riesgo de ban de
+  WhatsApp por patrones temporales no-humanos. Decisión del user:
+  opción C combinada — coexiste con las tools granulares.
+Carriles: único — internal/mcp.
+Planificador: secuencia ejecutada en handler — sleep(2-5s) →
+  POST /message/markread → POST /message/presence composing →
+  sleep(max(2, len/30) ±20% cap 12s) → POST /send/text. Bloquea
+  el handler intencional (5-17s típico). Rand local con mutex
+  shared. ctx.Done() cancela inmediato.
+Ingeniero: internal/mcp/tools_human.go (NUEVO ~110 LOC),
+  internal/mcp/tools.go (append humanTools), internal/mcp/
+  tools_test.go (+2 tests), docs/notes/0016-mcp-human-reply-anti-
+  ban.md.
+Verificador: PASS — TestHumanReplyToolPresent + TestHumanReplyOrch
+  estratesThreeCalls (el 2do tarda 4s confirmando que el sleep
+  humano funciona). TestBuildToolsCatalog sigue verde con 74 tools.
+Integración: PASS — backend Go sin cambios (los 3 endpoints ya
+  existían).
+Iteraciones: 1/3.
+Escalación: none.
+Cierre: 2026-05-30 commit 1e3e0cc.
+
+## RUN docs-upstream-playbook-and-deploy-prompt-01
+STATUS: CLOSED
+Branch: main
+Tier: fast-path (solo docs)
+Alcance: documentar (a) playbook operativo para sincronizar wago
+  con sus 4 upstreams (tulir/whatsmeow, EvolutionAPI/whatsmeow,
+  EvolutionAPI/evolution-go, EvolutionAPI/evolution-manager-v2)
+  con comandos copy-pasteables + inventario WAGO-PATCH activo +
+  lista INCLUIR/EXCLUIR para el panel; (b) prompt copy-paste para
+  dar al inicio de una sesión LLM que vaya a desplegar/operar
+  wago, con todas las features, endpoints, tools MCP críticas y
+  reglas de operación.
+Ingeniero: docs/notes/0014-upstream-sync-playbook.md (commit
+  11ca492), docs/notes/0017-deploy-prompt.md (commit 5e5aac4).
+Verificador: PASS — markdown bien formado, comandos verificados
+  contra estado real del repo (tools count, paths, env vars).
+Integración: N/A (solo docs).
+Iteraciones: 1/3.
+Escalación: none.
+Cierre: 2026-05-30 commit 5e5aac4.
