@@ -10,6 +10,7 @@ func BuildTools(c *wago.Client) []Tool {
 	all = append(all, instanceTools(c)...)
 	all = append(all, sendTools(c)...)
 	all = append(all, messageTools(c)...)
+	all = append(all, humanTools(c)...)
 	all = append(all, userTools(c)...)
 	all = append(all, groupTools(c)...)
 	all = append(all, webhookTools(c)...)

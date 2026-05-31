@@ -310,3 +310,58 @@ func TestChatPresenceToolSendsPOST(t *testing.T) {
 		t.Errorf("body: got %+v", gotBody)
 	}
 }
+
+func TestHumanReplyToolPresent(t *testing.T) {
+	c := wago.New("http://x", "K")
+	tools := BuildTools(c)
+	for _, tl := range tools {
+		if tl.Name == "wago_human_reply" {
+			return
+		}
+	}
+	t.Fatal("wago_human_reply no encontrada en catálogo")
+}
+
+func TestHumanReplyOrchestratesThreeCalls(t *testing.T) {
+	var calls []string
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		calls = append(calls, r.Method+" "+r.URL.EscapedPath())
+		w.Header().Set("Content-Type", "application/json")
+		_, _ = w.Write([]byte(`{"message":"ok"}`))
+	}))
+	defer srv.Close()
+	c := wago.New(srv.URL, "ADMIN")
+	c.UseInstance("T")
+	tools := BuildTools(c)
+	var human Tool
+	for _, tl := range tools {
+		if tl.Name == "wago_human_reply" {
+			human = tl
+			break
+		}
+	}
+	if human.Name == "" {
+		t.Fatal("missing tool")
+	}
+	// Texto corto para que el sleep cap sea ~2s (test no demora mucho)
+	ctx, cancel := context.WithTimeout(context.Background(), 30*1000*1000*1000) // 30s safety
+	defer cancel()
+	_, err := human.Handler(ctx, map[string]any{
+		"number":     "549@s.whatsapp.net",
+		"message_id": "3EBxxx",
+		"text":       "ok",
+	})
+	if err != nil {
+		t.Fatalf("handler error: %v", err)
+	}
+	// Verificar las 3 llamadas en orden esperado
+	want := []string{"POST /message/markread", "POST /message/presence", "POST /send/text"}
+	if len(calls) != 3 {
+		t.Fatalf("esperaba 3 llamadas, hubo %d: %v", len(calls), calls)
+	}
+	for i, w := range want {
+		if calls[i] != w {
+			t.Errorf("call[%d] = %q, want %q", i, calls[i], w)
+		}
+	}
+}
