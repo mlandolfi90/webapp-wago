@@ -247,3 +247,66 @@ func TestInstanceScopeRequiresActiveToken(t *testing.T) {
 		t.Fatal("tool instance-scoped sin instancia activa debía fallar")
 	}
 }
+
+// Verifica que las tools de "comportamiento humano" estén presentes
+// (markRead + chatPresence). El LLM las usa en el patrón documentado
+// en docs/notes/0015-mcp-chat-presence-flow.md.
+func TestHumanBehaviorToolsPresent(t *testing.T) {
+	c := wago.New("http://x", "K")
+	tools := BuildTools(c)
+	required := []string{"wago_mark_read", "wago_chat_presence"}
+	got := map[string]bool{}
+	for _, tl := range tools {
+		got[tl.Name] = true
+	}
+	for _, name := range required {
+		if !got[name] {
+			t.Errorf("falta tool %q en el catálogo (necesaria para flow humano)", name)
+		}
+	}
+}
+
+func TestChatPresenceToolSendsPOST(t *testing.T) {
+	var gotPath, gotMethod string
+	var gotBody map[string]any
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		gotPath = r.URL.EscapedPath()
+		gotMethod = r.Method
+		_ = json.NewDecoder(r.Body).Decode(&gotBody)
+		w.Header().Set("Content-Type", "application/json")
+		_, _ = w.Write([]byte(`{"message":"ok"}`))
+	}))
+	defer srv.Close()
+
+	c := wago.New(srv.URL, "ADMIN")
+	tools := BuildTools(c)
+	var chatPresence Tool
+	for _, tl := range tools {
+		if tl.Name == "wago_chat_presence" {
+			chatPresence = tl
+			break
+		}
+	}
+	if chatPresence.Name == "" {
+		t.Fatal("wago_chat_presence no encontrada en catálogo")
+	}
+	// Setea instance activa para la scoped call
+	c.UseInstance("T")
+	_, err := chatPresence.Handler(context.Background(), map[string]any{
+		"number":  "5491100000000",
+		"state":   "composing",
+		"isAudio": false,
+	})
+	if err != nil {
+		t.Fatalf("handler error: %v", err)
+	}
+	if gotMethod != "POST" {
+		t.Errorf("método: got %q want POST", gotMethod)
+	}
+	if gotPath != "/message/presence" {
+		t.Errorf("path: got %q want /message/presence", gotPath)
+	}
+	if gotBody["state"] != "composing" || gotBody["number"] != "5491100000000" {
+		t.Errorf("body: got %+v", gotBody)
+	}
+}

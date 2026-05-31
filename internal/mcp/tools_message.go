@@ -48,6 +48,35 @@ func messageTools(c *wago.Client) []Tool {
 			},
 		},
 		{
+			Name: "wago_chat_presence",
+			Description: "Muestra 'está escribiendo…' (o 'grabando audio…') al receptor. " +
+				"PATRÓN HUMANO recomendado para responder mensajes: " +
+				"(1) wago_mark_read PRIMERO (✓✓ azul, lo que haría un humano al abrir el chat); " +
+				"(2) wago_chat_presence con state='composing' (muestra que estás pensando/escribiendo); " +
+				"(3) procesar/pensar la respuesta; " +
+				"(4) wago_send_text (al enviar, WhatsApp limpia el 'escribiendo' automático). " +
+				"Si tu proceso tarda >15s, RE-LLAMÁ wago_chat_presence composing cada 10s — el indicador " +
+				"se cae por timeout. Si el send_text falla, llamá explícito state='paused' para limpiar. " +
+				"Args: number (JID del chat), state (composing|paused|available), isAudio (true muestra " +
+				"'grabando audio…' en vez de 'escribiendo…').",
+			InputSchema: schema(`{"type":"object","properties":{"number":{"type":"string"},"state":{"type":"string","enum":["composing","paused","available"]},"isAudio":{"type":"boolean"}},"required":["number","state"]}`),
+			Handler: func(ctx context.Context, a map[string]any) (string, error) {
+				number, err := reqStr(a, "number")
+				if err != nil {
+					return "", err
+				}
+				state, err := reqStr(a, "state")
+				if err != nil {
+					return "", err
+				}
+				body := map[string]any{"number": number, "state": state}
+				if v, ok := a["isAudio"].(bool); ok {
+					body["isAudio"] = v
+				}
+				return okJSON(c.Do(ctx, wago.Instance, "POST", "/message/presence", body))
+			},
+		},
+		{
 			Name:        "wago_message_delete",
 			Description: "Borra un mensaje para todos. Args: chat, messageId.",
 			InputSchema: schema(`{"type":"object","properties":{"chat":{"type":"string"},"messageId":{"type":"string"}},"required":["chat","messageId"]}`),
