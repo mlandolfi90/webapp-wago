@@ -47,6 +47,15 @@ decisión, alternativas y consecuencias.
 | 0047 | Webhook allowlist: display `Nombre <JID>` (RFC 5322) |
 | 0048 | Webhook filter por NOMBRE de grupo/contacto (opción C) |
 | 0049 | Webhook: skip de mensajes propios (`IgnoreFromMe`) para romper loops |
+| 0053 | **Revertir** ADR 0019: panel vuelve a React+Vite+Radix (rebase a Evolution Manager v2) |
+| 0054 | Stack del panel React + estructura de carpetas |
+| 0055 | Webhook transports per-webhook (RabbitMQ / WebSocket / NATS toggles individuales) |
+| 0057 | Fix Status + Pair: `Connected=IsLoggedIn`, Pair nil-safe + propaga errores |
+| 0058 | Bump deps frontend (Vite 5→7, Tailwind 3→4, TS 5.6→5.2) — retroactivo |
+| 0059 | SSRF guards en `/send/album::downloadMedia` + `/webhook` URL validation |
+
+> ADRs **0050-0052 reemplazadas** por 0053 (rebase a Evolution Manager v2).
+> ADR **0019 marcada REEMPLAZADA**.
 
 Para el detalle de cada corrida y los pendientes abiertos: ver
 [RUN-LEDGER.md](./RUN-LEDGER.md).

@@ -1,7 +1,26 @@
 # WebAPP-Wago — Notas para Claude
 
-API REST de WhatsApp en Go (deriva de Evolution Go). UI ya compilada en
-`manager/dist`, servida en `/manager`.
+API REST de WhatsApp en Go (deriva de Evolution Go bajo Apache 2.0) +
+panel React (`manager-src/` → buildea a `manager/dist`, servido en
+`/manager`) + MCP server (74 tools, binario `wago-mcp` en la misma
+imagen Docker).
+
+## Punto de entrada para una sesión nueva
+
+Antes de tocar código o desplegar, leer:
+
+1. **`docs/notes/0017-deploy-prompt.md`** — prompt copy-paste con features,
+   endpoints, tools MCP críticas y reglas de operación. Es el resumen
+   actual del estado de wago.
+2. **`docs/notes/README.md`** — índice de notas técnicas (stack guide,
+   security debt, upstream sync, MCP human reply, etc.).
+3. **`docs/adr/README.md`** — índice de ADRs (decisiones arquitectónicas).
+4. **`docs/adr/RUN-LEDGER.md`** — memoria de las corridas del Crisol.
+
+Stack actual: React 18 + Vite 7 + Tailwind 4 + Radix + `@evoapi/design-system`
+en `manager-src/` (ADR 0053 revierte el vanilla de 0019; ADR 0054 define
+estructura). Single-tenant (multi-tenant bloqueado por checklist en
+`docs/notes/0011-security-debt-deferred.md`).
 
 ## OBLIGATORIO: El Crisol (loop de calidad)
 
