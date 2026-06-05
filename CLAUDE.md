@@ -73,17 +73,21 @@ docker compose up -d --build
 
 Panel: http://localhost:4000/manager — cambiar `GLOBAL_API_KEY` antes de exponer.
 
-## Cierre de turno con pregunta
+## Estilo de respuesta y cierre de turno
 
-**Regla**: si al terminar una respuesta queda **algo pendiente por hacer**
-(siguiente paso obvio, decisión a tomar, scope a confirmar, branch a mergear,
-deploy a disparar, ADR a redactar, etc.), el último renglón debe ser una
-**pregunta concreta** que le ofrezca al usuario el siguiente movimiento.
+**Regla 1 — Formato pro/contra, 20 palabras por explicación**
 
-- Si no queda nada pendiente (tarea cerrada, sin follow-up natural), no se
-  fuerza una pregunta artificial.
-- La pregunta debe ser **accionable y específica** (no "¿algo más?").
+- Cada punto importante se presenta como **Pro** y **Contra** separados.
+- **Máximo 20 palabras** por explicación (default permanente).
+- Si el usuario pide detalle: hasta **100 palabras** por el detalle solicitado
+  (o la cantidad de palabras que indique el usuario).
+- En la **siguiente respuesta**, volver al default de 20 palabras.
+
+**Regla 2 — Cierre con propuesta del siguiente paso lógico**
+
+- Si queda algo pendiente, terminar con una **propuesta concreta del siguiente
+  paso lógico** según el contexto del repo y las ejecuciones previas.
+- Formato: pregunta accionable (no genérica "¿algo más?").
   Buenas: "¿Procedo con ADR 0002 de deploy?", "¿Dockerizo el build ahora?".
   Malas: "¿Te ayudo en algo más?", "¿Querés que siga?".
-- Aplica también a respuestas de investigación: si la investigación abre un
-  próximo paso, ofrecelo como pregunta al final.
+- Si la tarea está cerrada y no hay follow-up natural, no se fuerza pregunta.
