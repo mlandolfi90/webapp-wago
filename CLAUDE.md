@@ -72,3 +72,18 @@ docker compose up -d --build
 ```
 
 Panel: http://localhost:4000/manager — cambiar `GLOBAL_API_KEY` antes de exponer.
+
+## Cierre de turno con pregunta
+
+**Regla**: si al terminar una respuesta queda **algo pendiente por hacer**
+(siguiente paso obvio, decisión a tomar, scope a confirmar, branch a mergear,
+deploy a disparar, ADR a redactar, etc.), el último renglón debe ser una
+**pregunta concreta** que le ofrezca al usuario el siguiente movimiento.
+
+- Si no queda nada pendiente (tarea cerrada, sin follow-up natural), no se
+  fuerza una pregunta artificial.
+- La pregunta debe ser **accionable y específica** (no "¿algo más?").
+  Buenas: "¿Procedo con ADR 0002 de deploy?", "¿Dockerizo el build ahora?".
+  Malas: "¿Te ayudo en algo más?", "¿Querés que siga?".
+- Aplica también a respuestas de investigación: si la investigación abre un
+  próximo paso, ofrecelo como pregunta al final.
