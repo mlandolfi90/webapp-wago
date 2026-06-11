@@ -25,7 +25,7 @@ estructura). Single-tenant (multi-tenant bloqueado por checklist en
 ## OBLIGATORIO: El Crisol (loop de calidad)
 
 Para **todo cambio de código antes de commitear** se aplica el playbook
-`el-crisol` (`.claude/skills/el-crisol/SKILL.md`): Planificador → Arquitecto
+**crisol** (skill `lucky-skills`): Planificador → Arquitecto
 → Ingeniero → Verificador, veredicto binario, commit solo tras PASS. Tier
 Completo si toca contratos/arquitectura/>1 archivo/patrón; fast-path si es
 trivial. Planificar, leer, charlar o editar docs/.md **no** dispara el Crisol.
@@ -91,3 +91,11 @@ Panel: http://localhost:4000/manager — cambiar `GLOBAL_API_KEY` antes de expon
   Buenas: "¿Procedo con ADR 0002 de deploy?", "¿Dockerizo el build ahora?".
   Malas: "¿Te ayudo en algo más?", "¿Querés que siga?".
 - Si la tarea está cerrada y no hay follow-up natural, no se fuerza pregunta.
+
+<!-- crisol-adoptado -->
+## Ley del repo — Crisol (lucky-skills)
+
+Este repo está bajo el Crisol. Al iniciar sesión: correr la skill **brujula**
+(ancla al estado real). Antes de tocar código: **/crisol** — la skill verifica
+su propia vigencia al invocarse (Ley viva). Fuente de verdad del proceso:
+`github.com/mlandolfi90/lucky-skills` (último tag).

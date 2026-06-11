@@ -1859,3 +1859,5 @@ Integración: N/A (solo docs).
 Iteraciones: 1/3.
 Escalación: none.
 Cierre: 2026-05-30 commit 5e5aac4.
+
+--- ⚖️ 2026-06-11: este repo pasa a la ley lucky-skills v1.5.1 (kit de adopción). Entradas anteriores = era pre-ley (formato legacy, sigue válido). ---

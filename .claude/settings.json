@@ -1,0 +1,13 @@
+{
+  "extraKnownMarketplaces": {
+    "lucky-skills": {
+      "source": {
+        "source": "github",
+        "repo": "mlandolfi90/lucky-skills"
+      }
+    }
+  },
+  "enabledPlugins": {
+    "lucky@lucky-skills": true
+  }
+}
